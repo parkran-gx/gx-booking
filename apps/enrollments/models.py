@@ -15,15 +15,10 @@ class EnrollmentPeriod(models.Model):
     month = models.IntegerField('월')
     status = models.CharField('상태', max_length=15, choices=STATUS_CHOICES, default='preparing')
     capacity = models.PositiveIntegerField('정원')
-
-    # 우선접수 기간
     priority_start = models.DateTimeField('우선접수 시작', null=True, blank=True)
     priority_end = models.DateTimeField('우선접수 종료', null=True, blank=True)
-
-    # 일반접수 기간
     general_start = models.DateTimeField('일반접수 시작', null=True, blank=True)
     general_end = models.DateTimeField('일반접수 종료', null=True, blank=True)
-
     notice = models.TextField('공지 메시지', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -40,18 +35,27 @@ class EnrollmentPeriod(models.Model):
     def update_status(self):
         from django.utils import timezone
         now = timezone.now()
-        if self.priority_start and now < self.priority_start:
-            self.status = 'preparing'
-        elif self.priority_start and self.priority_end and self.priority_start <= now <= self.priority_end:
-            self.status = 'priority'
-        elif self.general_start and self.general_end and self.general_start <= now <= self.general_end:
-            self.status = 'general'
-        elif self.general_end and now > self.general_end:
-            if self.enrollments.filter(status='confirmed').count() >= self.capacity:
-                self.status = 'closed'
+        # None 체크 후 비교
+        if self.priority_start and self.priority_end and self.general_start and self.general_end:
+            if now < self.priority_start:
+                new_status = 'preparing'
+            elif self.priority_start <= now <= self.priority_end:
+                new_status = 'priority'
+            elif self.general_start <= now <= self.general_end:
+                new_status = 'general'
+            elif now > self.general_end:
+                if self.enrollments.filter(status='confirmed').count() >= self.capacity:
+                    new_status = 'closed'
+                else:
+                    new_status = 'done'
             else:
-                self.status = 'done'
-        self.save(update_fields=['status'])
+                new_status = self.status
+        else:
+            new_status = self.status
+
+        if new_status != self.status:
+            self.status = new_status
+            self.save(update_fields=['status'])
 
     @property
     def confirmed_count(self):
@@ -69,17 +73,20 @@ class EnrollmentPeriod(models.Model):
     def is_open_for_priority(self):
         from django.utils import timezone
         now = timezone.now()
-        return self.priority_start and self.priority_end and self.priority_start <= now <= self.priority_end
+        if self.priority_start and self.priority_end:
+            return self.priority_start <= now <= self.priority_end
+        return False
 
     @property
     def is_open_for_general(self):
         from django.utils import timezone
         now = timezone.now()
-        return self.general_start and self.general_end and self.general_start <= now <= self.general_end
+        if self.general_start and self.general_end:
+            return self.general_start <= now <= self.general_end
+        return False
 
 
 class PriorityMember(models.Model):
-    """강사가 수업별로 직접 지정하는 우선접수 대상자"""
     period = models.ForeignKey(EnrollmentPeriod, on_delete=models.CASCADE, related_name='priority_members')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='priority_memberships')
     note = models.CharField('메모', max_length=100, blank=True)

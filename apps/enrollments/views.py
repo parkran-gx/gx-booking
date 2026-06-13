@@ -3,10 +3,23 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from .models import EnrollmentPeriod, Enrollment, PriorityMember
 from apps.classes.models import GxClass
 from apps.accounts.models import UserProfile
 import csv
+
+def parse_dt(val):
+    """datetime-local 입력값을 aware datetime으로 변환"""
+    if not val:
+        return None
+    from django.utils import timezone
+    import datetime
+    try:
+        dt = datetime.datetime.strptime(val, '%Y-%m-%dT%H:%M')
+        return timezone.make_aware(dt)
+    except Exception:
+        return None
 
 @login_required
 def enrollment_list(request):
@@ -15,7 +28,6 @@ def enrollment_list(request):
         classes = GxClass.objects.filter(complex=profile.complex, is_active=True)
     else:
         classes = GxClass.objects.none()
-    now = timezone.now()
     periods = EnrollmentPeriod.objects.filter(
         gx_class__in=classes
     ).select_related('gx_class').order_by('-year', '-month')
@@ -79,9 +91,9 @@ def enroll(request, period_id):
             profile.is_approved = True
             profile.save()
         if status == 'confirmed':
-            messages.success(request, f'{period.year}년 {period.month}월 {period.gx_class.name} 등록이 완료되었습니다!')
+            messages.success(request, f'{period.year}년 {period.month}월 {period.gx_class.name} 등록 완료!')
         else:
-            messages.warning(request, f'정원이 찼습니다. 대기 등록되었습니다.')
+            messages.warning(request, '정원이 찼습니다. 대기 등록되었습니다.')
         return redirect('enrollments:list')
     return render(request, 'enrollments/enroll.html', {'period': period, 'profile': profile})
 
@@ -127,20 +139,16 @@ def admin_period_create(request):
         year = request.POST.get('year')
         month = request.POST.get('month')
         capacity = request.POST.get('capacity')
-        priority_start = request.POST.get('priority_start') or None
-        priority_end = request.POST.get('priority_end') or None
-        general_start = request.POST.get('general_start') or None
-        general_end = request.POST.get('general_end') or None
         notice = request.POST.get('notice', '').strip()
         try:
             period = EnrollmentPeriod.objects.create(
                 gx_class_id=gx_class_id,
                 year=int(year), month=int(month),
                 capacity=int(capacity),
-                priority_start=priority_start,
-                priority_end=priority_end,
-                general_start=general_start,
-                general_end=general_end,
+                priority_start=parse_dt(request.POST.get('priority_start')),
+                priority_end=parse_dt(request.POST.get('priority_end')),
+                general_start=parse_dt(request.POST.get('general_start')),
+                general_end=parse_dt(request.POST.get('general_end')),
                 notice=notice,
             )
             period.update_status()
@@ -168,10 +176,10 @@ def admin_period_edit(request, period_id):
         classes = GxClass.objects.filter(complex=profile.complex, is_active=True)
     if request.method == 'POST':
         period.capacity = int(request.POST.get('capacity', period.capacity))
-        period.priority_start = request.POST.get('priority_start') or None
-        period.priority_end = request.POST.get('priority_end') or None
-        period.general_start = request.POST.get('general_start') or None
-        period.general_end = request.POST.get('general_end') or None
+        period.priority_start = parse_dt(request.POST.get('priority_start'))
+        period.priority_end = parse_dt(request.POST.get('priority_end'))
+        period.general_start = parse_dt(request.POST.get('general_start'))
+        period.general_end = parse_dt(request.POST.get('general_end'))
         period.notice = request.POST.get('notice', '').strip()
         period.status = request.POST.get('status', period.status)
         period.save()
@@ -220,7 +228,7 @@ def admin_priority_members(request, period_id):
                     period=period, user=user,
                     defaults={'note': request.POST.get('note', '')}
                 )
-                messages.success(request, f'{user.get_full_name()} 우선접수 대상자로 추가했습니다.')
+                messages.success(request, f'{user.get_full_name()} 우선접수 대상자 추가')
             except User.DoesNotExist:
                 messages.error(request, '회원을 찾을 수 없습니다.')
         elif action == 'remove':
@@ -232,7 +240,7 @@ def admin_priority_members(request, period_id):
         complex=period.gx_class.complex
     ).select_related('user')
     priority_members = period.priority_members.select_related('user')
-    priority_ids = priority_members.values_list('user_id', flat=True)
+    priority_ids = list(priority_members.values_list('user_id', flat=True))
     return render(request, 'enrollments/admin_priority.html', {
         'period': period,
         'members': members,
@@ -249,7 +257,7 @@ def admin_promote(request, period_id, enrollment_id):
     enrollment.status = 'confirmed'
     enrollment.waiting_order = None
     enrollment.save()
-    messages.success(request, f'{enrollment.name}님을 등록 확정했습니다.')
+    messages.success(request, f'{enrollment.name}님 등록 확정')
     return redirect('enrollments:admin_detail', period_id=period_id)
 
 @login_required
@@ -270,7 +278,7 @@ def admin_cancel(request, period_id, enrollment_id):
         first_waiting.save()
         messages.success(request, f'{enrollment.name}님 취소 → {first_waiting.name}님 자동 확정')
     else:
-        messages.success(request, f'{enrollment.name}님 등록이 취소되었습니다.')
+        messages.success(request, f'{enrollment.name}님 등록 취소')
     return redirect('enrollments:admin_detail', period_id=period_id)
 
 @login_required
@@ -296,7 +304,7 @@ def admin_manual_enroll(request, period_id):
                 building=building, unit=unit,
                 status=status, enroll_type='manual',
             )
-            messages.success(request, f'{name}님을 수동 등록했습니다.')
+            messages.success(request, f'{name}님 수동 등록 완료')
         return redirect('enrollments:admin_detail', period_id=period_id)
     return redirect('enrollments:admin_detail', period_id=period_id)
 
@@ -327,5 +335,5 @@ def admin_sync_status(request, period_id):
         return redirect('/')
     period = get_object_or_404(EnrollmentPeriod, id=period_id)
     period.update_status()
-    messages.success(request, f'상태가 업데이트되었습니다: {period.get_status_display()}')
+    messages.success(request, f'상태 업데이트: {period.get_status_display()}')
     return redirect('enrollments:admin_detail', period_id=period_id)
