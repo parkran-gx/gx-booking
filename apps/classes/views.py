@@ -151,7 +151,6 @@ def schedule_create(request):
         if class_input_type == 'manual':
             class_name_manual = request.POST.get('class_name_manual', '').strip()
             if class_name_manual and profile.complex:
-                from apps.classes.models import GxClass
                 new_class = GxClass.objects.create(
                     name=class_name_manual,
                     complex=profile.complex,
