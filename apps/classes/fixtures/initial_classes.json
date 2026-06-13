@@ -1,0 +1,5 @@
+[
+  {"model": "classes.gxclass", "pk": 1, "fields": {"name": "요가 (임산부가능)", "description": "임산부도 수강 가능한 요가 수업입니다.", "days": "THU", "start_time": "10:30:00", "end_time": "11:20:00", "capacity": 10, "monthly_fee": 30000, "is_active": true, "created_at": "2025-01-01T00:00:00Z"}},
+  {"model": "classes.gxclass", "pk": 2, "fields": {"name": "필라테스", "description": "체형 교정 필라테스", "days": "MON_THU", "start_time": "17:00:00", "end_time": "17:50:00", "capacity": 10, "monthly_fee": 52000, "is_active": true, "created_at": "2025-01-01T00:00:00Z"}},
+  {"model": "classes.gxclass", "pk": 3, "fields": {"name": "필라테스", "description": "체형 교정 필라테스", "days": "MON_THU", "start_time": "18:00:00", "end_time": "18:50:00", "capacity": 10, "monthly_fee": 52000, "is_active": true, "created_at": "2025-01-01T00:00:00Z"}}
+]

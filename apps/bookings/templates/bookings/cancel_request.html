@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}변경요청{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <a href="/bookings/check/" class="btn btn-link ps-0 mb-3"><i class="fa-solid fa-arrow-left me-1"></i>돌아가기</a>
+    <div class="card gx-card">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-4"><i class="fa-solid fa-pen me-2"></i>변경 요청</h4>
+        <div class="alert alert-light border mb-4">
+          <p class="mb-1"><strong>수업</strong> : {{ booking.gx_class.name }}</p>
+          <p class="mb-0"><strong>예약자</strong> : {{ booking.name }} ({{ booking.building }}동 {{ booking.unit }}호)</p>
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-4">
+            <label class="form-label fw-semibold">변경 요청 내용</label>
+            <textarea name="message" class="form-control" rows="4" placeholder="예) 취소 요청합니다 / 날짜 변경 원합니다" required></textarea>
+          </div>
+          <div class="alert alert-info small">
+            <i class="fa-solid fa-circle-info me-1"></i>
+            요청 접수 후 강사님이 확인하여 처리해드립니다. 빈자리는 대기자에게 자동 안내됩니다.
+          </div>
+          <button type="submit" class="btn btn-gx w-100">
+            <i class="fa-solid fa-paper-plane me-1"></i>요청 보내기
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

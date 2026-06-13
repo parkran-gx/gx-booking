@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}수업예약{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="text-center mb-4">
+      <h1 class="fw-bold gx-title"><i class="fa-solid fa-dumbbell me-2"></i>GX 수업 예약</h1>
+      <p class="text-muted">이름 · 연락처 · 동호수 입력 후 예약하세요</p>
+    </div>
+    {% for item in class_data %}
+    <div class="card gx-card mb-3">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h5 class="fw-bold mb-1">{{ item.obj.name }}</h5>
+            <p class="text-muted mb-0 small">
+              <i class="fa-regular fa-clock me-1"></i>
+              {{ item.obj.get_days_display }} &nbsp; {{ item.obj.start_time|time:"H:i" }} ~ {{ item.obj.end_time|time:"H:i" }}
+            </p>
+          </div>
+          <div class="text-end">
+            <div class="gx-fee">월 {{ item.obj.monthly_fee|floatformat:0 }}원</div>
+            <small class="text-muted">한 회 {{ item.obj.per_session_fee|floatformat:0 }}원 · 주 {{ item.obj.sessions_per_week }}회</small>
+          </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            {% if item.is_full %}
+              <span class="badge bg-danger">마감</span>
+              {% if item.waiting_count > 0 %}<span class="text-muted ms-2 small">대기 {{ item.waiting_count }}명</span>{% endif %}
+            {% else %}
+              <span class="badge bg-success">예약가능</span>
+              <span class="text-muted ms-2 small">잔여 {{ item.available }} / 정원 {{ item.obj.capacity }}</span>
+            {% endif %}
+          </div>
+          <a href="/bookings/book/{{ item.obj.id }}/" class="btn btn-gx px-4">
+            {% if item.is_full %}<i class="fa-solid fa-clock me-1"></i>대기신청
+            {% else %}<i class="fa-solid fa-pen me-1"></i>예약하기{% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info text-center">현재 운영 중인 수업이 없습니다.</div>
+    {% endfor %}
+    <div class="card bg-light border-0 mt-3">
+      <div class="card-body text-center py-2 small text-muted">
+        <i class="fa-solid fa-circle-info me-1"></i>마감 수업은 대기 신청 후 취소 발생 시 순서대로 안내드립니다.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

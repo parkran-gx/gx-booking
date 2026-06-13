@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}개인레슨 요청{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card gx-card">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-1"><i class="fa-solid fa-user me-2"></i>개인 레슨 요청</h4>
+        <p class="text-muted small mb-4">요청 내용 확인 후 강사님이 직접 연락드립니다.</p>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">이름 <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control" placeholder="홍길동" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">연락처 <span class="text-danger">*</span></label>
+            <input type="tel" name="phone" class="form-control" placeholder="010-0000-0000" required>
+          </div>
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold">동 <span class="text-danger">*</span></label>
+              <input type="text" name="building" class="form-control" placeholder="101" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">호수 <span class="text-danger">*</span></label>
+              <input type="text" name="unit" class="form-control" placeholder="1001" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">희망 시간대</label>
+            <input type="text" name="preferred_time" class="form-control" placeholder="예) 평일 오전 10시 이후">
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">요청 내용</label>
+            <textarea name="message" class="form-control" rows="4" placeholder="원하시는 레슨 내용을 자유롭게 적어주세요." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-gx w-100">
+            <i class="fa-solid fa-paper-plane me-1"></i>요청 보내기
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
