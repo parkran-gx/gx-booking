@@ -44,15 +44,31 @@
 
         <div class="mb-3">
           <label class="form-label fw-semibold">수업 <span class="text-danger">*</span></label>
-          <select name="gx_class" class="form-select" required>
-            <option value="">수업 선택</option>
-            {% for c in classes %}
-            <option value="{{ c.id }}"
-              {% if template_obj.gx_class_id == c.id %}selected{% endif %}>
-              {{ c.name }} ({{ c.get_days_display }} {{ c.start_time|time:"H:i" }})
-            </option>
-            {% endfor %}
-          </select>
+          <div class="d-flex gap-2 mb-2">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="class_input_type" value="select" id="type_select" checked onchange="toggleClassInput(this.value)">
+              <label class="form-check-label" for="type_select">목록에서 선택</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="class_input_type" value="manual" id="type_manual" onchange="toggleClassInput(this.value)">
+              <label class="form-check-label" for="type_manual">직접 입력</label>
+            </div>
+          </div>
+          <div id="class_select_wrap">
+            <select name="gx_class" class="form-select" id="gx_class_select">
+              <option value="">수업 선택</option>
+              {% for c in classes %}
+              <option value="{{ c.id }}"
+                {% if template_obj.gx_class_id == c.id %}selected{% endif %}>
+                {{ c.name }} ({{ c.get_days_display }} {{ c.start_time|time:"H:i" }})
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div id="class_manual_wrap" style="display:none">
+            <input type="text" name="class_name_manual" class="form-control" placeholder="수업명 직접 입력 (예: 특별 요가 클래스)">
+            <small class="text-muted">직접 입력 시 새 수업이 등록됩니다.</small>
+          </div>
         </div>
 
         <div class="row mb-3">
@@ -170,6 +186,20 @@
   </div>
 </div>
 <script>
+function toggleClassInput(type) {
+  var sel = document.getElementById('class_select_wrap');
+  var man = document.getElementById('class_manual_wrap');
+  var gxSel = document.getElementById('gx_class_select');
+  if (type === 'manual') {
+    sel.style.display = 'none';
+    man.style.display = 'block';
+    gxSel.removeAttribute('required');
+  } else {
+    sel.style.display = 'block';
+    man.style.display = 'none';
+    gxSel.setAttribute('required', 'required');
+  }
+}
 function showDays(type) {
   var d1 = document.getElementById('days_section');
   var d2 = document.getElementById('day2_wrap');

@@ -145,7 +145,24 @@ def schedule_create(request):
         except ClassSchedule.DoesNotExist:
             pass
     if request.method == 'POST':
+        class_input_type = request.POST.get('class_input_type', 'select')
         gx_class_id = request.POST.get('gx_class')
+        # 직접 입력 시 새 수업 생성
+        if class_input_type == 'manual':
+            class_name_manual = request.POST.get('class_name_manual', '').strip()
+            if class_name_manual and profile.complex:
+                from apps.classes.models import GxClass
+                new_class = GxClass.objects.create(
+                    name=class_name_manual,
+                    complex=profile.complex,
+                    days='MON',
+                    start_time='09:00',
+                    end_time='10:00',
+                    capacity=10,
+                    monthly_fee=0,
+                )
+                gx_class_id = new_class.id
+                messages.info(request, f'새 수업 [{class_name_manual}]이 생성되었습니다. 수업 설정에서 세부 정보를 수정해주세요.')
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         repeat_type = request.POST.get('repeat_type', 'weekly_1')
