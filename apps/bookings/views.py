@@ -7,7 +7,12 @@ from .models import Booking, Attendance, PrivateLessonRequest
 import csv
 
 def book_class(request, class_id):
+    # 비로그인 → 회원가입 페이지로
+    if not request.user.is_authenticated:
+        messages.warning(request, '예약하려면 먼저 회원가입 후 로그인해주세요.')
+        return redirect(f'/accounts/register/?next=/bookings/book/{class_id}/')
     gx_class = get_object_or_404(GxClass, id=class_id, is_active=True)
+    profile = request.user.profile
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         phone = request.POST.get('phone', '').strip()
@@ -15,28 +20,28 @@ def book_class(request, class_id):
         unit = request.POST.get('unit', '').strip()
         if not all([name, phone, building, unit]):
             messages.error(request, '모든 항목을 입력해주세요.')
-            return render(request, 'bookings/book.html', {'gx_class': gx_class})
+            return render(request, 'bookings/book.html', {'gx_class': gx_class, 'profile': profile})
         exists = Booking.objects.filter(
             gx_class=gx_class, phone=phone
         ).exclude(status='cancelled').first()
         if exists:
             messages.error(request, '이미 해당 수업에 예약되어 있습니다.')
-            return render(request, 'bookings/book.html', {'gx_class': gx_class})
+            return render(request, 'bookings/book.html', {'gx_class': gx_class, 'profile': profile})
         available = gx_class.available_spots()
         status = 'confirmed' if available > 0 else 'waiting'
         booking = Booking.objects.create(
             gx_class=gx_class, name=name, phone=phone,
             building=building, unit=unit, status=status
         )
-        # 로그인 회원이면 프로필 연동
-        if request.user.is_authenticated:
-            profile = request.user.profile
-            if profile.role == 'unregistered':
-                profile.role = 'registered'
-                profile.is_approved = True
-                profile.save()
+        if profile.role == 'unregistered':
+            profile.role = 'registered'
+            profile.is_approved = True
+            profile.save()
         return redirect('bookings:confirm', booking_id=booking.id)
-    return render(request, 'bookings/book.html', {'gx_class': gx_class})
+    return render(request, 'bookings/book.html', {
+        'gx_class': gx_class,
+        'profile': profile,
+    })
 
 def booking_confirm(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
@@ -44,7 +49,6 @@ def booking_confirm(request, booking_id):
 
 @login_required
 def booking_check(request):
-    """로그인한 본인 예약만 조회"""
     profile = request.user.profile
     bookings = []
     if profile.phone:
