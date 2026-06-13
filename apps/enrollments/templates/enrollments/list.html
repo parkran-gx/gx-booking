@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}수강 등록{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <h3 class="fw-bold mb-4"><i class="fa-solid fa-calendar-check me-2"></i>수강 등록</h3>
+    {% for item in period_data %}
+    <div class="card gx-card mb-3">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h5 class="fw-bold mb-1">
+              {{ item.period.gx_class.name }}
+              <span class="text-muted fw-normal fs-6">{{ item.period.year }}년 {{ item.period.month }}월</span>
+            </h5>
+            <p class="text-muted small mb-0">
+              <i class="fa-regular fa-clock me-1"></i>
+              {{ item.period.gx_class.get_days_display }} {{ item.period.gx_class.start_time|time:"H:i" }}~{{ item.period.gx_class.end_time|time:"H:i" }}
+            </p>
+          </div>
+          <div class="text-end">
+            <span class="badge
+              {% if item.period.status == 'priority' %}bg-warning
+              {% elif item.period.status == 'general' %}bg-success
+              {% elif item.period.status == 'closed' %}bg-danger
+              {% elif item.period.status == 'preparing' %}bg-secondary
+              {% else %}bg-light text-dark{% endif %} mb-1">
+              {{ item.period.get_status_display }}
+            </span>
+            {% if item.is_priority_member and item.period.status == 'priority' %}
+            <div><span class="badge bg-warning"><i class="fa-solid fa-star me-1"></i>우선접수 대상</span></div>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if item.period.notice %}
+        <div class="alert alert-light border small py-2 mb-3">
+          <i class="fa-solid fa-bullhorn me-1 text-primary"></i>{{ item.period.notice }}
+        </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="small text-muted">
+            <span class="me-3">
+              <i class="fa-solid fa-users me-1"></i>
+              등록 {{ item.period.confirmed_count }} / 정원 {{ item.period.capacity }}
+            </span>
+            {% if item.period.waiting_count > 0 %}
+            <span><i class="fa-solid fa-clock me-1"></i>대기 {{ item.period.waiting_count }}명</span>
+            {% endif %}
+          </div>
+          <div>
+            {% if item.my_enrollment %}
+              {% if item.my_enrollment.status == 'confirmed' %}
+              <span class="badge bg-success me-2">등록완료</span>
+              {% elif item.my_enrollment.status == 'waiting' %}
+              <span class="badge bg-warning me-2">대기 {{ item.my_enrollment.waiting_order }}번</span>
+              {% endif %}
+              <a href="/enrollments/cancel/{{ item.my_enrollment.id }}/"
+                 class="btn btn-sm btn-outline-secondary">변경요청</a>
+            {% elif item.can_enroll %}
+              <a href="/enrollments/register/{{ item.period.id }}/"
+                 class="btn btn-gx btn-sm px-4">
+                {% if item.period.available_spots > 0 %}
+                  <i class="fa-solid fa-pen me-1"></i>등록하기
+                {% else %}
+                  <i class="fa-solid fa-clock me-1"></i>대기신청
+                {% endif %}
+              </a>
+            {% elif item.period.status == 'priority' and not item.is_priority_member %}
+              <span class="text-muted small">우선접수 기간 (기존회원 전용)</span>
+            {% elif item.period.status == 'preparing' %}
+              <span class="text-muted small">
+                {% if item.period.priority_start %}
+                  {{ item.period.priority_start|date:"m/d" }} 우선접수 시작
+                {% endif %}
+              </span>
+            {% elif item.period.status == 'closed' %}
+              <span class="text-muted small">마감</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if item.period.priority_start %}
+        <div class="mt-3 pt-3 border-top small text-muted">
+          <i class="fa-solid fa-calendar me-1"></i>
+          우선접수: {{ item.period.priority_start|date:"m/d H:i" }} ~ {{ item.period.priority_end|date:"m/d H:i" }}
+          &nbsp;·&nbsp;
+          일반접수: {{ item.period.general_start|date:"m/d H:i" }} ~ {{ item.period.general_end|date:"m/d H:i" }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info text-center">
+      <i class="fa-solid fa-circle-info me-1"></i>현재 등록 가능한 수업이 없습니다.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

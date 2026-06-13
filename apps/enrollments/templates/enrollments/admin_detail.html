@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %}{{ period.gx_class.name }} {{ period.year }}년 {{ period.month }}월 관리{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <a href="/enrollments/admin/" class="btn btn-link ps-0 mb-1">
+      <i class="fa-solid fa-arrow-left me-1"></i>목록으로
+    </a>
+    <h3 class="fw-bold mb-0">
+      {{ period.gx_class.name }}
+      <span class="text-muted fw-normal fs-5">{{ period.year }}년 {{ period.month }}월</span>
+    </h3>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/enrollments/admin/{{ period.id }}/sync-status/" class="btn btn-sm btn-outline-secondary">
+      <i class="fa-solid fa-rotate me-1"></i>상태갱신
+    </a>
+    <a href="/enrollments/admin/{{ period.id }}/edit/" class="btn btn-sm btn-outline-secondary">
+      <i class="fa-solid fa-pen me-1"></i>기간수정
+    </a>
+    <a href="/enrollments/admin/{{ period.id }}/priority/" class="btn btn-sm btn-warning">
+      <i class="fa-solid fa-star me-1"></i>우선접수 관리
+    </a>
+    <a href="/enrollments/admin/{{ period.id }}/export/" class="btn btn-sm btn-outline-success">
+      <i class="fa-solid fa-download me-1"></i>CSV
+    </a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-3">
+    <div class="card text-center p-3 bg-success bg-opacity-10">
+      <div class="fw-bold fs-4 text-success">{{ period.confirmed_count }}</div>
+      <small class="text-muted">등록확정</small>
+    </div>
+  </div>
+  <div class="col-3">
+    <div class="card text-center p-3 bg-warning bg-opacity-10">
+      <div class="fw-bold fs-4 text-warning">{{ period.waiting_count }}</div>
+      <small class="text-muted">대기</small>
+    </div>
+  </div>
+  <div class="col-3">
+    <div class="card text-center p-3 bg-primary bg-opacity-10">
+      <div class="fw-bold fs-4 text-primary">{{ period.available_spots }}</div>
+      <small class="text-muted">잔여석</small>
+    </div>
+  </div>
+  <div class="col-3">
+    <div class="card text-center p-3">
+      <span class="badge fs-6
+        {% if period.status == 'priority' %}bg-warning
+        {% elif period.status == 'general' %}bg-success
+        {% elif period.status == 'closed' %}bg-danger
+        {% elif period.status == 'preparing' %}bg-secondary
+        {% else %}bg-light text-dark{% endif %}">
+        {{ period.get_status_display }}
+      </span>
+      <small class="text-muted mt-1">현재상태</small>
+    </div>
+  </div>
+</div>
+
+{% if cancel_reqs %}
+<div class="alert alert-warning mb-4">
+  <i class="fa-solid fa-triangle-exclamation me-1"></i>
+  <strong>변경 요청 {{ cancel_reqs.count }}건</strong>이 있습니다.
+  {% for r in cancel_reqs %}
+  <div class="mt-2 small border-top pt-2">
+    {{ r.name }} ({{ r.building }}동 {{ r.unit }}호) : {{ r.cancel_message }}
+    <form method="post" action="/enrollments/admin/{{ period.id }}/cancel/{{ r.id }}/" class="d-inline ms-2">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-xs btn-danger btn-sm"
+        onclick="return confirm('취소 처리하시겠습니까?')">취소처리</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="card gx-card mb-4">
+  <div class="card-header bg-transparent fw-bold py-3">
+    <i class="fa-solid fa-user-plus me-1"></i>직접 등록 추가
+  </div>
+  <div class="card-body p-3">
+    <form method="post" action="/enrollments/admin/{{ period.id }}/manual/" class="row g-2 align-items-end">
+      {% csrf_token %}
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold">이름</label>
+        <input type="text" name="name" class="form-control form-control-sm" placeholder="홍길동" required>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">연락처</label>
+        <input type="tel" name="phone" class="form-control form-control-sm" placeholder="010-0000-0000" required>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold">동</label>
+        <input type="text" name="building" class="form-control form-control-sm" placeholder="101" required>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold">호수</label>
+        <input type="text" name="unit" class="form-control form-control-sm" placeholder="1001" required>
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-gx btn-sm w-100">
+          <i class="fa-solid fa-plus me-1"></i>직접 등록
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<h5 class="fw-bold mb-3">등록 확정 ({{ period.confirmed_count }}명)</h5>
+<div class="card gx-card mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>번호</th><th>이름</th><th>동/호수</th><th>연락처</th><th>접수유형</th><th>등록일</th><th>처리</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in confirmed %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td class="fw-semibold">{{ e.name }}</td>
+          <td>{{ e.building }}동 {{ e.unit }}호</td>
+          <td>{{ e.phone }}</td>
+          <td>
+            <span class="badge {% if e.enroll_type == 'priority' %}bg-warning{% elif e.enroll_type == 'manual' %}bg-info{% else %}bg-success{% endif %}">
+              {{ e.get_enroll_type_display }}
+            </span>
+          </td>
+          <td class="small text-muted">{{ e.created_at|date:"m/d H:i" }}</td>
+          <td>
+            <form method="post" action="/enrollments/admin/{{ period.id }}/cancel/{{ e.id }}/" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-xs btn-outline-danger btn-sm"
+                onclick="return confirm('취소하시겠습니까?')">취소</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-3">등록자 없음</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if waiting %}
+<h5 class="fw-bold mb-3">대기 ({{ period.waiting_count }}명)</h5>
+<div class="card gx-card mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr><th>순번</th><th>이름</th><th>동/호수</th><th>연락처</th><th>신청일</th><th>처리</th></tr>
+      </thead>
+      <tbody>
+        {% for e in waiting %}
+        <tr>
+          <td><span class="badge bg-warning">{{ e.waiting_order }}</span></td>
+          <td class="fw-semibold">{{ e.name }}</td>
+          <td>{{ e.building }}동 {{ e.unit }}호</td>
+          <td>{{ e.phone }}</td>
+          <td class="small text-muted">{{ e.created_at|date:"m/d H:i" }}</td>
+          <td class="d-flex gap-1">
+            <form method="post" action="/enrollments/admin/{{ period.id }}/promote/{{ e.id }}/">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-success">확정</button>
+            </form>
+            <form method="post" action="/enrollments/admin/{{ period.id }}/cancel/{{ e.id }}/">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('취소하시겠습니까?')">취소</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

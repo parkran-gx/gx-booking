@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}우선접수 대상자 관리{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <a href="/enrollments/admin/{{ period.id }}/" class="btn btn-link ps-0 mb-3">
+      <i class="fa-solid fa-arrow-left me-1"></i>상세로
+    </a>
+    <h3 class="fw-bold mb-1">
+      <i class="fa-solid fa-star me-2 text-warning"></i>우선접수 대상자 관리
+    </h3>
+    <p class="text-muted mb-4">{{ period.gx_class.name }} {{ period.year }}년 {{ period.month }}월</p>
+
+    <div class="card gx-card mb-4">
+      <div class="card-header bg-transparent fw-bold py-3">현재 우선접수 대상자</div>
+      <div class="card-body p-0">
+        {% for pm in priority_members %}
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+          <div>
+            <span class="fw-semibold">{{ pm.user.first_name }}</span>
+            <span class="text-muted small ms-2">{{ pm.user.profile.building }}동 {{ pm.user.profile.unit }}호</span>
+            {% if pm.note %}<span class="badge bg-light text-dark ms-1">{{ pm.note }}</span>{% endif %}
+          </div>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="remove">
+            <input type="hidden" name="pm_id" value="{{ pm.id }}">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+              <i class="fa-solid fa-minus me-1"></i>제거
+            </button>
+          </form>
+        </div>
+        {% empty %}
+        <p class="text-center text-muted py-4">우선접수 대상자가 없습니다.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card gx-card">
+      <div class="card-header bg-transparent fw-bold py-3">단지 회원 목록 (클릭하여 추가)</div>
+      <div class="card-body p-0">
+        {% for m in members %}
+        {% if m.user.id not in priority_ids %}
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+          <div>
+            <span class="fw-semibold">{{ m.user.first_name }}</span>
+            <span class="text-muted small ms-2">{{ m.building }}동 {{ m.unit }}호</span>
+            <span class="badge bg-light text-dark ms-1">{{ m.get_role_display }}</span>
+          </div>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="user_id" value="{{ m.user.id }}">
+            <button type="submit" class="btn btn-sm btn-warning">
+              <i class="fa-solid fa-star me-1"></i>우선접수 추가
+            </button>
+          </form>
+        </div>
+        {% endif %}
+        {% empty %}
+        <p class="text-center text-muted py-4">단지 회원이 없습니다.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

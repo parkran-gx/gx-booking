@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}등록기간 {% if period %}수정{% else %}생성{% endif %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <a href="/enrollments/admin/" class="btn btn-link ps-0 mb-3">
+      <i class="fa-solid fa-arrow-left me-1"></i>목록으로
+    </a>
+    <div class="card gx-card p-4">
+      <h4 class="fw-bold mb-4">
+        <i class="fa-solid fa-calendar-plus me-2"></i>
+        등록기간 {% if period %}수정{% else %}생성{% endif %}
+      </h4>
+      <form method="post">
+        {% csrf_token %}
+        {% if not period %}
+        <div class="row mb-3">
+          <div class="col-8">
+            <label class="form-label fw-semibold">수업 선택 <span class="text-danger">*</span></label>
+            <select name="gx_class" class="form-select" required>
+              <option value="">수업을 선택하세요</option>
+              {% for c in classes %}
+              <option value="{{ c.id }}">{{ c.name }} ({{ c.get_days_display }} {{ c.start_time|time:"H:i" }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-2">
+            <label class="form-label fw-semibold">연도</label>
+            <input type="number" name="year" class="form-control" value="{{ today.year }}" required>
+          </div>
+          <div class="col-2">
+            <label class="form-label fw-semibold">월</label>
+            <input type="number" name="month" class="form-control" min="1" max="12" value="{{ today.month }}" required>
+          </div>
+        </div>
+        {% else %}
+        <div class="alert alert-light border mb-3">
+          <strong>{{ period.gx_class.name }}</strong> &nbsp; {{ period.year }}년 {{ period.month }}월
+        </div>
+        {% endif %}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">정원</label>
+          <input type="number" name="capacity" class="form-control" value="{{ period.capacity|default:10 }}" min="1" required>
+        </div>
+
+        <hr class="my-3">
+        <h6 class="fw-bold mb-3 text-warning">
+          <i class="fa-solid fa-star me-1"></i>우선접수 기간 (기존회원 전용)
+        </h6>
+        <div class="row mb-3">
+          <div class="col-6">
+            <label class="form-label fw-semibold">시작</label>
+            <input type="datetime-local" name="priority_start" class="form-control"
+              value="{% if period.priority_start %}{{ period.priority_start|date:'Y-m-d' }}T{{ period.priority_start|time:'H:i' }}{% endif %}">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold">종료</label>
+            <input type="datetime-local" name="priority_end" class="form-control"
+              value="{% if period.priority_end %}{{ period.priority_end|date:'Y-m-d' }}T{{ period.priority_end|time:'H:i' }}{% endif %}">
+          </div>
+        </div>
+
+        <hr class="my-3">
+        <h6 class="fw-bold mb-3 text-success">
+          <i class="fa-solid fa-users me-1"></i>일반접수 기간
+        </h6>
+        <div class="row mb-3">
+          <div class="col-6">
+            <label class="form-label fw-semibold">시작</label>
+            <input type="datetime-local" name="general_start" class="form-control"
+              value="{% if period.general_start %}{{ period.general_start|date:'Y-m-d' }}T{{ period.general_start|time:'H:i' }}{% endif %}">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold">종료</label>
+            <input type="datetime-local" name="general_end" class="form-control"
+              value="{% if period.general_end %}{{ period.general_end|date:'Y-m-d' }}T{{ period.general_end|time:'H:i' }}{% endif %}">
+          </div>
+        </div>
+
+        {% if period %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">상태 수동 변경</label>
+          <select name="status" class="form-select">
+            {% for val, label in period.STATUS_CHOICES %}
+            <option value="{{ val }}" {% if period.status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">공지 메시지</label>
+          <textarea name="notice" class="form-control" rows="3"
+            placeholder="입주민에게 보여줄 안내 메시지">{{ period.notice }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-gx w-100 btn-lg">저장</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

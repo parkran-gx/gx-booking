@@ -11,4 +11,5 @@ urlpatterns = [
     path('complexes/', include('apps.complexes.urls')),
     path('notices/', include('apps.notices.urls')),
     path('messages/', include('apps.messages_app.urls')),
+    path('enrollments/', include('apps.enrollments.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

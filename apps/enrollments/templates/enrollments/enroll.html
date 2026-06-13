@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}{{ period.gx_class.name }} {{ period.year }}년 {{ period.month }}월 등록{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <a href="/enrollments/" class="btn btn-link ps-0 mb-3">
+      <i class="fa-solid fa-arrow-left me-1"></i>목록으로
+    </a>
+    <div class="card gx-card">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-1">{{ period.gx_class.name }}</h4>
+        <p class="text-muted small mb-1">
+          {{ period.year }}년 {{ period.month }}월 &nbsp;·&nbsp;
+          {{ period.gx_class.get_days_display }} {{ period.gx_class.start_time|time:"H:i" }}
+        </p>
+        <p class="text-muted small mb-4">
+          잔여 {{ period.available_spots }} / 정원 {{ period.capacity }}석
+        </p>
+        {% if profile.phone %}
+        <div class="alert alert-light border small mb-3">
+          <i class="fa-solid fa-circle-check text-success me-1"></i>
+          회원 정보가 자동으로 입력되었습니다.
+        </div>
+        {% endif %}
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">이름 <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control form-control-lg"
+              value="{{ request.user.first_name }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">연락처 <span class="text-danger">*</span></label>
+            <input type="tel" name="phone" class="form-control form-control-lg"
+              value="{{ profile.phone }}" required>
+          </div>
+          <div class="row mb-4">
+            <div class="col-6">
+              <label class="form-label fw-semibold">동 <span class="text-danger">*</span></label>
+              <input type="text" name="building" class="form-control form-control-lg"
+                value="{{ profile.building }}" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">호수 <span class="text-danger">*</span></label>
+              <input type="text" name="unit" class="form-control form-control-lg"
+                value="{{ profile.unit }}" required>
+            </div>
+          </div>
+          {% if period.available_spots <= 0 %}
+          <div class="alert alert-warning small mb-3">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+            정원이 찼습니다. 대기 신청하시면 취소 발생 시 순서대로 안내드립니다.
+          </div>
+          {% endif %}
+          <button type="submit" class="btn btn-gx w-100 btn-lg">
+            {% if period.available_spots > 0 %}
+              <i class="fa-solid fa-check me-1"></i>등록 완료
+            {% else %}
+              <i class="fa-solid fa-clock me-1"></i>대기 신청
+            {% endif %}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
