@@ -97,14 +97,15 @@ class ClassSchedule(models.Model):
 
     def generate_sessions(self):
         """일정 설정에 따라 ClassSession 자동 생성"""
-        from datetime import timedelta
+        from datetime import timedelta, date as date_type, datetime
         sessions_created = 0
+        # start_date/end_date가 문자열이면 date로 변환
+        start = self.start_date if hasattr(self.start_date, 'weekday') else datetime.strptime(str(self.start_date), '%Y-%m-%d').date()
+        end = self.end_date if hasattr(self.end_date, 'weekday') else datetime.strptime(str(self.end_date), '%Y-%m-%d').date()
         if self.repeat_type == 'custom':
             dates = [d.strip() for d in self.custom_dates.split(',') if d.strip()]
-            from datetime import date
             for d in dates:
                 try:
-                    from datetime import datetime
                     dt = datetime.strptime(d, '%Y-%m-%d').date()
                     _, created = ClassSession.objects.get_or_create(
                         gx_class=self.gx_class, date=dt,
