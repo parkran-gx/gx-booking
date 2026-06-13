@@ -6,6 +6,13 @@ class GxClass(models.Model):
         ('THU', '목요일'),
         ('MON_THU', '월/목'),
     ]
+    complex = models.ForeignKey(
+        'complexes.Complex',
+        on_delete=models.CASCADE,
+        related_name='classes',
+        verbose_name='단지',
+        null=True, blank=True
+    )
     name = models.CharField('수업명', max_length=50)
     description = models.TextField('설명', blank=True)
     days = models.CharField('수업 요일', max_length=10, choices=DAYS_CHOICES)
@@ -22,7 +29,8 @@ class GxClass(models.Model):
         ordering = ['start_time']
 
     def __str__(self):
-        return f"{self.name} ({self.get_days_display()} {self.start_time.strftime('%H:%M')})"
+        complex_name = self.complex.name if self.complex else '전체'
+        return f"[{complex_name}] {self.name} ({self.get_days_display()} {self.start_time.strftime('%H:%M')})"
 
     @property
     def per_session_fee(self):
