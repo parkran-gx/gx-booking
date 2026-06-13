@@ -7,19 +7,21 @@
       <i class="fa-solid fa-arrow-left me-1"></i>캘린더로
     </a>
     <h4 class="fw-bold mb-4">
-      <i class="fa-solid fa-calendar-plus me-2"></i>
-      {% if schedule %}일정 수정{% else %}수업 일정 등록{% endif %}
+      <i class="fa-solid fa-calendar-plus me-2"></i>수업 일정 등록
     </h4>
 
-    {% if not schedule and templates %}
+    {% if templates %}
     <div class="card gx-card mb-4">
       <div class="card-body p-3">
-        <h6 class="fw-bold mb-2"><i class="fa-solid fa-clone me-1 text-primary"></i>이전 일정 서식 불러오기</h6>
+        <h6 class="fw-bold mb-2">
+          <i class="fa-solid fa-clone me-1 text-primary"></i>이전 일정 서식 불러오기
+        </h6>
         <div class="row g-2">
           {% for t in templates %}
           <div class="col-12">
-            <a href="?template={{ t.id }}" class="d-block border rounded-3 p-2 text-decoration-none text-dark
-              {% if template_obj.id == t.id %}border-primary bg-primary bg-opacity-10{% endif %}">
+            <a href="?template={{ t.id }}"
+               class="d-block border rounded-3 p-2 text-decoration-none text-dark
+               {% if template_obj.id == t.id %}border-primary bg-primary bg-opacity-10{% endif %}">
               <div class="d-flex justify-content-between align-items-center">
                 <div>
                   <span class="fw-semibold">{{ t.gx_class.name }}</span>
@@ -39,65 +41,61 @@
     <div class="card gx-card p-4">
       <form method="post" id="scheduleForm">
         {% csrf_token %}
-        {% if schedule %}<input type="hidden" name="action" value="regenerate">{% endif %}
 
-        {% if not schedule %}
         <div class="mb-3">
           <label class="form-label fw-semibold">수업 <span class="text-danger">*</span></label>
           <select name="gx_class" class="form-select" required>
             <option value="">수업 선택</option>
             {% for c in classes %}
             <option value="{{ c.id }}"
-              {% if template_obj.gx_class_id == c.id or schedule.gx_class_id == c.id %}selected{% endif %}>
+              {% if template_obj.gx_class_id == c.id %}selected{% endif %}>
               {{ c.name }} ({{ c.get_days_display }} {{ c.start_time|time:"H:i" }})
             </option>
             {% endfor %}
           </select>
         </div>
-        {% else %}
-        <div class="alert alert-light border mb-3">
-          <strong>{{ schedule.gx_class.name }}</strong>
-        </div>
-        {% endif %}
 
         <div class="row mb-3">
           <div class="col-6">
             <label class="form-label fw-semibold">시작일 <span class="text-danger">*</span></label>
             <input type="date" name="start_date" class="form-control"
-              value="{{ template_obj.start_date|default:schedule.start_date|default:"" }}" required>
+              value="{% if template_obj %}{{ template_obj.start_date }}{% endif %}" required>
           </div>
           <div class="col-6">
             <label class="form-label fw-semibold">종료일 <span class="text-danger">*</span></label>
             <input type="date" name="end_date" class="form-control"
-              value="{{ template_obj.end_date|default:schedule.end_date|default:"" }}" required>
+              value="{% if template_obj %}{{ template_obj.end_date }}{% endif %}" required>
           </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label fw-semibold">반복 유형 <span class="text-danger">*</span></label>
           <div class="d-flex gap-3 flex-wrap">
-            {% for val, label in weekdays %}{% endfor %}
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="repeat_type" value="weekly_1" id="r1"
-                {% if template_obj.repeat_type == 'weekly_1' or schedule.repeat_type == 'weekly_1' or not template_obj and not schedule %}checked{% endif %}
+              <input class="form-check-input" type="radio" name="repeat_type"
+                value="weekly_1" id="r1"
+                {% if not template_obj or template_obj.repeat_type == 'weekly_1' %}checked{% endif %}
                 onchange="showDays(this.value)">
               <label class="form-check-label" for="r1">주 1회</label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="repeat_type" value="weekly_2" id="r2"
-                {% if template_obj.repeat_type == 'weekly_2' or schedule.repeat_type == 'weekly_2' %}checked{% endif %}
+              <input class="form-check-input" type="radio" name="repeat_type"
+                value="weekly_2" id="r2"
+                {% if template_obj.repeat_type == 'weekly_2' %}checked{% endif %}
                 onchange="showDays(this.value)">
               <label class="form-check-label" for="r2">주 2회</label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="repeat_type" value="weekly_3" id="r3"
-                {% if template_obj.repeat_type == 'weekly_3' or schedule.repeat_type == 'weekly_3' %}checked{% endif %}
+              <input class="form-check-input" type="radio" name="repeat_type"
+                value="weekly_3" id="r3"
+                {% if template_obj.repeat_type == 'weekly_3' %}checked{% endif %}
                 onchange="showDays(this.value)">
               <label class="form-check-label" for="r3">주 3회</label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="repeat_type" value="custom" id="rc"
-                {% if template_obj.repeat_type == 'custom' or schedule.repeat_type == 'custom' %}checked{% endif %}
+              <input class="form-check-input" type="radio" name="repeat_type"
+                value="custom" id="rc"
+                {% if template_obj.repeat_type == 'custom' %}checked{% endif %}
                 onchange="showDays(this.value)">
               <label class="form-check-label" for="rc">직접 입력</label>
             </div>
@@ -110,37 +108,37 @@
             <div class="col-12 col-md-4" id="day1_wrap">
               <select name="day_1" class="form-select">
                 <option value="">요일 선택</option>
-                <option value="0" {% if template_obj.day_1 == 0 or schedule.day_1 == 0 %}selected{% endif %}>월요일</option>
-                <option value="1" {% if template_obj.day_1 == 1 or schedule.day_1 == 1 %}selected{% endif %}>화요일</option>
-                <option value="2" {% if template_obj.day_1 == 2 or schedule.day_1 == 2 %}selected{% endif %}>수요일</option>
-                <option value="3" {% if template_obj.day_1 == 3 or schedule.day_1 == 3 %}selected{% endif %}>목요일</option>
-                <option value="4" {% if template_obj.day_1 == 4 or schedule.day_1 == 4 %}selected{% endif %}>금요일</option>
-                <option value="5" {% if template_obj.day_1 == 5 or schedule.day_1 == 5 %}selected{% endif %}>토요일</option>
-                <option value="6" {% if template_obj.day_1 == 6 or schedule.day_1 == 6 %}selected{% endif %}>일요일</option>
+                <option value="0" {% if template_obj.day_1 == 0 %}selected{% endif %}>월요일</option>
+                <option value="1" {% if template_obj.day_1 == 1 %}selected{% endif %}>화요일</option>
+                <option value="2" {% if template_obj.day_1 == 2 %}selected{% endif %}>수요일</option>
+                <option value="3" {% if template_obj.day_1 == 3 %}selected{% endif %}>목요일</option>
+                <option value="4" {% if template_obj.day_1 == 4 %}selected{% endif %}>금요일</option>
+                <option value="5" {% if template_obj.day_1 == 5 %}selected{% endif %}>토요일</option>
+                <option value="6" {% if template_obj.day_1 == 6 %}selected{% endif %}>일요일</option>
               </select>
             </div>
             <div class="col-12 col-md-4" id="day2_wrap" style="display:none">
               <select name="day_2" class="form-select">
                 <option value="">+ 요일 추가</option>
-                <option value="0" {% if template_obj.day_2 == 0 or schedule.day_2 == 0 %}selected{% endif %}>월요일</option>
-                <option value="1" {% if template_obj.day_2 == 1 or schedule.day_2 == 1 %}selected{% endif %}>화요일</option>
-                <option value="2" {% if template_obj.day_2 == 2 or schedule.day_2 == 2 %}selected{% endif %}>수요일</option>
-                <option value="3" {% if template_obj.day_2 == 3 or schedule.day_2 == 3 %}selected{% endif %}>목요일</option>
-                <option value="4" {% if template_obj.day_2 == 4 or schedule.day_2 == 4 %}selected{% endif %}>금요일</option>
-                <option value="5" {% if template_obj.day_2 == 5 or schedule.day_2 == 5 %}selected{% endif %}>토요일</option>
-                <option value="6" {% if template_obj.day_2 == 6 or schedule.day_2 == 6 %}selected{% endif %}>일요일</option>
+                <option value="0" {% if template_obj.day_2 == 0 %}selected{% endif %}>월요일</option>
+                <option value="1" {% if template_obj.day_2 == 1 %}selected{% endif %}>화요일</option>
+                <option value="2" {% if template_obj.day_2 == 2 %}selected{% endif %}>수요일</option>
+                <option value="3" {% if template_obj.day_2 == 3 %}selected{% endif %}>목요일</option>
+                <option value="4" {% if template_obj.day_2 == 4 %}selected{% endif %}>금요일</option>
+                <option value="5" {% if template_obj.day_2 == 5 %}selected{% endif %}>토요일</option>
+                <option value="6" {% if template_obj.day_2 == 6 %}selected{% endif %}>일요일</option>
               </select>
             </div>
             <div class="col-12 col-md-4" id="day3_wrap" style="display:none">
               <select name="day_3" class="form-select">
                 <option value="">+ 요일 추가</option>
-                <option value="0" {% if template_obj.day_3 == 0 or schedule.day_3 == 0 %}selected{% endif %}>월요일</option>
-                <option value="1" {% if template_obj.day_3 == 1 or schedule.day_3 == 1 %}selected{% endif %}>화요일</option>
-                <option value="2" {% if template_obj.day_3 == 2 or schedule.day_3 == 2 %}selected{% endif %}>수요일</option>
-                <option value="3" {% if template_obj.day_3 == 3 or schedule.day_3 == 3 %}selected{% endif %}>목요일</option>
-                <option value="4" {% if template_obj.day_3 == 4 or schedule.day_3 == 4 %}selected{% endif %}>금요일</option>
-                <option value="5" {% if template_obj.day_3 == 5 or schedule.day_3 == 5 %}selected{% endif %}>토요일</option>
-                <option value="6" {% if template_obj.day_3 == 6 or schedule.day_3 == 6 %}selected{% endif %}>일요일</option>
+                <option value="0" {% if template_obj.day_3 == 0 %}selected{% endif %}>월요일</option>
+                <option value="1" {% if template_obj.day_3 == 1 %}selected{% endif %}>화요일</option>
+                <option value="2" {% if template_obj.day_3 == 2 %}selected{% endif %}>수요일</option>
+                <option value="3" {% if template_obj.day_3 == 3 %}selected{% endif %}>목요일</option>
+                <option value="4" {% if template_obj.day_3 == 4 %}selected{% endif %}>금요일</option>
+                <option value="5" {% if template_obj.day_3 == 5 %}selected{% endif %}>토요일</option>
+                <option value="6" {% if template_obj.day_3 == 6 %}selected{% endif %}>일요일</option>
               </select>
             </div>
           </div>
@@ -149,42 +147,28 @@
         <div id="custom_section" class="mb-3" style="display:none">
           <label class="form-label fw-semibold">날짜 직접 입력</label>
           <textarea name="custom_dates" class="form-control" rows="3"
-            placeholder="쉼표로 구분: 2025-06-03,2025-06-10,2025-06-17">{{ template_obj.custom_dates|default:schedule.custom_dates }}</textarea>
+            placeholder="쉼표로 구분: 2026-06-03,2026-06-10,2026-06-17">{% if template_obj %}{{ template_obj.custom_dates }}{% endif %}</textarea>
           <small class="text-muted">YYYY-MM-DD 형식으로 쉼표 구분</small>
         </div>
 
         <div class="mb-4">
           <label class="form-label fw-semibold">수강생 공지 메시지</label>
           <textarea name="notice" class="form-control" rows="2"
-            placeholder="예) 본 수업은 6월 한 달간 진행되며 등록된 횟수는 기간 내 모두 수강하여야 합니다.">{{ template_obj.notice|default:schedule.notice }}</textarea>
+            placeholder="예) 본 수업은 기간 내 등록된 횟수를 모두 수강하여야 합니다.">{% if template_obj %}{{ template_obj.notice }}{% endif %}</textarea>
         </div>
 
         <div class="alert alert-light border small mb-4">
           <i class="fa-solid fa-circle-info text-primary me-1"></i>
           저장하면 시작일~종료일 사이 해당 요일에 수업 회차가 자동 생성됩니다.
-          {% if schedule %}기존 세션은 삭제 후 재생성됩니다.{% endif %}
         </div>
 
         <button type="submit" class="btn btn-gx w-100 btn-lg">
-          <i class="fa-solid fa-check me-1"></i>
-          {% if schedule %}일정 재생성{% else %}일정 등록 & 자동 생성{% endif %}
+          <i class="fa-solid fa-check me-1"></i>일정 등록 &amp; 자동 생성
         </button>
-
-        {% if schedule %}
-        <form method="post" class="mt-2">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="delete">
-          <button type="submit" class="btn btn-outline-danger w-100"
-            onclick="return confirm('이 일정과 연관된 모든 수업 회차를 삭제하시겠습니까?')">
-            <i class="fa-solid fa-trash me-1"></i>일정 삭제
-          </button>
-        </form>
-        {% endif %}
       </form>
     </div>
   </div>
 </div>
-
 <script>
 function showDays(type) {
   var d1 = document.getElementById('days_section');
@@ -201,7 +185,6 @@ function showDays(type) {
     d3.style.display = (type === 'weekly_3') ? 'block' : 'none';
   }
 }
-// 초기 상태
 var checked = document.querySelector('input[name="repeat_type"]:checked');
 if (checked) showDays(checked.value);
 </script>
