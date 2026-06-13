@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}수업 회차 수정{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <a href="/calendar/" class="btn btn-link ps-0 mb-3">
+      <i class="fa-solid fa-arrow-left me-1"></i>캘린더로
+    </a>
+    <div class="card gx-card p-4">
+      <h4 class="fw-bold mb-1">
+        <i class="fa-solid fa-pen me-2"></i>수업 회차 수정
+      </h4>
+      <p class="text-muted small mb-4">
+        {{ session.gx_class.name }} · 원래 날짜: {{ session.date }}
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">수업 날짜</label>
+          <input type="date" name="date" class="form-control" value="{{ session.date }}">
+        </div>
+        <div class="mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_cancelled" id="is_cancelled"
+              {% if session.is_cancelled %}checked{% endif %}>
+            <label class="form-check-label fw-semibold text-danger" for="is_cancelled">
+              <i class="fa-solid fa-ban me-1"></i>휴강
+            </label>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">대강 강사</label>
+          <input type="text" name="substitute_instructor" class="form-control"
+            value="{{ session.substitute_instructor }}" placeholder="대강 강사 이름 (없으면 비워두세요)">
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">메모</label>
+          <textarea name="note" class="form-control" rows="2">{{ session.note }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-gx w-100 mb-2">
+          <i class="fa-solid fa-save me-1"></i>저장
+        </button>
+      </form>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
+        <button type="submit" class="btn btn-outline-danger w-100"
+          onclick="return confirm('이 수업 회차를 삭제하시겠습니까?')">
+          <i class="fa-solid fa-trash me-1"></i>삭제
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

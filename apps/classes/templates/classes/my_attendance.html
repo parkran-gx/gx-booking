@@ -6,14 +6,27 @@
     <h3 class="fw-bold mb-4">
       <i class="fa-solid fa-clipboard-list me-2"></i>내 출석 현황
     </h3>
+
+    {% if active_schedules %}
+    <div class="mb-4">
+      {% for s in active_schedules %}
+      <div class="alert alert-info border-start border-4 border-primary">
+        <i class="fa-solid fa-circle-info me-1"></i>
+        <strong>{{ s.gx_class.name }}</strong> 수업은
+        <strong>{{ s.start_date }}</strong> ~ <strong>{{ s.end_date }}</strong> 기간 내에
+        등록된 횟수를 모두 수강하여야 합니다.
+        {% if s.notice %}<br><small class="text-muted">{{ s.notice }}</small>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% if attendances %}
     <div class="card gx-card">
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead class="table-light">
-            <tr>
-              <th>날짜</th><th>수업</th><th>출석</th><th>메모</th>
-            </tr>
+            <tr><th>날짜</th><th>수업</th><th>출석</th><th>메모</th></tr>
           </thead>
           <tbody>
             {% for att in attendances %}

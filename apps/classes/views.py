@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import GxClass, ClassSession
+from .models import GxClass, ClassSession, ClassSchedule
 from apps.bookings.models import Booking, Attendance
 from apps.complexes.models import Complex
 
@@ -83,7 +83,6 @@ def admin_dashboard(request):
 
 @login_required
 def calendar_view(request):
-    """월별 캘린더 - 수업일정·휴강·대강·출석"""
     from datetime import date, timedelta
     import calendar as cal
     year = int(request.GET.get('year', date.today().year))
@@ -107,16 +106,24 @@ def calendar_view(request):
     weeks = cal.monthcalendar(year, month)
     prev_month = first_day - timedelta(days=1)
     next_month = last_day + timedelta(days=1)
+    # 활성 일정 목록
+    if profile.is_super_admin:
+        schedules = ClassSchedule.objects.all().select_related('gx_class')
+    else:
+        schedules = ClassSchedule.objects.filter(
+            gx_class__complex=profile.complex
+        ).select_related('gx_class')
     return render(request, 'classes/calendar.html', {
         'year': year, 'month': month,
         'weeks': weeks, 'session_map': session_map,
         'prev': prev_month, 'next': next_month,
         'today': date.today(),
+        'schedules': schedules,
     })
 
 @login_required
-def session_create(request):
-    """수업 회차 생성 (관리자)"""
+def schedule_create(request):
+    """수업 일정 생성 - 자동으로 ClassSession 일괄 생성"""
     if not request.user.profile.is_complex_admin:
         messages.error(request, '권한이 없습니다.')
         return redirect('classes:calendar')
@@ -125,41 +132,132 @@ def session_create(request):
         classes = GxClass.objects.filter(is_active=True)
     else:
         classes = GxClass.objects.filter(complex=profile.complex, is_active=True)
+    # 서식 불러오기: 이전 일정 목록
+    templates = ClassSchedule.objects.filter(
+        gx_class__in=classes
+    ).order_by('-created_at')[:10]
+    # 서식 선택 시 해당 일정 데이터 불러오기
+    template_id = request.GET.get('template')
+    template_obj = None
+    if template_id:
+        try:
+            template_obj = ClassSchedule.objects.get(id=template_id)
+        except ClassSchedule.DoesNotExist:
+            pass
     if request.method == 'POST':
         gx_class_id = request.POST.get('gx_class')
-        date_val = request.POST.get('date')
-        is_cancelled = request.POST.get('is_cancelled') == 'on'
-        substitute = request.POST.get('substitute_instructor', '').strip()
-        note = request.POST.get('note', '').strip()
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        repeat_type = request.POST.get('repeat_type', 'weekly_1')
+        day_1 = request.POST.get('day_1')
+        day_2 = request.POST.get('day_2')
+        day_3 = request.POST.get('day_3')
+        custom_dates = request.POST.get('custom_dates', '')
+        notice = request.POST.get('notice', '').strip()
         try:
-            session, created = ClassSession.objects.get_or_create(
+            schedule = ClassSchedule.objects.create(
                 gx_class_id=gx_class_id,
-                date=date_val,
-                defaults={
-                    'is_cancelled': is_cancelled,
-                    'substitute_instructor': substitute,
-                    'note': note,
-                }
+                start_date=start_date,
+                end_date=end_date,
+                repeat_type=repeat_type,
+                day_1=int(day_1) if day_1 else None,
+                day_2=int(day_2) if day_2 else None,
+                day_3=int(day_3) if day_3 else None,
+                custom_dates=custom_dates,
+                notice=notice,
             )
-            if not created:
-                session.is_cancelled = is_cancelled
-                session.substitute_instructor = substitute
-                session.note = note
-                session.save()
-            messages.success(request, '수업 회차가 등록되었습니다.')
+            count = schedule.generate_sessions()
+            messages.success(request, f'일정이 등록되었습니다. 수업 {count}회 자동 생성됨.')
+            return redirect('classes:calendar')
         except Exception as e:
             messages.error(request, f'오류: {e}')
+    return render(request, 'classes/schedule_form.html', {
+        'classes': classes,
+        'templates': templates,
+        'template_obj': template_obj,
+        'weekdays': ClassSchedule.WEEKDAY_CHOICES,
+    })
+
+@login_required
+def schedule_edit(request, schedule_id):
+    """일정 수정"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
         return redirect('classes:calendar')
-    return render(request, 'classes/session_form.html', {'classes': classes})
+    schedule = get_object_or_404(ClassSchedule, id=schedule_id)
+    profile = request.user.profile
+    if profile.is_super_admin:
+        classes = GxClass.objects.filter(is_active=True)
+    else:
+        classes = GxClass.objects.filter(complex=profile.complex, is_active=True)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'regenerate':
+            # 기존 세션 삭제 후 재생성
+            ClassSession.objects.filter(
+                gx_class=schedule.gx_class,
+                date__gte=schedule.start_date,
+                date__lte=schedule.end_date,
+            ).delete()
+            schedule.start_date = request.POST.get('start_date')
+            schedule.end_date = request.POST.get('end_date')
+            schedule.repeat_type = request.POST.get('repeat_type')
+            day_1 = request.POST.get('day_1')
+            day_2 = request.POST.get('day_2')
+            day_3 = request.POST.get('day_3')
+            schedule.day_1 = int(day_1) if day_1 else None
+            schedule.day_2 = int(day_2) if day_2 else None
+            schedule.day_3 = int(day_3) if day_3 else None
+            schedule.custom_dates = request.POST.get('custom_dates', '')
+            schedule.notice = request.POST.get('notice', '').strip()
+            schedule.save()
+            count = schedule.generate_sessions()
+            messages.success(request, f'일정 재생성 완료. 수업 {count}회 생성됨.')
+        elif action == 'delete':
+            ClassSession.objects.filter(
+                gx_class=schedule.gx_class,
+                date__gte=schedule.start_date,
+                date__lte=schedule.end_date,
+            ).delete()
+            schedule.delete()
+            messages.success(request, '일정이 삭제되었습니다.')
+            return redirect('classes:calendar')
+        return redirect('classes:calendar')
+    return render(request, 'classes/schedule_form.html', {
+        'schedule': schedule,
+        'classes': classes,
+        'weekdays': ClassSchedule.WEEKDAY_CHOICES,
+    })
+
+@login_required
+def session_edit(request, session_id):
+    """개별 수업 회차 수동 변경"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('classes:calendar')
+    session = get_object_or_404(ClassSession, id=session_id)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'update':
+            session.date = request.POST.get('date', session.date)
+            session.is_cancelled = request.POST.get('is_cancelled') == 'on'
+            session.substitute_instructor = request.POST.get('substitute_instructor', '').strip()
+            session.note = request.POST.get('note', '').strip()
+            session.save()
+            messages.success(request, '수업 회차가 수정되었습니다.')
+        elif action == 'delete':
+            session.delete()
+            messages.success(request, '수업 회차가 삭제되었습니다.')
+            return redirect('classes:calendar')
+        return redirect('classes:calendar')
+    return render(request, 'classes/session_edit.html', {'session': session})
 
 @login_required
 def attendance_view(request, session_id):
-    """출석 체크 페이지"""
     session = get_object_or_404(ClassSession, id=session_id)
     if not request.user.profile.is_complex_admin:
         messages.error(request, '권한이 없습니다.')
         return redirect('classes:calendar')
-    from apps.enrollments.models import Enrollment, EnrollmentPeriod
     bookings = Booking.objects.filter(
         gx_class=session.gx_class, status='confirmed'
     ).order_by('building', 'unit')
@@ -181,14 +279,20 @@ def attendance_view(request, session_id):
 
 @login_required
 def my_attendance(request):
-    """내 출석 현황"""
     profile = request.user.profile
-    from apps.bookings.models import Attendance
     attendances = Attendance.objects.filter(
         booking__phone=profile.phone
     ).select_related('session__gx_class', 'booking').order_by('-session__date')
+    # 진행 중인 일정에서 기간 내 이용 안내
+    from datetime import date
+    today = date.today()
+    active_schedules = ClassSchedule.objects.filter(
+        gx_class__complex=profile.complex,
+        end_date__gte=today
+    ).select_related('gx_class') if profile.complex else []
     return render(request, 'classes/my_attendance.html', {
         'attendances': attendances,
+        'active_schedules': active_schedules,
     })
 
 @login_required
