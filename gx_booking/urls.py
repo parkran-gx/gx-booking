@@ -12,5 +12,4 @@ urlpatterns = [
     path('notices/', include('apps.notices.urls')),
     path('messages/', include('apps.messages_app.urls')),
     path('enrollments/', include('apps.enrollments.urls')),
-    path('manage/', include('apps.classes.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
