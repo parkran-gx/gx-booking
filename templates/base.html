@@ -22,17 +22,45 @@
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav ms-auto gap-1">
         {% if user.is_authenticated %}
+
           <li class="nav-item"><a class="nav-link" href="/classes/"><i class="fa-solid fa-calendar-check me-1"></i>수업예약</a></li>
           <li class="nav-item"><a class="nav-link" href="/enrollments/"><i class="fa-solid fa-clipboard-list me-1"></i>수강등록</a></li>
-          <li class="nav-item"><a class="nav-link" href="/accounts/dashboard/"><i class="fa-solid fa-house me-1"></i>마이페이지</a></li>
-          <li class="nav-item"><a class="nav-link" href="/notices/"><i class="fa-solid fa-bullhorn me-1"></i>공지</a></li>
           <li class="nav-item"><a class="nav-link" href="/calendar/"><i class="fa-solid fa-calendar me-1"></i>캘린더</a></li>
-          <li class="nav-item"><a class="nav-link" href="/my-attendance/"><i class="fa-solid fa-clipboard-list me-1"></i>출석</a></li>
+          <li class="nav-item"><a class="nav-link" href="/notices/"><i class="fa-solid fa-bullhorn me-1"></i>공지</a></li>
           <li class="nav-item"><a class="nav-link" href="/messages/send/"><i class="fa-solid fa-envelope me-1"></i>쪽지</a></li>
+
           {% if user.profile.is_complex_admin %}
-          <li class="nav-item"><a class="nav-link" href="/admin-dashboard/"><i class="fa-solid fa-chart-line me-1"></i>관리</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              <i class="fa-solid fa-gear me-1"></i>관리
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/admin-dashboard/"><i class="fa-solid fa-chart-line me-1"></i>대시보드</a></li>
+              <li><a class="dropdown-item" href="/enrollments/admin/"><i class="fa-solid fa-clipboard-list me-1"></i>수강등록 관리</a></li>
+              <li><a class="dropdown-item" href="/calendar/schedule/create/"><i class="fa-solid fa-calendar-plus me-1"></i>일정 등록</a></li>
+              <li><a class="dropdown-item" href="/messages/inbox/"><i class="fa-solid fa-inbox me-1"></i>쪽지 수신함</a></li>
+              <li><a class="dropdown-item" href="/notices/create/"><i class="fa-solid fa-pen me-1"></i>공지 작성</a></li>
+              <li><hr class="dropdown-divider"></li>
+              {% if user.profile.is_super_admin %}
+              <li><a class="dropdown-item" href="/complexes/"><i class="fa-solid fa-building me-1"></i>단지 관리</a></li>
+              <li><a class="dropdown-item" href="/qr/"><i class="fa-solid fa-qrcode me-1"></i>QR 코드</a></li>
+              {% endif %}
+            </ul>
+          </li>
           {% endif %}
-          <li class="nav-item"><a class="nav-link" href="/accounts/logout/"><i class="fa-solid fa-right-from-bracket me-1"></i>로그아웃</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              <i class="fa-solid fa-user me-1"></i>{{ user.first_name|default:user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/accounts/dashboard/"><i class="fa-solid fa-house me-1"></i>마이페이지</a></li>
+              <li><a class="dropdown-item" href="/my-attendance/"><i class="fa-solid fa-clipboard-list me-1"></i>내 출석</a></li>
+              <li><a class="dropdown-item" href="/accounts/profile/"><i class="fa-solid fa-pen me-1"></i>정보수정</a></li>
+              <li><a class="dropdown-item" href="/accounts/password/change/"><i class="fa-solid fa-key me-1"></i>비밀번호변경</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="/accounts/logout/"><i class="fa-solid fa-right-from-bracket me-1"></i>로그아웃</a></li>
+            </ul>
+          </li>
         {% else %}
           <li class="nav-item"><a class="nav-link" href="/accounts/login/"><i class="fa-solid fa-right-to-bracket me-1"></i>로그인</a></li>
           <li class="nav-item"><a class="nav-link" href="/accounts/register/"><i class="fa-solid fa-user-plus me-1"></i>회원가입</a></li>
