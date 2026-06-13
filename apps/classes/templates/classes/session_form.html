@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}수업 회차 등록{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <a href="/calendar/" class="btn btn-link ps-0 mb-3">
+      <i class="fa-solid fa-arrow-left me-1"></i>캘린더로
+    </a>
+    <div class="card gx-card p-4">
+      <h4 class="fw-bold mb-4">
+        <i class="fa-solid fa-calendar-plus me-2"></i>수업 회차 등록
+      </h4>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">수업 <span class="text-danger">*</span></label>
+          <select name="gx_class" class="form-select" required>
+            <option value="">수업 선택</option>
+            {% for c in classes %}
+            <option value="{{ c.id }}">{{ c.name }} ({{ c.get_days_display }} {{ c.start_time|time:"H:i" }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">수업 날짜 <span class="text-danger">*</span></label>
+          <input type="date" name="date" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_cancelled" id="is_cancelled">
+            <label class="form-check-label fw-semibold text-danger" for="is_cancelled">
+              휴강
+            </label>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">대강 강사 (휴강 시 대강 진행하는 경우)</label>
+          <input type="text" name="substitute_instructor" class="form-control" placeholder="대강 강사 이름">
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">메모</label>
+          <textarea name="note" class="form-control" rows="3" placeholder="특이사항 메모"></textarea>
+        </div>
+        <button type="submit" class="btn btn-gx w-100">
+          <i class="fa-solid fa-check me-1"></i>저장
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

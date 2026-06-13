@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}수업 캘린더{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0">
+    <i class="fa-solid fa-calendar me-2"></i>{{ year }}년 {{ month }}월 캘린더
+  </h3>
+  <div class="d-flex gap-2">
+    <a href="?year={{ prev.year }}&month={{ prev.month }}" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-chevron-left"></i>
+    </a>
+    <a href="?year={{ next.year }}&month={{ next.month }}" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-chevron-right"></i>
+    </a>
+    {% if request.user.profile.is_complex_admin %}
+    <a href="/calendar/session/create/" class="btn btn-gx btn-sm">
+      <i class="fa-solid fa-plus me-1"></i>수업 등록
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card gx-card">
+  <div class="table-responsive">
+    <table class="table table-bordered mb-0 text-center">
+      <thead class="table-light">
+        <tr>
+          {% for day in "일월화수목금토" %}
+          <th class="py-2 {% if forloop.first %}text-danger{% elif forloop.last %}text-primary{% endif %}">
+            {{ day }}
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for week in weeks %}
+        <tr>
+          {% for day in week %}
+          <td class="cal-day p-1 {% if day == today.day and year == today.year and month == today.month %}cal-today{% endif %}"
+              style="min-width:80px; vertical-align:top;">
+            {% if day != 0 %}
+            <div class="fw-semibold small mb-1 {% if forloop.counter == 1 %}text-danger{% elif forloop.counter == 7 %}text-primary{% endif %}">
+              {{ day }}
+            </div>
+            {% for s in session_map|default_if_none:"" %}{% endfor %}
+            {% for s_day, s_list in session_map.items %}
+              {% if s_day == day %}
+                {% for s in s_list %}
+                <div class="cal-session text-white small mb-1
+                  {% if s.is_cancelled %}bg-danger
+                  {% elif s.substitute_instructor %}bg-warning
+                  {% else %}bg-primary{% endif %}">
+                  {% if request.user.profile.is_complex_admin %}
+                  <a href="/calendar/session/{{ s.id }}/attendance/" class="text-white text-decoration-none">
+                  {% endif %}
+                  {{ s.gx_class.name|truncatechars:6 }}
+                  {% if s.is_cancelled %}(휴){% elif s.substitute_instructor %}(대){% endif %}
+                  {% if request.user.profile.is_complex_admin %}</a>{% endif %}
+                </div>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="d-flex gap-3 mt-3 small">
+  <span><span class="badge bg-primary me-1">■</span>정상 수업</span>
+  <span><span class="badge bg-danger me-1">■</span>휴강</span>
+  <span><span class="badge bg-warning me-1">■</span>대강</span>
+</div>
+{% endblock %}

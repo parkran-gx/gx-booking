@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}출석 체크{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <a href="/calendar/" class="btn btn-link ps-0 mb-3">
+      <i class="fa-solid fa-arrow-left me-1"></i>캘린더로
+    </a>
+    <div class="card gx-card p-4">
+      <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+          <h4 class="fw-bold mb-1">
+            <i class="fa-solid fa-clipboard-check me-2"></i>출석 체크
+          </h4>
+          <p class="text-muted mb-0">
+            {{ session.gx_class.name }} &nbsp;·&nbsp; {{ session.date }}
+            {% if session.is_cancelled %}
+            <span class="badge bg-danger ms-2">휴강</span>
+            {% elif session.substitute_instructor %}
+            <span class="badge bg-warning ms-2">대강: {{ session.substitute_instructor }}</span>
+            {% endif %}
+          </p>
+        </div>
+        <div class="text-end small text-muted">
+          수강생 {{ bookings.count }}명
+        </div>
+      </div>
+
+      {% if session.is_cancelled %}
+      <div class="alert alert-danger">
+        <i class="fa-solid fa-triangle-exclamation me-1"></i>
+        휴강된 수업입니다.
+      </div>
+      {% else %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>이름</th><th>동/호수</th>
+                <th class="text-center text-success">출석</th>
+                <th class="text-center text-danger">결석</th>
+                <th class="text-center text-warning">보강</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for b in bookings %}
+              {% with att=attendance_map|default_if_none:"" %}
+              <tr>
+                <td class="fw-semibold">{{ b.name }}</td>
+                <td class="text-muted">{{ b.building }}동 {{ b.unit }}호</td>
+                <td class="text-center">
+                  <input type="radio" name="att_{{ b.id }}" value="present"
+                    class="form-check-input"
+                    {% if attendance_map[b.id].status == 'present' or not attendance_map[b.id] %}checked{% endif %}>
+                </td>
+                <td class="text-center">
+                  <input type="radio" name="att_{{ b.id }}" value="absent"
+                    class="form-check-input"
+                    {% if attendance_map[b.id].status == 'absent' %}checked{% endif %}>
+                </td>
+                <td class="text-center">
+                  <input type="radio" name="att_{{ b.id }}" value="makeup"
+                    class="form-check-input"
+                    {% if attendance_map[b.id].status == 'makeup' %}checked{% endif %}>
+                </td>
+              </tr>
+              {% endwith %}
+              {% empty %}
+              <tr><td colspan="5" class="text-center text-muted">수강생이 없습니다.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if bookings %}
+        <button type="submit" class="btn btn-gx w-100">
+          <i class="fa-solid fa-save me-1"></i>출석 저장
+        </button>
+        {% endif %}
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
