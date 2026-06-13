@@ -64,12 +64,12 @@
           <div class="col-6">
             <label class="form-label fw-semibold">시작일 <span class="text-danger">*</span></label>
             <input type="date" name="start_date" class="form-control"
-              value="{{ template_obj.start_date|default:schedule.start_date }}" required>
+              value="{{ template_obj.start_date|default:schedule.start_date|default:"" }}" required>
           </div>
           <div class="col-6">
             <label class="form-label fw-semibold">종료일 <span class="text-danger">*</span></label>
             <input type="date" name="end_date" class="form-control"
-              value="{{ template_obj.end_date|default:schedule.end_date }}" required>
+              value="{{ template_obj.end_date|default:schedule.end_date|default:"" }}" required>
           </div>
         </div>
 
