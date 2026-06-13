@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}수업 {% if gx_class %}수정{% else %}추가{% endif %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <a href="/manage/" class="btn btn-link ps-0 mb-3">
+      <i class="fa-solid fa-arrow-left me-1"></i>수업 목록
+    </a>
+    <div class="card gx-card p-4">
+      <h4 class="fw-bold mb-4">
+        <i class="fa-solid fa-dumbbell me-2"></i>
+        수업 {% if gx_class %}수정{% else %}추가{% endif %}
+      </h4>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">수업명 <span class="text-danger">*</span></label>
+          <input type="text" name="name" class="form-control"
+            value="{{ gx_class.name }}" placeholder="예) 요가·필라테스" required>
+        </div>
+        {% if complexes.count > 1 %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">단지</label>
+          <select name="complex_id" class="form-select">
+            {% for cp in complexes %}
+            <option value="{{ cp.id }}" {% if gx_class.complex_id == cp.id %}selected{% endif %}>
+              {{ cp.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">수업 요일</label>
+          <select name="days" class="form-select">
+            <option value="MON" {% if gx_class.days == 'MON' %}selected{% endif %}>월요일</option>
+            <option value="THU" {% if gx_class.days == 'THU' %}selected{% endif %}>목요일</option>
+            <option value="MON_THU" {% if gx_class.days == 'MON_THU' %}selected{% endif %}>월/목</option>
+          </select>
+        </div>
+        <div class="row mb-3">
+          <div class="col-6">
+            <label class="form-label fw-semibold">시작 시간</label>
+            <input type="time" name="start_time" class="form-control"
+              value="{{ gx_class.start_time|time:'H:i' }}">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold">종료 시간</label>
+            <input type="time" name="end_time" class="form-control"
+              value="{{ gx_class.end_time|time:'H:i' }}">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-6">
+            <label class="form-label fw-semibold">정원</label>
+            <input type="number" name="capacity" class="form-control"
+              value="{{ gx_class.capacity|default:10 }}" min="1">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold">월 수강료 (원)</label>
+            <input type="number" name="monthly_fee" class="form-control"
+              value="{{ gx_class.monthly_fee|default:0 }}" min="0">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">설명</label>
+          <textarea name="description" class="form-control" rows="2"
+            placeholder="예) 임산부 가능, 초보자 환영">{{ gx_class.description }}</textarea>
+        </div>
+        <div class="mb-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_active" id="is_active"
+              {% if gx_class.is_active or not gx_class %}checked{% endif %}>
+            <label class="form-check-label" for="is_active">운영중</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-gx w-100">저장</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

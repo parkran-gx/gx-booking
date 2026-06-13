@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}수업 관리{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0"><i class="fa-solid fa-dumbbell me-2"></i>수업 관리</h3>
+  <a href="/manage/create/" class="btn btn-gx btn-sm">
+    <i class="fa-solid fa-plus me-1"></i>수업 추가
+  </a>
+</div>
+{% for c in classes %}
+<div class="card gx-card mb-3">
+  <div class="card-body p-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <h6 class="fw-bold mb-0">{{ c.name }}</h6>
+          {% if c.complex %}<span class="badge bg-light text-dark">{{ c.complex.name }}</span>{% endif %}
+          {% if not c.is_active %}<span class="badge bg-secondary">비활성</span>{% endif %}
+        </div>
+        <small class="text-muted">
+          {{ c.get_days_display }} {{ c.start_time|time:"H:i" }}~{{ c.end_time|time:"H:i" }}
+          &nbsp;·&nbsp; 정원 {{ c.capacity }}명
+          &nbsp;·&nbsp; 월 {{ c.monthly_fee|floatformat:0 }}원
+        </small>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="/bookings/admin/list/{{ c.id }}/" class="btn btn-sm btn-outline-primary">
+          <i class="fa-solid fa-list me-1"></i>명단
+        </a>
+        <a href="/manage/{{ c.id }}/edit/" class="btn btn-sm btn-outline-secondary">
+          <i class="fa-solid fa-pen me-1"></i>수정
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="alert alert-info text-center">등록된 수업이 없습니다.</div>
+{% endfor %}
+{% endblock %}

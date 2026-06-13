@@ -350,3 +350,81 @@ def qr_view(request):
     else:
         complexes = Complex.objects.filter(id=request.user.profile.complex_id)
     return render(request, 'classes/qr_view.html', {'complexes': complexes})
+
+
+@login_required
+def class_manage(request):
+    """수업 목록 관리 (슈퍼관리자)"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    profile = request.user.profile
+    if profile.is_super_admin:
+        classes = GxClass.objects.all().select_related('complex')
+    else:
+        classes = GxClass.objects.filter(complex=profile.complex)
+    return render(request, 'classes/manage.html', {'classes': classes})
+
+
+@login_required
+def class_create(request):
+    """수업 생성"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    profile = request.user.profile
+    from apps.complexes.models import Complex
+    if profile.is_super_admin:
+        complexes = Complex.objects.filter(is_active=True)
+    else:
+        complexes = Complex.objects.filter(id=profile.complex_id)
+    if request.method == 'POST':
+        try:
+            GxClass.objects.create(
+                name=request.POST.get('name', '').strip(),
+                complex_id=request.POST.get('complex_id') or profile.complex_id,
+                days=request.POST.get('days', 'MON'),
+                start_time=request.POST.get('start_time', '09:00'),
+                end_time=request.POST.get('end_time', '10:00'),
+                capacity=int(request.POST.get('capacity', 10)),
+                monthly_fee=int(request.POST.get('monthly_fee', 0)),
+                description=request.POST.get('description', '').strip(),
+                is_active=request.POST.get('is_active') == 'on',
+            )
+            messages.success(request, '수업이 생성되었습니다.')
+            return redirect('classes:manage')
+        except Exception as e:
+            messages.error(request, f'오류: {e}')
+    return render(request, 'classes/class_form.html', {'complexes': complexes})
+
+
+@login_required
+def class_edit(request, class_id):
+    """수업 수정"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    gx_class = get_object_or_404(GxClass, id=class_id)
+    profile = request.user.profile
+    from apps.complexes.models import Complex
+    if profile.is_super_admin:
+        complexes = Complex.objects.filter(is_active=True)
+    else:
+        complexes = Complex.objects.filter(id=profile.complex_id)
+    if request.method == 'POST':
+        gx_class.name = request.POST.get('name', '').strip()
+        gx_class.complex_id = request.POST.get('complex_id') or profile.complex_id
+        gx_class.days = request.POST.get('days', 'MON')
+        gx_class.start_time = request.POST.get('start_time', '09:00')
+        gx_class.end_time = request.POST.get('end_time', '10:00')
+        gx_class.capacity = int(request.POST.get('capacity', 10))
+        gx_class.monthly_fee = int(request.POST.get('monthly_fee', 0))
+        gx_class.description = request.POST.get('description', '').strip()
+        gx_class.is_active = request.POST.get('is_active') == 'on'
+        gx_class.save()
+        messages.success(request, '수업이 수정되었습니다.')
+        return redirect('classes:manage')
+    return render(request, 'classes/class_form.html', {
+        'gx_class': gx_class,
+        'complexes': complexes,
+    })
