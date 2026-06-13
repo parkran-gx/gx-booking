@@ -15,5 +15,9 @@ urlpatterns = [
     path('admin/<int:period_id>/cancel/<int:enrollment_id>/', views.admin_cancel, name='admin_cancel'),
     path('admin/<int:period_id>/manual/', views.admin_manual_enroll, name='admin_manual'),
     path('admin/<int:period_id>/export/', views.admin_export, name='admin_export'),
+    path('admin/<int:period_id>/export-pdf/', views.admin_export_pdf, name='admin_export_pdf'),
+    path('admin/<int:period_id>/export-xlsx/', views.admin_export_xlsx, name='admin_export_xlsx'),
+    path('admin/<int:period_id>/office-send/', views.admin_office_send, name='admin_office_send'),
     path('admin/<int:period_id>/sync-status/', views.admin_sync_status, name='admin_sync'),
+    path('admin/<int:period_id>/change-status/', views.admin_change_status, name='admin_change_status'),
 ]

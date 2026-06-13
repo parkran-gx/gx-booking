@@ -436,3 +436,113 @@ def admin_office_send(request, period_id):
         'enrollments': enrollments,
         'copy_text': copy_text,
     })
+
+
+@login_required
+def admin_export_xlsx(request, period_id):
+    """등록 명단 Excel(xlsx) 출력"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    from django.http import HttpResponse
+    from io import BytesIO
+
+    period = get_object_or_404(EnrollmentPeriod, id=period_id)
+    enrollments = period.enrollments.filter(status='confirmed').order_by('building', 'unit')
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"{period.year}년{period.month}월"
+
+    # 스타일 정의
+    header_font = Font(bold=True, color='FFFFFF', size=11)
+    header_fill = PatternFill(start_color='6366F1', end_color='6366F1', fill_type='solid')
+    center = Alignment(horizontal='center', vertical='center')
+    thin = Border(
+        left=Side(style='thin'), right=Side(style='thin'),
+        top=Side(style='thin'), bottom=Side(style='thin')
+    )
+    alt_fill = PatternFill(start_color='F0F0FF', end_color='F0F0FF', fill_type='solid')
+
+    # 제목 행
+    title = f"{period.gx_class.name} {period.year}년 {period.month}월 수강 명단"
+    ws.merge_cells('A1:G1')
+    ws['A1'] = title
+    ws['A1'].font = Font(bold=True, size=14)
+    ws['A1'].alignment = center
+    ws.row_dimensions[1].height = 30
+
+    # 부제목
+    ws.merge_cells('A2:G2')
+    complex_name = period.gx_class.complex.name if period.gx_class.complex else '-'
+    ws['A2'] = f"단지: {complex_name} | 정원: {period.capacity}명 | 등록: {enrollments.count()}명"
+    ws['A2'].alignment = center
+    ws['A2'].font = Font(size=10, color='666666')
+    ws.row_dimensions[2].height = 20
+
+    # 헤더
+    headers = ['번호', '이름', '동', '호수', '연락처', '접수유형', '등록일']
+    col_widths = [8, 15, 8, 8, 20, 12, 15]
+    for col, (h, w) in enumerate(zip(headers, col_widths), 1):
+        cell = ws.cell(row=3, column=col, value=h)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = center
+        cell.border = thin
+        ws.column_dimensions[get_column_letter(col)].width = w
+    ws.row_dimensions[3].height = 22
+
+    # 데이터
+    for i, e in enumerate(enrollments, 1):
+        row = i + 3
+        values = [
+            i, e.name, e.building, e.unit, e.phone,
+            e.get_enroll_type_display(),
+            e.created_at.strftime('%Y-%m-%d %H:%M')
+        ]
+        fill = alt_fill if i % 2 == 0 else None
+        for col, val in enumerate(values, 1):
+            cell = ws.cell(row=row, column=col, value=val)
+            cell.alignment = center
+            cell.border = thin
+            if fill:
+                cell.fill = fill
+        ws.row_dimensions[row].height = 20
+
+    # 합계 행
+    total_row = enrollments.count() + 4
+    ws.merge_cells(f'A{total_row}:E{total_row}')
+    ws[f'A{total_row}'] = f'총 {enrollments.count()}명'
+    ws[f'A{total_row}'].font = Font(bold=True)
+    ws[f'A{total_row}'].alignment = center
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    filename = f"{period.gx_class.name}_{period.year}년{period.month}월_등록명단.xlsx"
+    response = HttpResponse(
+        buffer,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
+def admin_change_status(request, period_id):
+    """등록기간 상태 수동 변경"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    period = get_object_or_404(EnrollmentPeriod, id=period_id)
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(EnrollmentPeriod.STATUS_CHOICES):
+            period.status = new_status
+            period.save(update_fields=['status'])
+            messages.success(request, f'상태가 [{period.get_status_display()}]로 변경되었습니다.')
+        return redirect('enrollments:admin_detail', period_id=period_id)
+    return redirect('enrollments:admin_detail', period_id=period_id)
