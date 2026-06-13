@@ -337,3 +337,102 @@ def admin_sync_status(request, period_id):
     period.update_status()
     messages.success(request, f'상태 업데이트: {period.get_status_display()}')
     return redirect('enrollments:admin_detail', period_id=period_id)
+
+
+@login_required
+def admin_export_pdf(request, period_id):
+    """등록 명단 PDF 출력"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.lib.units import mm
+    from django.http import HttpResponse
+    from io import BytesIO
+
+    period = get_object_or_404(EnrollmentPeriod, id=period_id)
+    enrollments = period.enrollments.filter(status='confirmed').order_by('building', 'unit')
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+        rightMargin=20*mm, leftMargin=20*mm,
+        topMargin=20*mm, bottomMargin=20*mm)
+
+    styles = getSampleStyleSheet()
+    story = []
+
+    # 제목
+    title_style = ParagraphStyle('title', fontSize=16, spaceAfter=6, alignment=1, fontName='Helvetica-Bold')
+    sub_style = ParagraphStyle('sub', fontSize=10, spaceAfter=12, alignment=1, fontName='Helvetica')
+
+    story.append(Paragraph(f"{period.gx_class.name} {period.year}년 {period.month}월 수강 명단", title_style))
+    story.append(Paragraph(
+        f"단지: {period.gx_class.complex.name if period.gx_class.complex else '-'} | "
+        f"정원: {period.capacity}명 | 등록: {enrollments.count()}명 | "
+        f"출력일: {__import__('datetime').date.today()}",
+        sub_style
+    ))
+    story.append(Spacer(1, 5*mm))
+
+    # 테이블
+    data = [['번호', '이름', '동', '호수', '연락처', '접수유형', '등록일']]
+    for i, e in enumerate(enrollments, 1):
+        data.append([
+            str(i), e.name, e.building, e.unit, e.phone,
+            e.get_enroll_type_display(),
+            e.created_at.strftime('%m/%d')
+        ])
+
+    table = Table(data, colWidths=[12*mm, 25*mm, 15*mm, 15*mm, 35*mm, 20*mm, 18*mm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#6366f1')),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('FONTSIZE', (0,1), (-1,-1), 9),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f8f9fa')]),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#dee2e6')),
+        ('ROWHEIGHT', (0,0), (-1,-1), 8*mm),
+        ('TOPPADDING', (0,0), (-1,-1), 2*mm),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2*mm),
+    ]))
+    story.append(table)
+
+    doc.build(story)
+    buffer.seek(0)
+    filename = f"{period.gx_class.name}_{period.year}년{period.month}월_등록명단.pdf"
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
+def admin_office_send(request, period_id):
+    """관리사무소 명단 전송 페이지"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    period = get_object_or_404(EnrollmentPeriod, id=period_id)
+    enrollments = period.enrollments.filter(status='confirmed').order_by('building', 'unit')
+    # 복사용 텍스트 생성
+    lines = [f"[{period.gx_class.name} {period.year}년 {period.month}월 수강 명단]"]
+    lines.append(f"단지: {period.gx_class.complex.name if period.gx_class.complex else '-'}")
+    lines.append(f"등록인원: {enrollments.count()}명 / 정원: {period.capacity}명")
+    lines.append("-" * 30)
+    for i, e in enumerate(enrollments, 1):
+        lines.append(f"{i}. {e.name} ({e.building}동 {e.unit}호) {e.phone}")
+    lines.append("-" * 30)
+    lines.append(f"출력일: {__import__('datetime').date.today()}")
+    copy_text = '\n'.join(lines)
+    return render(request, 'enrollments/admin_office_send.html', {
+        'period': period,
+        'enrollments': enrollments,
+        'copy_text': copy_text,
+    })
