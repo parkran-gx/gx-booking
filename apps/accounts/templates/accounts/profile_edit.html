@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}정보수정{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <a href="/accounts/dashboard/" class="btn btn-link ps-0 mb-3"><i class="fa-solid fa-arrow-left me-1"></i>돌아가기</a>
+    <div class="card gx-card p-4">
+      <h4 class="fw-bold mb-4"><i class="fa-solid fa-pen me-2"></i>정보 수정</h4>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">이름</label>
+          <input type="text" name="name" class="form-control" value="{{ request.user.first_name }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">이메일</label>
+          <input type="email" name="email" class="form-control" value="{{ request.user.email }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">연락처</label>
+          <input type="tel" name="phone" class="form-control" value="{{ profile.phone }}">
+        </div>
+        <div class="row mb-4">
+          <div class="col-6">
+            <label class="form-label fw-semibold">동</label>
+            <input type="text" name="building" class="form-control" value="{{ profile.building }}">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold">호수</label>
+            <input type="text" name="unit" class="form-control" value="{{ profile.unit }}">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-gx w-100">저장</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

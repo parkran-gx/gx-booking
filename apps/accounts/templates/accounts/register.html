@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}회원가입{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card gx-card">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-1"><i class="fa-solid fa-user-plus me-2"></i>회원가입</h4>
+        <p class="text-muted small mb-4">가입 후 수업 예약 시 등록회원이 됩니다.</p>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">아이디 <span class="text-danger">*</span></label>
+            <input type="text" name="username" class="form-control" placeholder="영문·숫자 조합" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">이름 <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control" placeholder="홍길동" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">이메일 (선택)</label>
+            <input type="email" name="email" class="form-control" placeholder="example@email.com">
+            <small class="text-muted">비밀번호 분실 시 도움이 됩니다.</small>
+          </div>
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold">비밀번호 <span class="text-danger">*</span></label>
+              <input type="password" name="password1" class="form-control" placeholder="8자 이상" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">비밀번호 확인 <span class="text-danger">*</span></label>
+              <input type="password" name="password2" class="form-control" placeholder="동일하게 입력" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">연락처 <span class="text-danger">*</span></label>
+            <input type="tel" name="phone" class="form-control" placeholder="010-0000-0000" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">단지 선택 <span class="text-danger">*</span></label>
+            <select name="complex_id" class="form-select" required>
+              <option value="">단지를 선택하세요</option>
+              {% for c in complexes %}
+              <option value="{{ c.id }}">{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="row mb-4">
+            <div class="col-6">
+              <label class="form-label fw-semibold">동 <span class="text-danger">*</span></label>
+              <input type="text" name="building" class="form-control" placeholder="101" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">호수 <span class="text-danger">*</span></label>
+              <input type="text" name="unit" class="form-control" placeholder="1001" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-gx w-100 btn-lg">
+            <i class="fa-solid fa-user-plus me-1"></i>가입하기
+          </button>
+          <p class="text-center mt-3 text-muted small">
+            이미 계정이 있으신가요? <a href="/accounts/login/">로그인</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -21,12 +21,19 @@
     </button>
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav ms-auto gap-1">
-        <li class="nav-item"><a class="nav-link" href="/"><i class="fa-solid fa-calendar-check me-1"></i>수업예약</a></li>
-        <li class="nav-item"><a class="nav-link" href="/bookings/check/"><i class="fa-solid fa-magnifying-glass me-1"></i>예약확인</a></li>
-        <li class="nav-item"><a class="nav-link" href="/bookings/private-lesson/"><i class="fa-solid fa-user me-1"></i>개인레슨</a></li>
         {% if user.is_authenticated %}
-        <li class="nav-item"><a class="nav-link" href="/admin-dashboard/"><i class="fa-solid fa-chart-line me-1"></i>관리</a></li>
-        <li class="nav-item"><a class="nav-link" href="/accounts/logout/"><i class="fa-solid fa-right-from-bracket me-1"></i>로그아웃</a></li>
+          <li class="nav-item"><a class="nav-link" href="/classes/"><i class="fa-solid fa-calendar-check me-1"></i>수업예약</a></li>
+          <li class="nav-item"><a class="nav-link" href="/accounts/dashboard/"><i class="fa-solid fa-house me-1"></i>마이페이지</a></li>
+          <li class="nav-item"><a class="nav-link" href="/notices/"><i class="fa-solid fa-bullhorn me-1"></i>공지</a></li>
+          <li class="nav-item"><a class="nav-link" href="/messages/send/"><i class="fa-solid fa-envelope me-1"></i>쪽지</a></li>
+          {% if user.profile.is_complex_admin %}
+          <li class="nav-item"><a class="nav-link" href="/admin-dashboard/"><i class="fa-solid fa-chart-line me-1"></i>관리</a></li>
+          {% endif %}
+          <li class="nav-item"><a class="nav-link" href="/accounts/logout/"><i class="fa-solid fa-right-from-bracket me-1"></i>로그아웃</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="/accounts/login/"><i class="fa-solid fa-right-to-bracket me-1"></i>로그인</a></li>
+          <li class="nav-item"><a class="nav-link" href="/accounts/register/"><i class="fa-solid fa-user-plus me-1"></i>회원가입</a></li>
+          <li class="nav-item"><a class="nav-link" href="/messages/send/"><i class="fa-solid fa-envelope me-1"></i>쪽지</a></li>
         {% endif %}
       </ul>
     </div>

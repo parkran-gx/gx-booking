@@ -8,4 +8,7 @@ urlpatterns = [
     path('', include('apps.classes.urls')),
     path('bookings/', include('apps.bookings.urls')),
     path('accounts/', include('apps.accounts.urls')),
+    path('complexes/', include('apps.complexes.urls')),
+    path('notices/', include('apps.notices.urls')),
+    path('messages/', include('apps.messages_app.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

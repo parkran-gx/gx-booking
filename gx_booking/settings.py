@@ -19,6 +19,9 @@ INSTALLED_APPS = [
     'apps.classes',
     'apps.bookings',
     'apps.accounts',
+    'apps.complexes',
+    'apps.notices',
+    'apps.messages_app',
 ]
 
 MIDDLEWARE = [
@@ -77,6 +80,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/admin-dashboard/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 KAKAO_API_KEY = os.environ.get('KAKAO_API_KEY', '')
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

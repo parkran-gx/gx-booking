@@ -14,3 +14,5 @@ body { background-color: #f8f9fa; font-family: 'Segoe UI', 'Apple SD Gothic Neo'
 .btn-gx:active { transform: scale(0.98); color: #fff; }
 .gx-fee { font-size: 1.1rem; font-weight: 700; color: #6366f1; }
 @media (max-width: 576px) { .gx-card { border-radius: 12px; } }
+.gx-complex-btn { transition: all 0.2s; background: var(--bs-white); }
+.gx-complex-btn:hover { background: #eef2ff; border-color: #6366f1 !important; transform: translateX(4px); }

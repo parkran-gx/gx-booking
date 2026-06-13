@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}단지 {% if complex %}수정{% else %}추가{% endif %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <a href="/complexes/" class="btn btn-link ps-0 mb-3"><i class="fa-solid fa-arrow-left me-1"></i>목록으로</a>
+    <div class="card gx-card p-4">
+      <h4 class="fw-bold mb-4">
+        <i class="fa-solid fa-building me-2"></i>단지 {% if complex %}수정{% else %}추가{% endif %}
+      </h4>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">단지명 <span class="text-danger">*</span></label>
+          <input type="text" name="name" class="form-control" value="{{ complex.name }}" placeholder="예) 라이브더센텀" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">주소</label>
+          <input type="text" name="address" class="form-control" value="{{ complex.address }}" placeholder="단지 주소">
+        </div>
+        {% if complex %}
+        <div class="mb-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if complex.is_active %}checked{% endif %}>
+            <label class="form-check-label" for="is_active">운영중</label>
+          </div>
+        </div>
+        {% if complex.code %}
+        <div class="alert alert-light border small mb-4">
+          <i class="fa-solid fa-circle-info me-1"></i>단지코드: <strong>{{ complex.code }}</strong>
+          (회원가입 시 이 단지를 선택하면 자동 연결됩니다)
+        </div>
+        {% endif %}
+        {% endif %}
+        <button type="submit" class="btn btn-gx w-100">저장</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}{{ notice.title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <a href="/notices/" class="btn btn-link ps-0 mb-3"><i class="fa-solid fa-arrow-left me-1"></i>목록으로</a>
+    <div class="card gx-card p-4">
+      <div class="mb-3">
+        {% if notice.is_pinned %}<span class="badge bg-danger me-1">고정</span>{% endif %}
+        {% if notice.is_global %}<span class="badge bg-primary me-1">전체공지</span>
+        {% elif notice.gx_class %}<span class="badge bg-success me-1">{{ notice.gx_class.name }}</span>{% endif %}
+      </div>
+      <h4 class="fw-bold mb-2">{{ notice.title }}</h4>
+      <p class="text-muted small mb-4">
+        {{ notice.author.first_name }} &nbsp;·&nbsp; {{ notice.created_at|date:"Y.m.d H:i" }}
+      </p>
+      <hr>
+      <div class="mt-3" style="white-space:pre-wrap">{{ notice.content }}</div>
+      {% if request.user.profile.is_complex_admin %}
+      <hr>
+      <div class="d-flex gap-2 justify-content-end">
+        <a href="/notices/{{ notice.pk }}/edit/" class="btn btn-sm btn-outline-secondary">
+          <i class="fa-solid fa-pen me-1"></i>수정
+        </a>
+        <form method="post" action="/notices/{{ notice.pk }}/delete/">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger"
+            onclick="return confirm('삭제하시겠습니까?')">
+            <i class="fa-solid fa-trash me-1"></i>삭제
+          </button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

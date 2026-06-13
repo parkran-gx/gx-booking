@@ -28,6 +28,13 @@ def book_class(request, class_id):
             gx_class=gx_class, name=name, phone=phone,
             building=building, unit=unit, status=status
         )
+        # 로그인 회원이면 프로필 연동
+        if request.user.is_authenticated:
+            profile = request.user.profile
+            if profile.role == 'unregistered':
+                profile.role = 'registered'
+                profile.is_approved = True
+                profile.save()
         return redirect('bookings:confirm', booking_id=booking.id)
     return render(request, 'bookings/book.html', {'gx_class': gx_class})
 
@@ -35,14 +42,14 @@ def booking_confirm(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
     return render(request, 'bookings/confirm.html', {'booking': booking})
 
+@login_required
 def booking_check(request):
+    """로그인한 본인 예약만 조회"""
+    profile = request.user.profile
     bookings = []
-    if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        building = request.POST.get('building', '').strip()
-        unit = request.POST.get('unit', '').strip()
+    if profile.phone:
         bookings = Booking.objects.filter(
-            name=name, building=building, unit=unit
+            phone=profile.phone
         ).exclude(status='cancelled').select_related('gx_class')
     return render(request, 'bookings/check.html', {'bookings': bookings})
 
@@ -54,7 +61,7 @@ def cancel_request(request, booking_id):
         booking.cancel_message = msg
         booking.save()
         messages.success(request, '변경 요청이 접수되었습니다.')
-        return redirect('bookings:check')
+        return redirect('accounts:dashboard')
     return render(request, 'bookings/cancel_request.html', {'booking': booking})
 
 def private_lesson_request(request):
@@ -68,7 +75,7 @@ def private_lesson_request(request):
             message=request.POST.get('message', '').strip(),
         )
         messages.success(request, '개인 레슨 요청이 접수되었습니다.')
-        return redirect('classes:list')
+        return redirect('/')
     return render(request, 'bookings/private_lesson.html')
 
 @login_required
