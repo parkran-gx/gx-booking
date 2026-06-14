@@ -2,61 +2,60 @@
 {% block title %}박란샘 GX 클래스{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-lg-5">
-    <div class="text-center mb-4 mt-2">
-      <i class="fa-solid fa-dumbbell fa-3x text-primary mb-3 d-block"></i>
-      <h1 class="fw-bold gx-title mb-1">박란샘 GX 클래스</h1>
+  <div class="col-lg-5 col-md-7">
+
+    <div class="text-center mb-5 mt-2">
+      <div class="mb-3" style="color: var(--rose-300); font-size: 2.2rem;">
+        <i class="fa-solid fa-spa"></i>
+      </div>
+      <h1 style="font-family: var(--serif); font-weight: 300; font-size: 1.7rem; color: var(--charcoal); letter-spacing: 0.06em; margin-bottom: 0.4rem;">
+        박란샘 GX 클래스
+      </h1>
+      <p style="font-size: 0.78rem; color: var(--stone-lt); letter-spacing: 0.12em; margin-bottom: 0;">
+        YOGA &nbsp;·&nbsp; PILATES
+      </p>
       {% if complex_name %}
-      <p class="text-muted"><i class="fa-solid fa-building me-1"></i>{{ complex_name }}</p>
-      {% else %}
-      <p class="text-muted">요가 · 필라테스 수업 예약 시스템</p>
+      <p style="font-size: 0.82rem; color: var(--rose-400); margin-top: 0.8rem; letter-spacing: 0.04em;">
+        <i class="fa-solid fa-location-dot me-1"></i>{{ complex_name }}
+      </p>
       {% endif %}
     </div>
 
-    <div class="card gx-card mb-4">
-      <div class="card-body p-4">
-        <h6 class="fw-bold mb-3 text-primary">
-          <i class="fa-solid fa-circle-info me-1"></i>이용 안내
-        </h6>
-        <ul class="list-unstyled text-muted small mb-0" style="line-height:2.2">
-          <li><i class="fa-solid fa-check text-success me-2"></i>본 서비스는 등록 입주민만 이용 가능합니다.</li>
-          <li><i class="fa-solid fa-check text-success me-2"></i>로그인 후 내 단지 수업을 예약할 수 있습니다.</li>
-          <li><i class="fa-solid fa-check text-success me-2"></i>예약 확인은 로그인 후 마이페이지에서 가능합니다.</li>
-          <li><i class="fa-solid fa-check text-success me-2"></i>문의 사항은 쪽지 보내기를 이용해주세요.</li>
-        </ul>
-      </div>
+    <div class="gx-guide mb-4">
+      <p style="font-size: 0.82rem; font-weight: 400; color: var(--stone); margin-bottom: 0.5rem; letter-spacing: 0.04em;">
+        처음 방문하셨나요?
+      </p>
+      <ul style="margin: 0; padding-left: 1.1rem; font-size: 0.8rem; color: var(--stone-lt); line-height: 2.2;">
+        <li>회원가입 후 로그인하시면 내 단지 수업을 확인하고 예약하실 수 있습니다.</li>
+        <li>예약 확인과 변경은 로그인 후 마이페이지에서 가능합니다.</li>
+        <li>문의 사항은 아래 쪽지 보내기를 이용해 주세요.</li>
+      </ul>
     </div>
 
     <div class="row g-3 mb-4">
       <div class="col-6">
-        <a href="/accounts/login/" class="card gx-card text-decoration-none text-dark">
-          <div class="card-body text-center py-4">
-            <i class="fa-solid fa-right-to-bracket fa-2x text-primary mb-2 d-block"></i>
-            <p class="mb-0 fw-semibold">로그인</p>
-          </div>
+        <a href="/accounts/login/" class="gx-card d-block text-decoration-none p-3 text-center">
+          <i class="fa-regular fa-arrow-right-to-bracket fa-lg mb-2 d-block" style="color: var(--rose-300);"></i>
+          <p class="mb-0" style="font-size: 0.82rem; color: var(--charcoal); letter-spacing: 0.04em;">로그인</p>
         </a>
       </div>
       <div class="col-6">
-        <a href="/accounts/register/" class="card gx-card text-decoration-none text-dark">
-          <div class="card-body text-center py-4">
-            <i class="fa-solid fa-user-plus fa-2x text-primary mb-2 d-block"></i>
-            <p class="mb-0 fw-semibold">회원가입</p>
-          </div>
+        <a href="/accounts/register/" class="gx-card d-block text-decoration-none p-3 text-center">
+          <i class="fa-regular fa-user-plus fa-lg mb-2 d-block" style="color: var(--rose-300);"></i>
+          <p class="mb-0" style="font-size: 0.82rem; color: var(--charcoal); letter-spacing: 0.04em;">회원가입</p>
         </a>
       </div>
       <div class="col-12">
-        <a href="/messages/send/" class="card gx-card text-decoration-none text-dark">
-          <div class="card-body text-center py-3">
-            <i class="fa-solid fa-envelope fa-2x text-primary mb-2 d-block"></i>
-            <p class="mb-0 fw-semibold">쪽지 보내기</p>
-            <small class="text-muted">문의 · 개인 레슨 신청</small>
-          </div>
+        <a href="/messages/send/" class="gx-card d-block text-decoration-none p-3 text-center">
+          <i class="fa-regular fa-envelope fa-lg mb-2 d-block" style="color: var(--rose-300);"></i>
+          <p class="mb-0" style="font-size: 0.82rem; color: var(--charcoal); letter-spacing: 0.04em;">쪽지 보내기</p>
+          <p class="mb-0 mt-1" style="font-size: 0.72rem; color: var(--stone-lt);">문의 · 개인 레슨 신청</p>
         </a>
       </div>
     </div>
 
-    <p class="text-center text-muted small">
-      <i class="fa-solid fa-lock me-1"></i>등록된 입주민만 이용 가능한 서비스입니다.
+    <p class="text-center" style="font-size: 0.72rem; color: var(--stone-lt); letter-spacing: 0.06em;">
+      <i class="fa-regular fa-shield me-1"></i>등록된 입주민만 이용 가능한 서비스입니다
     </p>
   </div>
 </div>

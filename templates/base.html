@@ -2,33 +2,32 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#6366f1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#A86550">
 <title>{% block title %}GX 예약{% endblock %} | 박란샘 클래스</title>
 <link rel="manifest" href="/static/manifest.json">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
 <link href="/static/css/style.css" rel="stylesheet">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark gx-navbar">
+<nav class="navbar navbar-expand-lg gx-navbar sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="/">
-      <i class="fa-solid fa-dumbbell me-2"></i>박란샘 클래스
+    <a class="navbar-brand" href="/">
+      <i class="fa-solid fa-spa me-2"></i>박란샘 클래스
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav ms-auto gap-1">
         {% if user.is_authenticated %}
-
-          <li class="nav-item"><a class="nav-link" href="/classes/"><i class="fa-solid fa-calendar-check me-1"></i>수업예약</a></li>
-          <li class="nav-item"><a class="nav-link" href="/enrollments/"><i class="fa-solid fa-clipboard-list me-1"></i>수강등록</a></li>
-          <li class="nav-item"><a class="nav-link" href="/calendar/"><i class="fa-solid fa-calendar me-1"></i>캘린더</a></li>
-          <li class="nav-item"><a class="nav-link" href="/notices/"><i class="fa-solid fa-bullhorn me-1"></i>공지</a></li>
-          <li class="nav-item"><a class="nav-link" href="/messages/send/"><i class="fa-solid fa-envelope me-1"></i>쪽지</a></li>
-
+          <li class="nav-item"><a class="nav-link" href="/classes/"><i class="fa-regular fa-calendar me-1"></i>수업예약</a></li>
+          <li class="nav-item"><a class="nav-link" href="/enrollments/"><i class="fa-regular fa-clipboard me-1"></i>수강등록</a></li>
+          <li class="nav-item"><a class="nav-link" href="/calendar/"><i class="fa-regular fa-calendar-days me-1"></i>캘린더</a></li>
+          <li class="nav-item"><a class="nav-link" href="/notices/"><i class="fa-regular fa-bell me-1"></i>공지</a></li>
+          <li class="nav-item"><a class="nav-link" href="/messages/send/"><i class="fa-regular fa-envelope me-1"></i>쪽지</a></li>
           {% if user.profile.is_complex_admin %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -36,14 +35,14 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="/admin-dashboard/"><i class="fa-solid fa-chart-line me-1"></i>대시보드</a></li>
-              <li><a class="dropdown-item" href="/enrollments/admin/"><i class="fa-solid fa-clipboard-list me-1"></i>수강등록 관리</a></li>
-              <li><a class="dropdown-item" href="/calendar/schedule/create/"><i class="fa-solid fa-calendar-plus me-1"></i>일정 등록</a></li>
-              <li><a class="dropdown-item" href="/messages/inbox/"><i class="fa-solid fa-inbox me-1"></i>쪽지 수신함</a></li>
-              <li><a class="dropdown-item" href="/notices/create/"><i class="fa-solid fa-pen me-1"></i>공지 작성</a></li>
+              <li><a class="dropdown-item" href="/enrollments/admin/"><i class="fa-regular fa-clipboard me-1"></i>수강등록 관리</a></li>
+              <li><a class="dropdown-item" href="/calendar/schedule/create/"><i class="fa-regular fa-calendar-plus me-1"></i>일정 등록</a></li>
+              <li><a class="dropdown-item" href="/messages/inbox/"><i class="fa-regular fa-inbox me-1"></i>쪽지 수신함</a></li>
+              <li><a class="dropdown-item" href="/notices/create/"><i class="fa-regular fa-pen-to-square me-1"></i>공지 작성</a></li>
               <li><a class="dropdown-item" href="/class-manage/"><i class="fa-solid fa-dumbbell me-1"></i>수업 관리</a></li>
               <li><a class="dropdown-item" href="/accounts/members/"><i class="fa-solid fa-users me-1"></i>회원 관리</a></li>
-              <li><hr class="dropdown-divider"></li>
               {% if user.profile.is_super_admin %}
+              <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="/complexes/"><i class="fa-solid fa-building me-1"></i>단지 관리</a></li>
               <li><a class="dropdown-item" href="/qr/"><i class="fa-solid fa-qrcode me-1"></i>QR 코드</a></li>
               {% endif %}
@@ -52,12 +51,12 @@
           {% endif %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-              <i class="fa-solid fa-user me-1"></i>{{ user.first_name|default:user.username }}
+              <i class="fa-regular fa-user me-1"></i>{{ user.first_name|default:user.username }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="/accounts/dashboard/"><i class="fa-solid fa-house me-1"></i>마이페이지</a></li>
-              <li><a class="dropdown-item" href="/my-attendance/"><i class="fa-solid fa-clipboard-list me-1"></i>내 출석</a></li>
-              <li><a class="dropdown-item" href="/accounts/profile/"><i class="fa-solid fa-pen me-1"></i>정보수정</a></li>
+              <li><a class="dropdown-item" href="/my-attendance/"><i class="fa-regular fa-clipboard-list me-1"></i>내 출석</a></li>
+              <li><a class="dropdown-item" href="/accounts/profile/"><i class="fa-regular fa-pen-to-square me-1"></i>정보수정</a></li>
               <li><a class="dropdown-item" href="/accounts/password/change/"><i class="fa-solid fa-key me-1"></i>비밀번호변경</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item text-danger" href="/accounts/logout/"><i class="fa-solid fa-right-from-bracket me-1"></i>로그아웃</a></li>
@@ -66,25 +65,42 @@
         {% else %}
           <li class="nav-item"><a class="nav-link" href="/accounts/login/"><i class="fa-solid fa-right-to-bracket me-1"></i>로그인</a></li>
           <li class="nav-item"><a class="nav-link" href="/accounts/register/"><i class="fa-solid fa-user-plus me-1"></i>회원가입</a></li>
-          <li class="nav-item"><a class="nav-link" href="/messages/send/"><i class="fa-solid fa-envelope me-1"></i>쪽지</a></li>
+          <li class="nav-item"><a class="nav-link" href="/messages/send/"><i class="fa-regular fa-envelope me-1"></i>쪽지</a></li>
         {% endif %}
       </ul>
     </div>
   </div>
 </nav>
+
 <main class="container py-4">
   {% if messages %}
     {% for msg in messages %}
-    <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show">
+    <div class="alert alert-{{ msg.tags|default:'light' }} alert-dismissible fade show mb-3">
       {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     {% endfor %}
   {% endif %}
   {% block content %}{% endblock %}
 </main>
-<footer class="text-center py-3 mt-5 text-muted small border-top">
-  <p class="mb-0"><i class="fa-solid fa-dumbbell me-1"></i>박란샘 GX 클래스 &copy; 2025</p>
+
+<footer class="text-center py-4 mt-5">
+  <p class="mb-0" style="font-family: var(--serif); font-size: 0.78rem; color: var(--stone-lt); letter-spacing: 0.06em;">
+    박란샘 GX 클래스 &nbsp;·&nbsp; 장항동 라이브더센텀
+  </p>
 </footer>
+
+{% if user.is_authenticated %}
+<nav class="gx-bottom-nav d-lg-none">
+  <a href="/classes/"><i class="fa-regular fa-calendar"></i>수업예약</a>
+  <a href="/enrollments/"><i class="fa-regular fa-clipboard"></i>수강등록</a>
+  <a href="/calendar/"><i class="fa-regular fa-calendar-days"></i>캘린더</a>
+  <a href="/accounts/dashboard/"><i class="fa-regular fa-user"></i>마이페이지</a>
+  {% if user.profile.is_complex_admin %}
+  <a href="/admin-dashboard/"><i class="fa-solid fa-gear"></i>관리</a>
+  {% endif %}
+</nav>
+{% endif %}
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/static/js/main.js"></script>
 </body>
