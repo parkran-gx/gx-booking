@@ -87,3 +87,5 @@ KAKAO_API_KEY = os.environ.get('KAKAO_API_KEY', '')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 INSTALLED_APPS += ['apps.enrollments']
+
+CSRF_TRUSTED_ORIGINS = ['https://parkrangx.pythonanywhere.com']
