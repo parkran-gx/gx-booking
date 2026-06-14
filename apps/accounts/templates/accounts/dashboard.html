@@ -1,120 +1,117 @@
 {% extends 'base.html' %}
-{% block title %}내 대시보드{% endblock %}
+{% block title %}마이페이지{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-lg-8">
+  <div class="col-lg-7">
+
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="fw-bold mb-0">
-        <i class="fa-solid fa-house me-2"></i>
+      <h3 class="mb-0" style="font-size: 1.3rem; font-weight: 600;">
         {% if profile.complex %}{{ profile.complex.name }}{% endif %} 마이페이지
       </h3>
-      <a href="/accounts/profile/" class="btn btn-outline-secondary btn-sm">
+      <a href="/accounts/profile/" class="btn btn-sm btn-gx">
         <i class="fa-solid fa-pen me-1"></i>정보수정
       </a>
     </div>
 
-    <div class="card gx-card mb-4">
-      <div class="card-body p-4">
-        <div class="row align-items-center">
-          <div class="col-auto">
-            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:60px;height:60px">
-              <i class="fa-solid fa-user fa-xl text-primary"></i>
-            </div>
-          </div>
-          <div class="col">
-            <h5 class="fw-bold mb-1">{{ profile.display_name }}님</h5>
+    <div class="gx-card p-4 mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--rose-bg);border:1px solid var(--rose-line);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="fa-solid fa-user" style="color:var(--rose-lt);font-size:1.1rem;"></i>
+        </div>
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span style="font-size:1rem;font-weight:600;color:var(--ink);">{{ profile.display_name }}님</span>
             <span class="badge {% if profile.is_super_admin %}bg-danger{% elif profile.is_complex_admin %}bg-warning{% elif profile.is_registered %}bg-success{% else %}bg-secondary{% endif %}">
               {{ profile.get_role_display }}
             </span>
-            {% if profile.complex %}
-            <span class="text-muted ms-2 small">{{ profile.complex.name }} {{ profile.building }}동 {{ profile.unit }}호</span>
-            {% endif %}
           </div>
-          <div class="col-auto">
-            <a href="/accounts/password/change/" class="btn btn-sm btn-outline-secondary">
-              <i class="fa-solid fa-key me-1"></i>비밀번호변경
-            </a>
-          </div>
+          <span style="font-size:0.82rem;color:var(--mist);">
+            {% if profile.complex %}{{ profile.complex.name }}{% endif %}
+            {% if profile.building %} &nbsp;·&nbsp; {{ profile.building }}동 {{ profile.unit }}호{% endif %}
+            {% if profile.phone %} &nbsp;·&nbsp; {{ profile.phone }}{% endif %}
+          </span>
+        </div>
+        <div class="ms-auto">
+          <a href="/accounts/password/change/" class="btn btn-sm" style="font-size:0.78rem;color:var(--mist);border:1px solid var(--line);border-radius:var(--r-sm);padding:0.3rem 0.7rem;">
+            비밀번호 변경
+          </a>
         </div>
       </div>
     </div>
 
-    <h5 class="fw-bold mb-3"><i class="fa-solid fa-calendar-check me-2"></i>내 예약 현황</h5>
-    {% for b in my_bookings %}
-    <div class="card mb-2 border-start border-4 {% if b.status == 'confirmed' %}border-success{% else %}border-warning{% endif %}">
-      <div class="card-body py-3">
+    <h5 style="font-size:0.9rem;font-weight:600;color:var(--stone);letter-spacing:0.03em;margin-bottom:1rem;">
+      내 예약 현황
+    </h5>
+
+    {% if bookings %}
+    <div class="gx-card mb-4">
+      {% for b in bookings %}
+      <div class="p-3 {% if not forloop.last %}border-bottom{% endif %}" style="border-color:var(--line)!important;">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h6 class="fw-bold mb-1">{{ b.gx_class.name }}</h6>
-            <small class="text-muted">{{ b.gx_class.get_days_display }} {{ b.gx_class.start_time|time:"H:i" }}</small>
-          </div>
-          <div class="text-end">
-            <span class="badge {% if b.status == 'confirmed' %}bg-success{% else %}bg-warning{% endif %}">
-              {{ b.get_status_display }}{% if b.status == 'waiting' %} ({{ b.waiting_order }}번){% endif %}
+            <span style="font-weight:600;font-size:0.92rem;">{{ b.gx_class.name }}</span>
+            <span class="ms-2 badge {% if b.status == 'confirmed' %}bg-success{% elif b.status == 'waiting' %}bg-warning{% else %}bg-secondary{% endif %}">
+              {% if b.status == 'confirmed' %}예약확정{% elif b.status == 'waiting' %}대기 {{ b.waiting_order }}번{% else %}취소{% endif %}
             </span>
-            <div class="mt-1">
-              <a href="/bookings/cancel-request/{{ b.id }}/" class="btn btn-sm btn-outline-secondary">변경요청</a>
+            <div style="font-size:0.78rem;color:var(--mist);margin-top:2px;">
+              {{ b.gx_class.get_days_display }} {{ b.gx_class.start_time|time:"H:i" }}
+              &nbsp;·&nbsp; {{ b.building }}동 {{ b.unit }}호
             </div>
           </div>
+          <a href="/bookings/cancel/{{ b.id }}/" style="font-size:0.75rem;color:var(--mist);">변경요청</a>
         </div>
       </div>
+      {% endfor %}
     </div>
-    {% empty %}
-    <div class="card gx-card">
-      <div class="card-body text-center py-4 text-muted">
-        <i class="fa-solid fa-calendar-xmark fa-2x mb-2"></i>
-        <p class="mb-2">예약된 수업이 없습니다.</p>
-        <a href="/" class="btn btn-gx btn-sm">수업 예약하기</a>
-      </div>
+    {% else %}
+    <div class="gx-card mb-4 p-4 text-center">
+      <i class="fa-regular fa-calendar-xmark d-block mb-2" style="font-size:1.8rem;color:var(--rose-line);"></i>
+      <p style="font-size:0.85rem;color:var(--mist);margin:0 0 1rem;">예약된 수업이 없습니다.</p>
+      <a href="/classes/" class="btn btn-gx btn-sm">수업 예약하기</a>
     </div>
-    {% endfor %}
+    {% endif %}
 
-    <div class="row g-3 mt-2">
+    <div class="row g-3">
       <div class="col-6">
-        <a href="/notices/" class="card gx-card text-decoration-none text-dark">
-          <div class="card-body text-center py-3">
-            <i class="fa-solid fa-bullhorn fa-xl text-primary mb-2"></i>
-            <p class="mb-0 fw-semibold small">공지사항</p>
-          </div>
+        <a href="/notices/" class="gx-card d-block text-decoration-none p-3 text-center">
+          <i class="fa-regular fa-bell d-block mb-2" style="color:var(--rose-lt);font-size:1.3rem;"></i>
+          <span style="font-size:0.82rem;font-weight:500;color:var(--ink);">공지사항</span>
         </a>
       </div>
       <div class="col-6">
-        <a href="/messages/send/" class="card gx-card text-decoration-none text-dark">
-          <div class="card-body text-center py-3">
-            <i class="fa-solid fa-envelope fa-xl text-primary mb-2"></i>
-            <p class="mb-0 fw-semibold small">쪽지 보내기</p>
-          </div>
+        <a href="/messages/send/" class="gx-card d-block text-decoration-none p-3 text-center">
+          <i class="fa-regular fa-envelope d-block mb-2" style="color:var(--rose-lt);font-size:1.3rem;"></i>
+          <span style="font-size:0.82rem;font-weight:500;color:var(--ink);">쪽지 보내기</span>
+        </a>
+      </div>
+      <div class="col-6">
+        <a href="/my-attendance/" class="gx-card d-block text-decoration-none p-3 text-center">
+          <i class="fa-regular fa-clipboard-list d-block mb-2" style="color:var(--rose-lt);font-size:1.3rem;"></i>
+          <span style="font-size:0.82rem;font-weight:500;color:var(--ink);">내 출석</span>
+        </a>
+      </div>
+      <div class="col-6">
+        <a href="/enrollments/" class="gx-card d-block text-decoration-none p-3 text-center">
+          <i class="fa-regular fa-calendar-check d-block mb-2" style="color:var(--rose-lt);font-size:1.3rem;"></i>
+          <span style="font-size:0.82rem;font-weight:500;color:var(--ink);">수강등록</span>
         </a>
       </div>
       {% if profile.is_complex_admin %}
       <div class="col-6">
-        <a href="/admin-dashboard/" class="card gx-card text-decoration-none text-dark">
-          <div class="card-body text-center py-3">
-            <i class="fa-solid fa-chart-line fa-xl text-warning mb-2"></i>
-            <p class="mb-0 fw-semibold small">관리 대시보드</p>
-          </div>
+        <a href="/admin-dashboard/" class="gx-card d-block text-decoration-none p-3 text-center">
+          <i class="fa-solid fa-chart-line d-block mb-2" style="color:var(--rose-lt);font-size:1.3rem;"></i>
+          <span style="font-size:0.82rem;font-weight:500;color:var(--ink);">관리 대시보드</span>
         </a>
       </div>
       <div class="col-6">
-        <a href="/messages/inbox/" class="card gx-card text-decoration-none text-dark">
-          <div class="card-body text-center py-3">
-            <i class="fa-solid fa-inbox fa-xl text-warning mb-2"></i>
-            <p class="mb-0 fw-semibold small">쪽지 수신함</p>
-          </div>
-        </a>
-      </div>
-      {% endif %}
-      {% if profile.is_super_admin %}
-      <div class="col-6">
-        <a href="/complexes/" class="card gx-card text-decoration-none text-dark">
-          <div class="card-body text-center py-3">
-            <i class="fa-solid fa-building fa-xl text-danger mb-2"></i>
-            <p class="mb-0 fw-semibold small">단지 관리</p>
-          </div>
+        <a href="/accounts/members/" class="gx-card d-block text-decoration-none p-3 text-center">
+          <i class="fa-solid fa-users d-block mb-2" style="color:var(--rose-lt);font-size:1.3rem;"></i>
+          <span style="font-size:0.82rem;font-weight:500;color:var(--ink);">회원 관리</span>
         </a>
       </div>
       {% endif %}
     </div>
+
   </div>
 </div>
 {% endblock %}
