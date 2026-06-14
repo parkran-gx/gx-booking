@@ -286,11 +286,16 @@ def attendance_view(request, session_id):
             )
         messages.success(request, '출석이 저장되었습니다.')
         return redirect('classes:attendance', session_id=session_id)
-    attendance_map = {a.booking_id: a for a in Attendance.objects.filter(session=session)}
+    attendances = Attendance.objects.filter(session=session)
+    attendance_presents = set(a.booking_id for a in attendances if a.status == 'present')
+    attendance_absents = set(a.booking_id for a in attendances if a.status == 'absent')
+    attendance_makeups = set(a.booking_id for a in attendances if a.status == 'makeup')
     return render(request, 'classes/attendance.html', {
         'session': session,
         'bookings': bookings,
-        'attendance_map': attendance_map,
+        'attendance_presents': attendance_presents,
+        'attendance_absents': attendance_absents,
+        'attendance_makeups': attendance_makeups,
     })
 
 @login_required
