@@ -89,3 +89,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 INSTALLED_APPS += ['apps.enrollments']
 
 CSRF_TRUSTED_ORIGINS = ['https://parkrangx.pythonanywhere.com']
+
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 1209600
