@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}회원 관리{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0"><i class="fa-solid fa-users me-2"></i>회원 관리</h3>
+  <span class="text-muted small">총 {{ members.count }}명</span>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-3 text-center">
+    <div class="card p-3 bg-danger bg-opacity-10">
+      <div class="fw-bold fs-5 text-danger">{{ members|length }}</div>
+      <small class="text-muted">전체</small>
+    </div>
+  </div>
+  <div class="col-3 text-center">
+    <div class="card p-3 bg-warning bg-opacity-10">
+      <div class="fw-bold fs-5 text-warning">
+        {% with cnt=0 %}
+        {% for m in members %}{% if not m.is_approved and m.role == 'unregistered' %}{% endif %}{% endfor %}
+        {% endwith %}
+        {{ members|length }}
+      </div>
+      <small class="text-muted">미승인</small>
+    </div>
+  </div>
+  <div class="col-3 text-center">
+    <div class="card p-3 bg-success bg-opacity-10">
+      <div class="fw-bold fs-5 text-success">
+        {% for m in members %}{% if m.is_approved %}{% endif %}{% endfor %}
+        {{ members|length }}
+      </div>
+      <small class="text-muted">승인</small>
+    </div>
+  </div>
+  <div class="col-3 text-center">
+    <div class="card p-3 bg-primary bg-opacity-10">
+      <div class="fw-bold fs-5 text-primary">{{ members|length }}</div>
+      <small class="text-muted">관리자</small>
+    </div>
+  </div>
+</div>
+
+{% for m in members %}
+<div class="card gx-card mb-2">
+  <div class="card-body p-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="fw-semibold">{{ m.display_name }}</span>
+          <span class="badge
+            {% if m.role == 'super_admin' %}bg-danger
+            {% elif m.role == 'complex_admin' %}bg-warning
+            {% elif m.is_approved %}bg-success
+            {% else %}bg-secondary{% endif %}">
+            {{ m.get_role_display }}
+          </span>
+          {% if not m.is_approved %}
+          <span class="badge bg-light text-danger border border-danger">미승인</span>
+          {% endif %}
+        </div>
+        <small class="text-muted">
+          {{ m.user.username }}
+          {% if m.complex %}&nbsp;·&nbsp;{{ m.complex.name }}{% endif %}
+          {% if m.building %}&nbsp;·&nbsp;{{ m.building }}동 {{ m.unit }}호{% endif %}
+          {% if m.phone %}&nbsp;·&nbsp;{{ m.phone }}{% endif %}
+        </small>
+      </div>
+      <div class="d-flex gap-1 flex-wrap justify-content-end">
+        {% if not m.is_approved or m.role == 'unregistered' %}
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <input type="hidden" name="member_id" value="{{ m.id }}">
+          <input type="hidden" name="action" value="approve">
+          <button type="submit" class="btn btn-sm btn-success">
+            <i class="fa-solid fa-check me-1"></i>승인
+          </button>
+        </form>
+        {% else %}
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <input type="hidden" name="member_id" value="{{ m.id }}">
+          <input type="hidden" name="action" value="reject">
+          <button type="submit" class="btn btn-sm btn-outline-warning">
+            <i class="fa-solid fa-ban me-1"></i>미승인
+          </button>
+        </form>
+        {% endif %}
+        {% if m.role not in 'super_admin,complex_admin' %}
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <input type="hidden" name="member_id" value="{{ m.id }}">
+          <input type="hidden" name="action" value="set_admin">
+          <button type="submit" class="btn btn-sm btn-outline-primary">관리자↑</button>
+        </form>
+        {% endif %}
+        {% if request.user.profile.is_super_admin and m.user != request.user %}
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <input type="hidden" name="member_id" value="{{ m.id }}">
+          <input type="hidden" name="action" value="delete">
+          <button type="submit" class="btn btn-sm btn-outline-danger"
+            onclick="return confirm('정말 삭제하시겠습니까?')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="alert alert-info text-center">등록된 회원이 없습니다.</div>
+{% endfor %}
+{% endblock %}

@@ -144,3 +144,54 @@ def password_reset_confirm(request):
             messages.success(request, '비밀번호가 재설정되었습니다. 다시 로그인해주세요.')
             return redirect('accounts:login')
     return render(request, 'accounts/password_reset_confirm.html')
+
+
+@login_required
+def member_manage(request):
+    """회원 목록 및 승인 관리"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    profile = request.user.profile
+    from apps.accounts.models import UserProfile
+    if profile.is_super_admin:
+        members = UserProfile.objects.all().select_related('user', 'complex').order_by('-created_at')
+    else:
+        members = UserProfile.objects.filter(
+            complex=profile.complex
+        ).select_related('user', 'complex').order_by('-created_at')
+
+    if request.method == 'POST':
+        member_id = request.POST.get('member_id')
+        action = request.POST.get('action')
+        try:
+            member = UserProfile.objects.get(id=member_id)
+            if action == 'approve':
+                member.is_approved = True
+                member.role = 'registered'
+                member.save()
+                messages.success(request, f'{member.display_name}님을 승인했습니다.')
+            elif action == 'reject':
+                member.is_approved = False
+                member.role = 'unregistered'
+                member.save()
+                messages.success(request, f'{member.display_name}님을 미승인 처리했습니다.')
+            elif action == 'set_admin':
+                member.role = 'complex_admin'
+                member.is_approved = True
+                member.save()
+                messages.success(request, f'{member.display_name}님을 단지관리자로 변경했습니다.')
+            elif action == 'set_super':
+                member.role = 'super_admin'
+                member.is_approved = True
+                member.save()
+                messages.success(request, f'{member.display_name}님을 슈퍼관리자로 변경했습니다.')
+            elif action == 'delete':
+                name = member.display_name
+                member.user.delete()
+                messages.success(request, f'{name}님 계정을 삭제했습니다.')
+        except UserProfile.DoesNotExist:
+            messages.error(request, '회원을 찾을 수 없습니다.')
+        return redirect('accounts:member_manage')
+
+    return render(request, 'accounts/member_manage.html', {'members': members})

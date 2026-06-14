@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}공지 삭제{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card gx-card p-4 text-center">
+      <i class="fa-solid fa-triangle-exclamation fa-3x text-danger mb-3"></i>
+      <h4 class="fw-bold mb-2">공지를 삭제하시겠습니까?</h4>
+      <p class="text-muted mb-4">{{ notice.title }}</p>
+      <div class="d-flex gap-3 justify-content-center">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger px-4">
+            <i class="fa-solid fa-trash me-1"></i>삭제
+          </button>
+        </form>
+        <a href="/notices/" class="btn btn-outline-secondary px-4">취소</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
