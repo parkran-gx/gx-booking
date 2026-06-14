@@ -428,3 +428,126 @@ def class_edit(request, class_id):
         'gx_class': gx_class,
         'complexes': complexes,
     })
+
+
+@login_required
+def attendance_pdf(request, session_id):
+    """출석부 PDF 출력"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import mm
+    from django.http import HttpResponse
+    from io import BytesIO
+    import datetime
+
+    session = get_object_or_404(ClassSession, id=session_id)
+    bookings = Booking.objects.filter(
+        gx_class=session.gx_class, status='confirmed'
+    ).order_by('building', 'unit')
+    attendance_map = {
+        a.booking_id: a for a in
+        Attendance.objects.filter(session=session)
+    }
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+        rightMargin=15*mm, leftMargin=15*mm,
+        topMargin=15*mm, bottomMargin=15*mm)
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('title', fontSize=16, spaceAfter=4,
+        alignment=1, fontName='Helvetica-Bold')
+    sub_style = ParagraphStyle('sub', fontSize=9, spaceAfter=10,
+        alignment=1, fontName='Helvetica')
+
+    story = []
+    story.append(Paragraph(f"{session.gx_class.name} 출석부", title_style))
+    status_text = '휴강' if session.is_cancelled else (
+        f"대강: {session.substitute_instructor}" if session.substitute_instructor else '정상수업'
+    )
+    story.append(Paragraph(
+        f"날짜: {session.date} | 수업: {session.gx_class.get_days_display()} "
+        f"{session.gx_class.start_time.strftime('%H:%M')}~{session.gx_class.end_time.strftime('%H:%M')} | "
+        f"상태: {status_text} | 출력일: {datetime.date.today()}",
+        sub_style
+    ))
+    story.append(Spacer(1, 5*mm))
+
+    # 출석 통계
+    present = sum(1 for b in bookings if attendance_map.get(b.id) and attendance_map[b.id].status == 'present')
+    absent = sum(1 for b in bookings if attendance_map.get(b.id) and attendance_map[b.id].status == 'absent')
+    makeup = sum(1 for b in bookings if attendance_map.get(b.id) and attendance_map[b.id].status == 'makeup')
+    not_checked = bookings.count() - present - absent - makeup
+
+    stat_data = [['출석', '결석', '보강', '미체크', '전체']]
+    stat_data.append([str(present), str(absent), str(makeup), str(not_checked), str(bookings.count())])
+    stat_table = Table(stat_data, colWidths=[30*mm]*5)
+    stat_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#6366f1')),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,-1), 10),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ROWHEIGHT', (0,0), (-1,-1), 8*mm),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+        ('BACKGROUND', (0,1), (0,1), colors.HexColor('#d1fae5')),
+        ('BACKGROUND', (1,1), (1,1), colors.HexColor('#fee2e2')),
+        ('BACKGROUND', (2,1), (2,1), colors.HexColor('#fef3c7')),
+    ]))
+    story.append(stat_table)
+    story.append(Spacer(1, 5*mm))
+
+    # 출석 명단 테이블
+    headers = ['번호', '이름', '동/호수', '연락처', '출석', '서명']
+    col_widths = [12*mm, 22*mm, 20*mm, 32*mm, 18*mm, 35*mm]
+    data = [headers]
+    status_labels = {'present': '출석', 'absent': '결석', 'makeup': '보강', None: ''}
+
+    for i, b in enumerate(bookings, 1):
+        att = attendance_map.get(b.id)
+        att_status = att.status if att else None
+        att_label = status_labels.get(att_status, '')
+        data.append([
+            str(i), b.name,
+            f"{b.building}동 {b.unit}호",
+            b.phone, att_label, ''
+        ])
+
+    table = Table(data, colWidths=col_widths)
+    row_count = len(data)
+    style = TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#6366f1')),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTSIZE', (0,0), (-1,0), 10),
+        ('FONTSIZE', (0,1), (-1,-1), 9),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#dee2e6')),
+        ('ROWHEIGHT', (0,0), (-1,-1), 9*mm),
+    ])
+    # 출석 상태별 색상
+    for i, b in enumerate(bookings, 1):
+        att = attendance_map.get(b.id)
+        if att:
+            if att.status == 'present':
+                style.add('BACKGROUND', (4,i), (4,i), colors.HexColor('#d1fae5'))
+            elif att.status == 'absent':
+                style.add('BACKGROUND', (4,i), (4,i), colors.HexColor('#fee2e2'))
+            elif att.status == 'makeup':
+                style.add('BACKGROUND', (4,i), (4,i), colors.HexColor('#fef3c7'))
+    table.setStyle(style)
+    story.append(table)
+
+    doc.build(story)
+    buffer.seek(0)
+    filename = f"{session.gx_class.name}_{session.date}_출석부.pdf"
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

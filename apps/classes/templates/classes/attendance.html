@@ -21,15 +21,17 @@
             {% endif %}
           </p>
         </div>
-        <div class="text-end small text-muted">
-          수강생 {{ bookings.count }}명
+        <div class="d-flex gap-2">
+          <a href="/calendar/session/{{ session.id }}/attendance/pdf/"
+             class="btn btn-sm btn-danger">
+            <i class="fa-solid fa-file-pdf me-1"></i>출석부 PDF
+          </a>
+          <span class="text-muted small mt-2">수강생 {{ bookings.count }}명</span>
         </div>
       </div>
-
       {% if session.is_cancelled %}
       <div class="alert alert-danger">
-        <i class="fa-solid fa-triangle-exclamation me-1"></i>
-        휴강된 수업입니다.
+        <i class="fa-solid fa-triangle-exclamation me-1"></i>휴강된 수업입니다.
       </div>
       {% else %}
       <form method="post">
@@ -47,13 +49,15 @@
             <tbody>
               {% for b in bookings %}
               {% with att=attendance_map|default_if_none:"" %}
-              <tr>
+              <tr class="{% if attendance_map[b.id].status == 'present' %}table-success
+                          {% elif attendance_map[b.id].status == 'absent' %}table-danger
+                          {% elif attendance_map[b.id].status == 'makeup' %}table-warning{% endif %}">
                 <td class="fw-semibold">{{ b.name }}</td>
                 <td class="text-muted">{{ b.building }}동 {{ b.unit }}호</td>
                 <td class="text-center">
                   <input type="radio" name="att_{{ b.id }}" value="present"
                     class="form-check-input"
-                    {% if attendance_map[b.id].status == 'present' or not attendance_map[b.id] %}checked{% endif %}>
+                    {% if attendance_map[b.id].status == 'present' %}checked{% endif %}>
                 </td>
                 <td class="text-center">
                   <input type="radio" name="att_{{ b.id }}" value="absent"
