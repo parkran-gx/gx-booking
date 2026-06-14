@@ -1,17 +1,17 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
 :root {
-  --rose:      #B5705A;
-  --rose-lt:   #D4957E;
-  --rose-bg:   #FAF4F2;
-  --rose-line: #EDD8D0;
+  --rose:      #7A5A54;
+  --rose-lt:   #C4968A;
+  --rose-bg:   #FDF9F7;
+  --rose-line: #EEE4DF;
   --sage:      #7A9E7E;
   --sage-bg:   #F2F7F2;
-  --cream:     #FDFAF7;
+  --cream:     #FDF9F7;
   --gold:      #B89B6A;
-  --ink:       #1C1C1C;
-  --stone:     #5A5550;
-  --mist:      #9A9590;
+  --ink:       #1E1818;
+  --stone:     #4A3C3A;
+  --mist:      #9A8A88;
   --line:      rgba(0,0,0,0.07);
   --line-md:   rgba(0,0,0,0.12);
   --shadow:    0 1px 12px rgba(0,0,0,0.05);
