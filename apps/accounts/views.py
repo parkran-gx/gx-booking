@@ -61,7 +61,7 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            next_url = request.GET.get('next', '/dashboard/')
+            next_url = request.GET.get('next', '/accounts/dashboard/')
             return redirect(next_url)
         messages.error(request, '아이디 또는 비밀번호가 올바르지 않습니다.')
     return render(request, 'accounts/login.html')
