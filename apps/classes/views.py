@@ -386,7 +386,7 @@ def qr_generate(request):
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
     qr.add_data(url)
     qr.make(fit=True)
-    img = qr.make_image(fill_color='#6366f1', back_color='white')
+    img = qr.make_image(fill_color='#1A1A1A', back_color='white')
     buffer = BytesIO()
     img.save(buffer, format='PNG')
     buffer.seek(0)
