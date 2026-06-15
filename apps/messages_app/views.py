@@ -99,11 +99,15 @@ def message_reply(request, pk):
 
 @login_required
 def sent_box(request):
-    if not request.user.profile.is_complex_admin:
-        return redirect('messages_app:inbox')
-    sent = Message.objects.filter(
-        sender_name__startswith='[강사]'
-    ).order_by('-created_at')
+    profile = request.user.profile
+    if profile.is_complex_admin:
+        sent = Message.objects.filter(
+            sender_name__startswith='[강사]'
+        ).order_by('-created_at')
+    else:
+        sent = Message.objects.filter(
+            sender_name=profile.display_name
+        ).order_by('-created_at')
     return render(request, 'messages_app/sent_box.html', {'sent': sent})
 
 
