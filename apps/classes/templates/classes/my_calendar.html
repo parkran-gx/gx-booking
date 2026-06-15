@@ -68,12 +68,12 @@ document.addEventListener('DOMContentLoaded', function() {
   var events = {{ events_json|safe }};
   var isMobile = window.innerWidth < 576;
   var cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
-    initialView: isMobile ? 'listMonth' : 'dayGridMonth',
+    initialView: 'listMonth',
     locale: 'ko',
     headerToolbar: {
       left: 'prev',
       center: 'title',
-      right: isMobile ? 'dayGridMonth,listMonth' : 'next'
+      right: 'dayGridMonth,listMonth'
     },
     buttonText: {
       dayGridMonth: '달력',
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     events: events,
     eventClick: function(info) {
       info.jsEvent.preventDefault();
-      window.location.href = '/calendar/session/' + info.event.id + '/attendance/';
+      window.location.href = '/my-attendance-check/' + info.event.id + '/';
     },
     height: 'auto',
     fixedWeekCount: false,

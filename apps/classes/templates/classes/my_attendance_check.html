@@ -6,9 +6,7 @@
     <a href="/my-calendar/" style="font-size:0.82rem;color:var(--mist);text-decoration:none;display:inline-block;margin-bottom:1.2rem;">
       <i class="fa-solid fa-arrow-left me-1"></i>캘린더로
     </a>
-
     <div class="gx-card p-4">
-      <!-- 수업 정보 -->
       <div class="d-flex align-items-center gap-3 mb-4 pb-3" style="border-bottom:1px solid var(--line);">
         <div style="width:48px;height:48px;border-radius:10px;background:var(--sage-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <i class="fa-solid fa-person-walking" style="color:var(--sage);font-size:1.1rem;"></i>
@@ -17,11 +15,11 @@
           <div style="font-weight:600;font-size:1rem;">{{ session.gx_class.name }}</div>
           <div style="font-size:0.8rem;color:var(--mist);">
             {{ session.date }} &nbsp;·&nbsp;
-            {{ session.gx_class.start_time|time:"H:i" }} – {{ session.gx_class.end_time|time:"H:i" }}
+            {{ session.gx_class.start_time|time:"H:i" }}–{{ session.gx_class.end_time|time:"H:i" }}
             {% if session.is_cancelled %}
             <span style="background:#FBF0EF;color:#E05A5A;border-radius:3px;padding:1px 6px;margin-left:4px;font-size:0.72rem;">휴강</span>
             {% elif session.substitute_instructor %}
-            <span style="background:#FBF6EE;color:#F0A842;border-radius:3px;padding:1px 6px;margin-left:4px;font-size:0.72rem;">대강</span>
+            <span style="background:#FBF6EE;color:#F0A842;border-radius:3px;padding:1px 6px;margin-left:4px;font-size:0.72rem;">대강: {{ session.substitute_instructor }}</span>
             {% endif %}
           </div>
         </div>
@@ -29,21 +27,18 @@
 
       {% if session.is_cancelled %}
       <div class="alert alert-danger text-center">
-        <i class="fa-solid fa-triangle-exclamation me-1"></i>
-        휴강된 수업입니다.
+        <i class="fa-solid fa-triangle-exclamation me-1"></i>휴강된 수업입니다.
       </div>
       {% else %}
 
       <div class="gx-guide mb-4">
         <i class="fa-solid fa-circle-info me-1" style="color:var(--rose-lt);"></i>
         출석 여부를 미리 알려주시면 강사님이 수업 준비에 참고할 수 있습니다.
-        결석 시 사유를 간단히 남겨주세요.
       </div>
 
-      <!-- 현재 상태 표시 -->
       <div class="text-center mb-4">
-        <div style="font-size:0.8rem;color:var(--mist);margin-bottom:0.5rem;">현재 등록 상태</div>
-        <span style="font-size:1rem;font-weight:600;padding:0.4rem 1.2rem;border-radius:20px;
+        <div style="font-size:0.78rem;color:var(--mist);margin-bottom:0.5rem;">현재 등록 상태</div>
+        <span style="font-size:0.95rem;font-weight:600;padding:0.4rem 1.4rem;border-radius:20px;
           {% if attendance.status == 'present' %}background:var(--sage-bg);color:var(--sage);
           {% elif attendance.status == 'absent' %}background:#FBF0EF;color:#E05A5A;
           {% else %}background:#FBF6EE;color:#F0A842;{% endif %}">
@@ -52,7 +47,7 @@
           {% else %}↺ 보강 예정{% endif %}
         </span>
         {% if attendance.note %}
-        <div style="font-size:0.8rem;color:var(--stone);margin-top:0.5rem;background:var(--rose-bg);padding:0.4rem 0.8rem;border-radius:6px;">
+        <div style="font-size:0.8rem;color:var(--stone);margin-top:0.6rem;background:var(--rose-bg);padding:0.4rem 0.8rem;border-radius:6px;display:inline-block;">
           사유: {{ attendance.note }}
         </div>
         {% endif %}
@@ -61,30 +56,20 @@
       <form method="post" id="att-form">
         {% csrf_token %}
         <input type="hidden" name="status" id="status-input" value="{{ attendance.status }}">
-
-        <!-- 원터치 버튼 -->
         <div class="d-flex gap-2 mb-3">
-          <button type="button" onclick="selectStatus('present')"
-            id="btn-present"
-            style="flex:1;padding:0.9rem;border-radius:10px;border:2px solid {% if attendance.status == 'present' %}#4CAF82{% else %}#E0E5F0{% endif %};background:{% if attendance.status == 'present' %}#E8F5EE{% else %}white{% endif %};color:{% if attendance.status == 'present' %}#2E7D52{% else %}#6B6F80{% endif %};font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
-            <i class="fa-solid fa-check d-block mb-1" style="font-size:1.2rem;"></i>
-            출석
+          <button type="button" onclick="selectStatus('present')" id="btn-present"
+            style="flex:1;padding:1rem 0.5rem;border-radius:10px;border:2px solid {% if attendance.status == 'present' %}#4CAF82{% else %}#E0E5F0{% endif %};background:{% if attendance.status == 'present' %}#E8F5EE{% else %}white{% endif %};color:{% if attendance.status == 'present' %}#2E7D52{% else %}#6B6F80{% endif %};font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
+            <i class="fa-solid fa-check d-block mb-1" style="font-size:1.3rem;"></i>출석
           </button>
-          <button type="button" onclick="selectStatus('absent')"
-            id="btn-absent"
-            style="flex:1;padding:0.9rem;border-radius:10px;border:2px solid {% if attendance.status == 'absent' %}#E05A5A{% else %}#E0E5F0{% endif %};background:{% if attendance.status == 'absent' %}#FBF0EF{% else %}white{% endif %};color:{% if attendance.status == 'absent' %}#C04040{% else %}#6B6F80{% endif %};font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
-            <i class="fa-solid fa-xmark d-block mb-1" style="font-size:1.2rem;"></i>
-            결석
+          <button type="button" onclick="selectStatus('absent')" id="btn-absent"
+            style="flex:1;padding:1rem 0.5rem;border-radius:10px;border:2px solid {% if attendance.status == 'absent' %}#E05A5A{% else %}#E0E5F0{% endif %};background:{% if attendance.status == 'absent' %}#FBF0EF{% else %}white{% endif %};color:{% if attendance.status == 'absent' %}#C04040{% else %}#6B6F80{% endif %};font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
+            <i class="fa-solid fa-xmark d-block mb-1" style="font-size:1.3rem;"></i>결석
           </button>
-          <button type="button" onclick="selectStatus('makeup')"
-            id="btn-makeup"
-            style="flex:1;padding:0.9rem;border-radius:10px;border:2px solid {% if attendance.status == 'makeup' %}#F0A842{% else %}#E0E5F0{% endif %};background:{% if attendance.status == 'makeup' %}#FBF6EE{% else %}white{% endif %};color:{% if attendance.status == 'makeup' %}#8A6A30{% else %}#6B6F80{% endif %};font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
-            <i class="fa-solid fa-rotate-left d-block mb-1" style="font-size:1.2rem;"></i>
-            보강
+          <button type="button" onclick="selectStatus('makeup')" id="btn-makeup"
+            style="flex:1;padding:1rem 0.5rem;border-radius:10px;border:2px solid {% if attendance.status == 'makeup' %}#F0A842{% else %}#E0E5F0{% endif %};background:{% if attendance.status == 'makeup' %}#FBF6EE{% else %}white{% endif %};color:{% if attendance.status == 'makeup' %}#8A6A30{% else %}#6B6F80{% endif %};font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
+            <i class="fa-solid fa-rotate-left d-block mb-1" style="font-size:1.3rem;"></i>보강
           </button>
         </div>
-
-        <!-- 결석 사유 -->
         <div id="note-box" style="display:{% if attendance.status == 'absent' %}block{% else %}none{% endif %};">
           <div class="mb-3">
             <label class="form-label">결석 사유 <span style="font-size:0.75rem;color:var(--mist);">(선택)</span></label>
@@ -93,7 +78,6 @@
               value="{{ attendance.note }}">
           </div>
         </div>
-
         <button type="submit" class="btn btn-gx w-100" style="padding:0.7rem;">
           <i class="fa-solid fa-check me-1"></i>저장하기
         </button>
@@ -102,25 +86,22 @@
     </div>
   </div>
 </div>
-
 <script>
 var btns = {
-  present: {border:'#4CAF82', bg:'#E8F5EE', color:'#2E7D52'},
-  absent:  {border:'#E05A5A', bg:'#FBF0EF', color:'#C04040'},
-  makeup:  {border:'#F0A842', bg:'#FBF6EE', color:'#8A6A30'},
+  present:{border:'#4CAF82',bg:'#E8F5EE',color:'#2E7D52'},
+  absent: {border:'#E05A5A',bg:'#FBF0EF',color:'#C04040'},
+  makeup: {border:'#F0A842',bg:'#FBF6EE',color:'#8A6A30'},
 };
-var off = {border:'#E0E5F0', bg:'white', color:'#6B6F80'};
-
 function selectStatus(status) {
   document.getElementById('status-input').value = status;
   ['present','absent','makeup'].forEach(function(s) {
-    var btn = document.getElementById('btn-' + s);
-    var c = s === status ? btns[s] : off;
-    btn.style.border = '2px solid ' + c.border;
+    var btn = document.getElementById('btn-'+s);
+    var c = s===status ? btns[s] : {border:'#E0E5F0',bg:'white',color:'#6B6F80'};
+    btn.style.border = '2px solid '+c.border;
     btn.style.background = c.bg;
     btn.style.color = c.color;
   });
-  document.getElementById('note-box').style.display = status === 'absent' ? 'block' : 'none';
+  document.getElementById('note-box').style.display = status==='absent' ? 'block' : 'none';
 }
 </script>
 {% endblock %}

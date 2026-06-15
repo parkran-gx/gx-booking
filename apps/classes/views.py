@@ -653,3 +653,36 @@ def my_attendance_check(request, session_id):
         'booking': booking,
         'attendance': attendance,
     })
+
+
+@login_required
+def my_attendance_check(request, session_id):
+    """회원 본인 출석 사전 등록/변경"""
+    session = get_object_or_404(ClassSession, id=session_id)
+    profile = request.user.profile
+    booking = Booking.objects.filter(
+        gx_class=session.gx_class,
+        phone=profile.phone,
+        status='confirmed'
+    ).first()
+    if not booking:
+        messages.error(request, '해당 수업의 예약이 없습니다.')
+        return redirect('classes:my_calendar')
+    attendance, _ = Attendance.objects.get_or_create(
+        session=session, booking=booking,
+        defaults={'status': 'present'}
+    )
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        note = request.POST.get('note', '').strip()
+        if status in ['present', 'absent', 'makeup']:
+            attendance.status = status
+            attendance.note = note if status == 'absent' else ''
+            attendance.save()
+            messages.success(request, '출석 정보가 업데이트되었습니다.')
+        return redirect('classes:my_attendance_check', session_id=session_id)
+    return render(request, 'classes/my_attendance_check.html', {
+        'session': session,
+        'booking': booking,
+        'attendance': attendance,
+    })

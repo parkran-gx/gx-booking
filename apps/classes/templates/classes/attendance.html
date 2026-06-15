@@ -6,186 +6,115 @@
     <a href="/calendar/" style="font-size:0.82rem;color:var(--mist);text-decoration:none;display:inline-block;margin-bottom:1rem;">
       <i class="fa-solid fa-arrow-left me-1"></i>캘린더로
     </a>
-
-    <!-- 수업 헤더 -->
     <div class="admin-card mb-3">
       <div class="admin-card-header">
-        <div class="d-flex align-items-center gap-2">
-          <i class="fa-solid fa-clipboard-check" style="color:#5A8AE0;"></i>
-          <span>{{ session.gx_class.name }} — {{ session.date }}</span>
+        <div>
+          <span style="font-weight:600;">{{ session.gx_class.name }}</span>
+          <span style="color:#8A8F9E;margin-left:8px;font-size:0.82rem;">{{ session.date }}</span>
           {% if session.is_cancelled %}
-          <span style="background:#FEE8E8;color:#C0404A;border-radius:4px;padding:1px 8px;font-size:0.72rem;">휴강</span>
+          <span style="background:#FEE8E8;color:#C0404A;border-radius:4px;padding:1px 8px;font-size:0.72rem;margin-left:6px;">휴강</span>
           {% elif session.substitute_instructor %}
-          <span style="background:#FFF3E0;color:#E07A00;border-radius:4px;padding:1px 8px;font-size:0.72rem;">대강: {{ session.substitute_instructor }}</span>
+          <span style="background:#FFF3E0;color:#E07A00;border-radius:4px;padding:1px 8px;font-size:0.72rem;margin-left:6px;">대강: {{ session.substitute_instructor }}</span>
           {% endif %}
         </div>
-        <div class="d-flex gap-2">
-          <a href="/calendar/session/{{ session.id }}/attendance/pdf/" class="admin-btn danger">
-            <i class="fa-solid fa-file-pdf me-1"></i>출석부 PDF
-          </a>
-        </div>
+        <a href="/calendar/session/{{ session.id }}/attendance/pdf/" class="admin-btn danger">
+          <i class="fa-solid fa-file-pdf me-1"></i>출석부
+        </a>
       </div>
-
-      <!-- 통계 바 -->
-      <div class="d-flex gap-0" style="border-bottom:1px solid #E8EAF0;">
+      <div class="d-flex" style="border-bottom:1px solid #E8EAF0;">
         <div class="text-center p-3" style="flex:1;border-right:1px solid #E8EAF0;">
-          <div style="font-size:1.3rem;font-weight:700;color:#2E7D52;" id="cnt-present">
-            {{ attendance_presents|length }}
-          </div>
+          <div style="font-size:1.4rem;font-weight:700;color:#2E7D52;" id="cnt-p">{{ attendance_presents|length }}</div>
           <div style="font-size:0.72rem;color:#8A8F9E;">출석</div>
         </div>
         <div class="text-center p-3" style="flex:1;border-right:1px solid #E8EAF0;">
-          <div style="font-size:1.3rem;font-weight:700;color:#C0404A;" id="cnt-absent">
-            {{ attendance_absents|length }}
-          </div>
+          <div style="font-size:1.4rem;font-weight:700;color:#C0404A;" id="cnt-a">{{ attendance_absents|length }}</div>
           <div style="font-size:0.72rem;color:#8A8F9E;">결석</div>
         </div>
         <div class="text-center p-3" style="flex:1;border-right:1px solid #E8EAF0;">
-          <div style="font-size:1.3rem;font-weight:700;color:#E07A00;" id="cnt-makeup">
-            {{ attendance_makeups|length }}
-          </div>
+          <div style="font-size:1.4rem;font-weight:700;color:#E07A00;" id="cnt-m">{{ attendance_makeups|length }}</div>
           <div style="font-size:0.72rem;color:#8A8F9E;">보강</div>
         </div>
         <div class="text-center p-3" style="flex:1;">
-          <div style="font-size:1.3rem;font-weight:700;color:#B0B5C4;" id="cnt-none">
-            {{ bookings.count }}
-          </div>
+          <div style="font-size:1.4rem;font-weight:700;color:#4A4D5A;">{{ bookings.count }}</div>
           <div style="font-size:0.72rem;color:#8A8F9E;">전체</div>
         </div>
       </div>
     </div>
 
     {% if session.is_cancelled %}
-    <div class="alert alert-danger text-center">
-      <i class="fa-solid fa-triangle-exclamation me-1"></i>휴강된 수업입니다.
-    </div>
+    <div class="alert alert-danger text-center">휴강된 수업입니다.</div>
     {% else %}
     <form method="post" id="att-form">
       {% csrf_token %}
-      <div style="display:grid;gap:0.5rem;" id="booking-list">
+      <div style="display:grid;gap:0.4rem;">
         {% for b in bookings %}
-        {% with pre_note=pre_notes|default_if_none:"" %}
         <div class="admin-card" id="card_{{ b.id }}">
-          <div style="padding:0.85rem 1rem;">
+          <div style="padding:0.8rem 1rem;">
             <div class="d-flex justify-content-between align-items-center">
               <div>
-                <span style="font-weight:600;font-size:0.92rem;color:#1A1D2A;">{{ b.name }}</span>
-                <span style="font-size:0.78rem;color:#8A8F9E;margin-left:8px;">{{ b.building }}동 {{ b.unit }}호</span>
-                {% if b.phone %}
-                <span style="font-size:0.75rem;color:#B0B5C4;margin-left:6px;">{{ b.phone }}</span>
-                {% endif %}
+                <span style="font-weight:600;font-size:0.92rem;">{{ b.name }}</span>
+                <span style="font-size:0.78rem;color:#8A8F9E;margin-left:6px;">{{ b.building }}동 {{ b.unit }}호</span>
+                {% if b.phone %}<span style="font-size:0.72rem;color:#B0B5C4;margin-left:6px;">{{ b.phone }}</span>{% endif %}
               </div>
-              <!-- 원터치 버튼 -->
               <div class="d-flex gap-1">
-                <button type="button"
-                  onclick="setAtt({{ b.id }}, 'present')"
-                  id="btn_p_{{ b.id }}"
-                  style="width:52px;height:36px;border-radius:6px;border:1px solid {% if b.id in attendance_presents %}#4CAF82{% else %}#DDE0EA{% endif %};background:{% if b.id in attendance_presents %}#4CAF82{% else %}white{% endif %};color:{% if b.id in attendance_presents %}white{% else %}#8A8F9E{% endif %};font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">
-                  ✓
-                </button>
-                <button type="button"
-                  onclick="setAtt({{ b.id }}, 'absent')"
-                  id="btn_a_{{ b.id }}"
-                  style="width:52px;height:36px;border-radius:6px;border:1px solid {% if b.id in attendance_absents %}#E05A5A{% else %}#DDE0EA{% endif %};background:{% if b.id in attendance_absents %}#E05A5A{% else %}white{% endif %};color:{% if b.id in attendance_absents %}white{% else %}#8A8F9E{% endif %};font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">
-                  ✗
-                </button>
-                <button type="button"
-                  onclick="setAtt({{ b.id }}, 'makeup')"
-                  id="btn_m_{{ b.id }}"
-                  style="width:52px;height:36px;border-radius:6px;border:1px solid {% if b.id in attendance_makeups %}#F0A842{% else %}#DDE0EA{% endif %};background:{% if b.id in attendance_makeups %}#F0A842{% else %}white{% endif %};color:{% if b.id in attendance_makeups %}white{% else %}#8A8F9E{% endif %};font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">
-                  ↺
-                </button>
+                <button type="button" onclick="setAtt({{ b.id }},'present')" id="bp_{{ b.id }}"
+                  style="width:50px;height:36px;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.15s;border:1px solid {% if b.id in attendance_presents %}#4CAF82{% else %}#DDE0EA{% endif %};background:{% if b.id in attendance_presents %}#4CAF82{% else %}white{% endif %};color:{% if b.id in attendance_presents %}white{% else %}#9A9FAE{% endif %};">✓</button>
+                <button type="button" onclick="setAtt({{ b.id }},'absent')" id="ba_{{ b.id }}"
+                  style="width:50px;height:36px;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.15s;border:1px solid {% if b.id in attendance_absents %}#E05A5A{% else %}#DDE0EA{% endif %};background:{% if b.id in attendance_absents %}#E05A5A{% else %}white{% endif %};color:{% if b.id in attendance_absents %}white{% else %}#9A9FAE{% endif %};">✗</button>
+                <button type="button" onclick="setAtt({{ b.id }},'makeup')" id="bm_{{ b.id }}"
+                  style="width:50px;height:36px;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.15s;border:1px solid {% if b.id in attendance_makeups %}#F0A842{% else %}#DDE0EA{% endif %};background:{% if b.id in attendance_makeups %}#F0A842{% else %}white{% endif %};color:{% if b.id in attendance_makeups %}white{% else %}#9A9FAE{% endif %};">↺</button>
               </div>
             </div>
-            <!-- 사전 등록 사유 -->
-            {% for note_id, note_text in pre_notes.items %}
-              {% if note_id == b.id|stringformat:"i" and note_text %}
-              <div style="margin-top:0.4rem;font-size:0.75rem;background:#FBF6EE;color:#8A6A30;padding:3px 8px;border-radius:4px;display:inline-block;">
-                <i class="fa-regular fa-clock me-1"></i>사전 결석 사유: {{ note_text }}
-              </div>
-              {% endif %}
-            {% endfor %}
-            <!-- 결석 사유 입력 -->
-            <div id="note_box_{{ b.id }}" style="display:{% if b.id in attendance_absents %}block{% else %}none{% endif %};margin-top:0.5rem;">
+            {% for nid,ntxt in pre_notes.items %}{% if nid == b.id|stringformat:"i" and ntxt %}
+            <div style="margin-top:4px;font-size:0.75rem;background:#FBF6EE;color:#8A6A30;padding:3px 8px;border-radius:4px;display:inline-block;">
+              <i class="fa-regular fa-clock me-1"></i>사전 사유: {{ ntxt }}
+            </div>
+            {% endif %}{% endfor %}
+            <div id="nb_{{ b.id }}" style="display:{% if b.id in attendance_absents %}block{% else %}none{% endif %};margin-top:6px;">
               <input type="text" name="reason_{{ b.id }}" class="form-control form-control-sm"
                 placeholder="결석 사유 (선택)"
-                value="{% for n_id, n_txt in pre_notes.items %}{% if n_id == b.id|stringformat:'i' %}{{ n_txt }}{% endif %}{% endfor %}">
+                value="{% for nid,ntxt in pre_notes.items %}{% if nid == b.id|stringformat:'i' %}{{ ntxt }}{% endif %}{% endfor %}">
             </div>
             <input type="hidden" name="att_{{ b.id }}" id="att_{{ b.id }}"
               value="{% if b.id in attendance_presents %}present{% elif b.id in attendance_absents %}absent{% elif b.id in attendance_makeups %}makeup{% else %}{% endif %}">
           </div>
         </div>
-        {% endwith %}
         {% empty %}
-        <div class="admin-card p-4 text-center" style="color:#B0B5C4;">
-          <i class="fa-regular fa-calendar-xmark d-block mb-2" style="font-size:1.5rem;"></i>
-          수강생이 없습니다.
-        </div>
+        <div class="admin-card p-4 text-center" style="color:#B0B5C4;">수강생이 없습니다.</div>
         {% endfor %}
       </div>
-
       {% if bookings %}
       <div class="d-flex gap-2 mt-3">
-        <button type="button" onclick="checkAll('present')" class="admin-btn success" style="flex:1;padding:0.6rem;">
-          전체 출석
-        </button>
-        <button type="submit" class="admin-btn primary" style="flex:2;padding:0.6rem;font-weight:600;">
-          <i class="fa-solid fa-save me-1"></i>저장
-        </button>
+        <button type="button" onclick="checkAll('present')" class="admin-btn success" style="flex:1;padding:0.65rem;">전체 출석</button>
+        <button type="submit" class="admin-btn primary" style="flex:2;padding:0.65rem;font-weight:600;"><i class="fa-solid fa-save me-1"></i>저장</button>
       </div>
       {% endif %}
     </form>
     {% endif %}
   </div>
 </div>
-
 <script>
-var bookingIds = [{% for b in bookings %}{{ b.id }}{% if not forloop.last %},{% endif %}{% endfor %}];
-var counts = {
-  present: {{ attendance_presents|length }},
-  absent: {{ attendance_absents|length }},
-  makeup: {{ attendance_makeups|length }}
-};
-
-function updateCounts() {
-  var p=0, a=0, m=0;
-  bookingIds.forEach(function(id) {
-    var v = document.getElementById('att_'+id).value;
-    if(v==='present') p++;
-    else if(v==='absent') a++;
-    else if(v==='makeup') m++;
+var ids = [{% for b in bookings %}{{ b.id }}{% if not forloop.last %},{% endif %}{% endfor %}];
+function upd() {
+  var p=0,a=0,m=0;
+  ids.forEach(function(id){var v=document.getElementById('att_'+id).value;if(v==='present')p++;else if(v==='absent')a++;else if(v==='makeup')m++;});
+  document.getElementById('cnt-p').textContent=p;
+  document.getElementById('cnt-a').textContent=a;
+  document.getElementById('cnt-m').textContent=m;
+}
+function setAtt(id,s) {
+  document.getElementById('att_'+id).value=s;
+  var c={present:{a:'#4CAF82'},absent:{a:'#E05A5A'},makeup:{a:'#F0A842'}};
+  [['bp','present'],['ba','absent'],['bm','makeup']].forEach(function(x){
+    var b=document.getElementById(x[0]+'_'+id);
+    b.style.background=x[1]===s?c[s].a:'white';
+    b.style.color=x[1]===s?'white':'#9A9FAE';
+    b.style.border='1px solid '+(x[1]===s?c[s].a:'#DDE0EA');
   });
-  document.getElementById('cnt-present').textContent = p;
-  document.getElementById('cnt-absent').textContent = a;
-  document.getElementById('cnt-makeup').textContent = m;
+  var nb=document.getElementById('nb_'+id);
+  if(nb)nb.style.display=s==='absent'?'block':'none';
+  upd();
 }
-
-function setAtt(id, status) {
-  document.getElementById('att_'+id).value = status;
-  var styles = {
-    present: {active:'#4CAF82', text:'white'},
-    absent:  {active:'#E05A5A', text:'white'},
-    makeup:  {active:'#F0A842', text:'white'},
-  };
-  [['p','present'],['a','absent'],['m','makeup']].forEach(function(pair) {
-    var btn = document.getElementById('btn_'+pair[0]+'_'+id);
-    if(pair[1] === status) {
-      btn.style.background = styles[status].active;
-      btn.style.color = styles[status].text;
-      btn.style.border = '1px solid '+styles[status].active;
-    } else {
-      btn.style.background = 'white';
-      btn.style.color = '#8A8F9E';
-      btn.style.border = '1px solid #DDE0EA';
-    }
-  });
-  var noteBox = document.getElementById('note_box_'+id);
-  if(noteBox) noteBox.style.display = status==='absent' ? 'block' : 'none';
-  updateCounts();
-}
-
-function checkAll(status) {
-  bookingIds.forEach(function(id) { setAtt(id, status); });
-}
+function checkAll(s){ids.forEach(function(id){setAtt(id,s);});}
 </script>
 {% endblock %}
