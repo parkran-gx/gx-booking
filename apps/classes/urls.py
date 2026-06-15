@@ -16,6 +16,7 @@ urlpatterns = [
     path('class-manage/create/', views.class_create, name='class_create'),
     path('class-manage/<int:class_id>/edit/', views.class_edit, name='class_edit'),
     path('manual/', views.admin_manual, name='manual'),
+    path('my-calendar/', views.my_calendar, name='my_calendar'),
     path('qr/', views.qr_view, name='qr_view'),
     path('qr/download/', views.qr_generate, name='qr_generate'),
 ]

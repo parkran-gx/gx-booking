@@ -565,3 +565,51 @@ def admin_manual(request):
         messages.error(request, '권한이 없습니다.')
         return redirect('/')
     return render(request, 'classes/admin_manual.html')
+
+
+@login_required
+def my_calendar(request):
+    """회원용 캘린더 - 내가 예약한 수업만"""
+    from apps.bookings.models import Booking
+    from apps.classes.models import ClassSession
+    import json
+    from datetime import date
+
+    profile = request.user.profile
+    today = date.today()
+
+    # 내가 예약 확정된 수업 ID
+    my_bookings = Booking.objects.filter(
+        phone=profile.phone, status='confirmed'
+    ).select_related('gx_class')
+    my_class_ids = [b.gx_class_id for b in my_bookings]
+
+    # 해당 수업의 세션
+    sessions = ClassSession.objects.filter(
+        gx_class_id__in=my_class_ids
+    ).select_related('gx_class').order_by('date')
+
+    events = []
+    for s in sessions:
+        if s.is_cancelled:
+            color = '#E05A5A'
+            title = f'[휴강] {s.gx_class.name}'
+        elif s.substitute_instructor:
+            color = '#F0A842'
+            title = f'[대강] {s.gx_class.name}'
+        else:
+            color = '#7A9E7E'
+            title = s.gx_class.name
+
+        events.append({
+            'id': s.id,
+            'title': title,
+            'date': str(s.date),
+            'color': color,
+            'is_cancelled': s.is_cancelled,
+        })
+
+    return render(request, 'classes/my_calendar.html', {
+        'events_json': json.dumps(events, ensure_ascii=False),
+        'today': today,
+    })

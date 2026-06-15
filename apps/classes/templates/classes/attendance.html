@@ -3,16 +3,16 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-7">
-    <a href="/calendar/" class="btn btn-link ps-0 mb-3">
+    <a href="/calendar/" class="btn btn-link ps-0 mb-3" style="color:var(--mist);font-size:0.83rem;">
       <i class="fa-solid fa-arrow-left me-1"></i>캘린더로
     </a>
-    <div class="card gx-card p-4">
+    <div class="gx-card p-4">
       <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-          <h4 class="fw-bold mb-1">
-            <i class="fa-solid fa-clipboard-check me-2"></i>출석 체크
+          <h4 style="font-size:1.05rem;font-weight:600;margin-bottom:0.3rem;">
+            <i class="fa-solid fa-clipboard-check me-2" style="color:var(--rose-lt);"></i>출석 체크
           </h4>
-          <p class="text-muted mb-0">
+          <p style="font-size:0.82rem;color:var(--mist);margin:0;">
             {{ session.gx_class.name }} &nbsp;·&nbsp; {{ session.date }}
             {% if session.is_cancelled %}
             <span class="badge bg-danger ms-2">휴강</span>
@@ -23,57 +23,75 @@
         </div>
         <div class="d-flex gap-2 align-items-center">
           <a href="/calendar/session/{{ session.id }}/attendance/pdf/" class="btn btn-sm btn-danger">
-            <i class="fa-solid fa-file-pdf me-1"></i>출석부 PDF
+            <i class="fa-solid fa-file-pdf me-1"></i>PDF
           </a>
-          <span class="text-muted small">수강생 {{ bookings.count }}명</span>
+          <span style="font-size:0.78rem;color:var(--mist);">{{ bookings.count }}명</span>
         </div>
       </div>
+
       {% if session.is_cancelled %}
       <div class="alert alert-danger">
         <i class="fa-solid fa-triangle-exclamation me-1"></i>휴강된 수업입니다.
       </div>
       {% else %}
+      <div class="gx-guide mb-3">
+        <i class="fa-solid fa-circle-info me-1" style="color:var(--rose-lt);"></i>
+        결석 선택 시 사유를 입력할 수 있습니다. 모바일에서는 버튼을 탭하여 빠르게 체크하세요.
+      </div>
       <form method="post">
         {% csrf_token %}
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="table-light">
-              <tr>
-                <th>이름</th><th>동/호수</th>
-                <th class="text-center text-success">출석</th>
-                <th class="text-center text-danger">결석</th>
-                <th class="text-center text-warning">보강</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for b in bookings %}
-              <tr>
-                <td class="fw-semibold">{{ b.name }}</td>
-                <td class="text-muted">{{ b.building }}동 {{ b.unit }}호</td>
-                <td class="text-center">
-                  <input type="radio" name="att_{{ b.id }}" value="present"
-                    class="form-check-input"
-                    {% if b.id in attendance_presents %}checked{% endif %}>
-                </td>
-                <td class="text-center">
-                  <input type="radio" name="att_{{ b.id }}" value="absent"
-                    class="form-check-input"
-                    {% if b.id in attendance_absents %}checked{% endif %}>
-                </td>
-                <td class="text-center">
-                  <input type="radio" name="att_{{ b.id }}" value="makeup"
-                    class="form-check-input"
-                    {% if b.id in attendance_makeups %}checked{% endif %}>
-                </td>
-              </tr>
-              {% empty %}
-              <tr><td colspan="5" class="text-center text-muted py-3">수강생이 없습니다.</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <div style="display:grid;gap:0.75rem;">
+          {% for b in bookings %}
+          <div class="gx-card p-3" id="row_{{ b.id }}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <span style="font-weight:600;font-size:0.9rem;">{{ b.name }}</span>
+                <span style="font-size:0.78rem;color:var(--mist);margin-left:8px;">{{ b.building }}동 {{ b.unit }}호</span>
+              </div>
+              <!-- 모바일 원터치 버튼 -->
+              <div class="d-flex gap-1">
+                <button type="button" onclick="setAtt({{ b.id }}, 'present')"
+                  id="btn_present_{{ b.id }}"
+                  class="att-btn {% if b.id in attendance_presents %}active-present{% endif %}"
+                  style="padding:0.3rem 0.7rem;border-radius:6px;border:1px solid #C0D8C0;background:{% if b.id in attendance_presents %}#4CAF82{% else %}#F2F7F2{% endif %};color:{% if b.id in attendance_presents %}white{% else %}#4A7A4E{% endif %};font-size:0.78rem;font-weight:500;cursor:pointer;transition:all 0.15s;">
+                  ✓ 출석
+                </button>
+                <button type="button" onclick="setAtt({{ b.id }}, 'absent')"
+                  id="btn_absent_{{ b.id }}"
+                  class="att-btn {% if b.id in attendance_absents %}active-absent{% endif %}"
+                  style="padding:0.3rem 0.7rem;border-radius:6px;border:1px solid #E8C0BC;background:{% if b.id in attendance_absents %}#E05A5A{% else %}#FBF0EF{% endif %};color:{% if b.id in attendance_absents %}white{% else %}#904040{% endif %};font-size:0.78rem;font-weight:500;cursor:pointer;transition:all 0.15s;">
+                  ✗ 결석
+                </button>
+                <button type="button" onclick="setAtt({{ b.id }}, 'makeup')"
+                  id="btn_makeup_{{ b.id }}"
+                  class="att-btn {% if b.id in attendance_makeups %}active-makeup{% endif %}"
+                  style="padding:0.3rem 0.7rem;border-radius:6px;border:1px solid #E8D4A8;background:{% if b.id in attendance_makeups %}#F0A842{% else %}#FBF6EE{% endif %};color:{% if b.id in attendance_makeups %}white{% else %}#8A6A30{% endif %};font-size:0.78rem;font-weight:500;cursor:pointer;transition:all 0.15s;">
+                  ↺ 보강
+                </button>
+              </div>
+            </div>
+            <!-- 결석 사유 입력 (결석 선택 시 표시) -->
+            <div id="reason_box_{{ b.id }}"
+              style="display:{% if b.id in attendance_absents %}block{% else %}none{% endif %};">
+              <input type="text" name="reason_{{ b.id }}"
+                class="form-control form-control-sm mt-1"
+                placeholder="결석 사유를 간단히 입력하세요 (선택)"
+                value="">
+            </div>
+            <!-- hidden input -->
+            <input type="hidden" name="att_{{ b.id }}" id="att_{{ b.id }}"
+              value="{% if b.id in attendance_presents %}present{% elif b.id in attendance_absents %}absent{% elif b.id in attendance_makeups %}makeup{% else %}{% endif %}">
+          </div>
+          {% empty %}
+          <div class="text-center py-4" style="color:var(--mist);">
+            <i class="fa-regular fa-calendar-xmark d-block mb-2" style="font-size:1.5rem;"></i>
+            수강생이 없습니다.
+          </div>
+          {% endfor %}
         </div>
+
         {% if bookings %}
-        <button type="submit" class="btn btn-gx w-100">
+        <button type="submit" class="btn btn-gx w-100 mt-4">
           <i class="fa-solid fa-save me-1"></i>출석 저장
         </button>
         {% endif %}
@@ -82,4 +100,32 @@
     </div>
   </div>
 </div>
+
+<script>
+function setAtt(id, status) {
+  document.getElementById('att_' + id).value = status;
+  var btns = ['present','absent','makeup'];
+  var colors = {
+    present: {bg:'#4CAF82', border:'#C0D8C0', text:'white', off_bg:'#F2F7F2', off_text:'#4A7A4E'},
+    absent:  {bg:'#E05A5A', border:'#E8C0BC', text:'white', off_bg:'#FBF0EF', off_text:'#904040'},
+    makeup:  {bg:'#F0A842', border:'#E8D4A8', text:'white', off_bg:'#FBF6EE', off_text:'#8A6A30'},
+  };
+  btns.forEach(function(s) {
+    var btn = document.getElementById('btn_' + s + '_' + id);
+    var c = colors[s];
+    if (s === status) {
+      btn.style.background = c.bg;
+      btn.style.color = c.text;
+      btn.style.border = '1px solid ' + c.bg;
+    } else {
+      btn.style.background = c.off_bg;
+      btn.style.color = c.off_text;
+      btn.style.border = '1px solid ' + c.border;
+    }
+  });
+  // 결석 사유 박스 토글
+  var box = document.getElementById('reason_box_' + id);
+  if (box) box.style.display = (status === 'absent') ? 'block' : 'none';
+}
+</script>
 {% endblock %}

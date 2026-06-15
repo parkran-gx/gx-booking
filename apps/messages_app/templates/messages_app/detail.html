@@ -3,41 +3,68 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-7">
-    <a href="/messages/inbox/" class="btn btn-link ps-0 mb-3"><i class="fa-solid fa-arrow-left me-1"></i>수신함으로</a>
-    <div class="card gx-card p-4 mb-3">
-      <div class="d-flex gap-2 mb-3">
-        <span class="badge {% if msg.message_type == 'guest' %}bg-secondary{% elif msg.message_type == 'registered' %}bg-success{% else %}bg-warning{% endif %}">
+    <a href="/messages/inbox/" style="font-size:0.82rem;color:var(--mist);text-decoration:none;display:inline-block;margin-bottom:1.2rem;">
+      <i class="fa-solid fa-arrow-left me-1"></i>수신함으로
+    </a>
+
+    <!-- 원본 쪽지 -->
+    <div class="gx-card p-4 mb-3">
+      <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+        <span style="font-size:0.7rem;padding:2px 8px;border-radius:3px;font-weight:600;
+          {% if msg.message_type == 'guest' %}background:#F0F0F0;color:#666;
+          {% elif msg.message_type == 'registered' %}background:var(--sage-bg);color:var(--sage);
+          {% else %}background:var(--rose-bg);color:var(--rose);{% endif %}">
           {{ msg.get_message_type_display }}
         </span>
-        {% if msg.gx_class %}<span class="badge bg-light text-dark">{{ msg.gx_class.name }}</span>{% endif %}
+        {% if msg.gx_class %}
+        <span style="font-size:0.7rem;background:var(--sage-bg);color:var(--sage);border-radius:3px;padding:2px 8px;">{{ msg.gx_class.name }}</span>
+        {% endif %}
       </div>
-      <div class="mb-2">
-        <strong>보낸 분:</strong> {{ msg.sender_name }}
-        {% if msg.sender_phone %} &nbsp;·&nbsp; {{ msg.sender_phone }}{% endif %}
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <span style="font-weight:600;font-size:0.95rem;">{{ msg.sender_name }}</span>
+          {% if msg.sender_phone %}
+          <span style="font-size:0.8rem;color:var(--mist);margin-left:8px;">{{ msg.sender_phone }}</span>
+          {% endif %}
+        </div>
+        <span style="font-size:0.75rem;color:var(--mist);">{{ msg.created_at|date:"Y.m.d H:i" }}</span>
       </div>
-      <div class="mb-3"><small class="text-muted">{{ msg.created_at|date:"Y.m.d H:i" }}</small></div>
-      <hr>
-      <div style="white-space:pre-wrap" class="mt-3">{{ msg.content }}</div>
+      <div style="border-top:1px solid var(--line);padding-top:1rem;font-size:0.88rem;color:var(--ink);line-height:1.9;white-space:pre-wrap;">{{ msg.content }}</div>
     </div>
+
+    <!-- 기존 답변 표시 -->
     {% if msg.reply %}
-    <div class="card border-success mb-3">
-      <div class="card-body p-3">
-        <p class="fw-semibold text-success mb-2"><i class="fa-solid fa-reply me-1"></i>답변</p>
-        <div style="white-space:pre-wrap">{{ msg.reply }}</div>
-        <small class="text-muted">{{ msg.replied_at|date:"Y.m.d H:i" }}</small>
+    <div class="gx-card p-4 mb-3" style="border-left:3px solid var(--sage);">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <i class="fa-solid fa-reply" style="color:var(--sage);font-size:0.85rem;"></i>
+        <span style="font-size:0.82rem;font-weight:600;color:var(--sage);">답변</span>
+        <span style="font-size:0.75rem;color:var(--mist);">{{ msg.replied_at|date:"Y.m.d H:i" }}</span>
       </div>
+      <div style="font-size:0.88rem;color:var(--ink);line-height:1.9;white-space:pre-wrap;">{{ msg.reply }}</div>
     </div>
     {% endif %}
-    <div class="card gx-card p-4">
-      <h6 class="fw-bold mb-3">답변 작성</h6>
+
+    <!-- 답변 작성 (관리자만) -->
+    {% if request.user.profile.is_complex_admin %}
+    <div class="gx-card p-4">
+      <h6 style="font-size:0.88rem;font-weight:600;margin-bottom:1rem;color:var(--ink);">
+        {% if msg.reply %}<i class="fa-solid fa-pen me-1" style="color:var(--rose-lt);"></i>답변 수정
+        {% else %}<i class="fa-solid fa-reply me-1" style="color:var(--rose-lt);"></i>답변 작성{% endif %}
+      </h6>
       <form method="post" action="/messages/{{ msg.pk }}/reply/">
         {% csrf_token %}
-        <textarea name="reply" class="form-control mb-3" rows="4" placeholder="답변 내용을 입력하세요.">{{ msg.reply }}</textarea>
-        <button type="submit" class="btn btn-gx w-100">
-          <i class="fa-solid fa-reply me-1"></i>답변 저장
-        </button>
+        <textarea name="reply" class="form-control mb-3" rows="4"
+          placeholder="답변 내용을 입력하세요.">{{ msg.reply }}</textarea>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-gx flex-fill">
+            <i class="fa-solid fa-reply me-1"></i>
+            {% if msg.reply %}답변 수정{% else %}답변 보내기{% endif %}
+          </button>
+          <a href="/messages/inbox/" class="btn btn-gx-outline">목록</a>
+        </div>
       </form>
     </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

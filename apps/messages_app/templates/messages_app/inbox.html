@@ -1,37 +1,59 @@
 {% extends 'base.html' %}
 {% block title %}쪽지 수신함{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h3 class="fw-bold mb-0">
-    <i class="fa-solid fa-inbox me-2"></i>쪽지 수신함
-    {% if unread > 0 %}
-    <span class="badge bg-danger ms-1">{{ unread }}</span>
-    {% endif %}
-  </h3>
-</div>
-{% for msg in msg_list %}
-<div class="card gx-card mb-2 {% if not msg.is_read %}border-start border-4 border-primary{% endif %}">
-  <div class="card-body p-3">
-    <div class="d-flex justify-content-between align-items-start">
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <span class="badge {% if msg.message_type == 'guest' %}bg-secondary{% elif msg.message_type == 'registered' %}bg-success{% else %}bg-warning{% endif %}">
-            {{ msg.get_message_type_display }}
-          </span>
-          <strong>{{ msg.sender_name }}</strong>
-          {% if msg.sender_phone %}<small class="text-muted">{{ msg.sender_phone }}</small>{% endif %}
-          {% if msg.gx_class %}<span class="badge bg-light text-dark">{{ msg.gx_class.name }}</span>{% endif %}
-        </div>
-        <p class="mb-0 text-muted small">{{ msg.content|truncatechars:60 }}</p>
-      </div>
-      <div class="text-end">
-        <small class="text-muted d-block">{{ msg.created_at|date:"m/d H:i" }}</small>
-        <a href="/messages/{{ msg.pk }}/" class="btn btn-sm btn-outline-secondary mt-1">보기</a>
+        <h4 style="font-size:1.1rem;font-weight:600;margin:0;">
+          쪽지 수신함
+          {% if unread > 0 %}
+          <span style="background:#E05A5A;color:white;font-size:0.72rem;border-radius:10px;padding:2px 8px;margin-left:6px;">{{ unread }}</span>
+          {% endif %}
+        </h4>
+        <p style="font-size:0.78rem;color:var(--mist);margin:0;">총 {{ msg_list.count }}개</p>
       </div>
     </div>
+
+    {% for msg in msg_list %}
+    <a href="/messages/{{ msg.pk }}/" class="d-block text-decoration-none mb-2">
+      <div class="gx-card p-3" style="{% if not msg.is_read %}border-left:3px solid var(--rose-lt);{% endif %}">
+        <div class="d-flex justify-content-between align-items-start">
+          <div style="flex:1;min-width:0;">
+            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+              {% if not msg.is_read %}
+              <span style="width:7px;height:7px;border-radius:50%;background:var(--rose);display:inline-block;flex-shrink:0;"></span>
+              {% endif %}
+              <span style="font-weight:600;font-size:0.88rem;color:var(--ink);">{{ msg.sender_name }}</span>
+              {% if msg.sender_phone %}
+              <span style="font-size:0.75rem;color:var(--mist);">{{ msg.sender_phone }}</span>
+              {% endif %}
+              <span style="font-size:0.7rem;padding:1px 6px;border-radius:3px;
+                {% if msg.message_type == 'guest' %}background:#F0F0F0;color:#666;
+                {% elif msg.message_type == 'registered' %}background:var(--sage-bg);color:var(--sage);
+                {% else %}background:var(--rose-bg);color:var(--rose);{% endif %}">
+                {{ msg.get_message_type_display }}
+              </span>
+              {% if msg.reply %}
+              <span style="font-size:0.7rem;background:#EDE8FE;color:#6A42C8;border-radius:3px;padding:1px 6px;">답변완료</span>
+              {% endif %}
+            </div>
+            <p style="font-size:0.82rem;color:var(--stone);margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              {{ msg.content|truncatechars:50 }}
+            </p>
+          </div>
+          <span style="font-size:0.72rem;color:var(--mist);white-space:nowrap;margin-left:1rem;">
+            {{ msg.created_at|date:"m/d H:i" }}
+          </span>
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="gx-card p-5 text-center">
+      <i class="fa-regular fa-envelope d-block mb-2" style="font-size:1.8rem;color:var(--rose-line);"></i>
+      <p style="font-size:0.85rem;color:var(--mist);margin:0;">받은 쪽지가 없습니다.</p>
+    </div>
+    {% endfor %}
   </div>
 </div>
-{% empty %}
-<div class="alert alert-info text-center">받은 쪽지가 없습니다.</div>
-{% endfor %}
 {% endblock %}

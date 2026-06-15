@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}내 수업 일정{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 style="font-size:1.1rem;font-weight:600;margin:0;">내 수업 일정</h4>
+      <a href="/classes/" class="btn btn-gx btn-sm">수업 예약</a>
+    </div>
+
+    <div class="gx-guide mb-4">
+      <i class="fa-solid fa-circle-info me-1" style="color:var(--rose-lt);"></i>
+      내가 예약한 수업 일정만 표시됩니다.
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#7A9E7E;margin:0 4px;"></span>정상
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#E05A5A;margin:0 4px 0 8px;"></span>휴강
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#F0A842;margin:0 4px 0 8px;"></span>대강
+    </div>
+
+    <div class="gx-card p-3" id="calendar"></div>
+
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var events = {{ events_json|safe }};
+      var cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
+        locale: 'ko',
+        headerToolbar: {
+          left: 'prev',
+          center: 'title',
+          right: 'next'
+        },
+        events: events,
+        eventClick: function(info) {
+          if (!info.event.extendedProps.is_cancelled) {
+            window.location.href = '/calendar/session/' + info.event.id + '/attendance/';
+          }
+        },
+        eventDidMount: function(info) {
+          info.el.style.borderRadius = '4px';
+          info.el.style.fontSize = '0.75rem';
+        },
+        height: 'auto',
+        fixedWeekCount: false,
+      });
+      cal.render();
+    });
+    </script>
+  </div>
+</div>
+{% endblock %}
