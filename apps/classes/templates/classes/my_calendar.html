@@ -73,10 +73,10 @@
   padding: 1rem;
 }
 #calendar.slide-left {
-  animation: flipLeft 0.45s cubic-bezier(0.4,0,0.2,1);
+  animation: slideLeft 0.35s ease;
 }
 #calendar.slide-right {
-  animation: flipRight 0.45s cubic-bezier(0.4,0,0.2,1);
+  animation: slideRight 0.35s ease;
 }
 @keyframes slideLeft {
   0%   { transform: translateX(0);     opacity: 1; }
@@ -155,20 +155,12 @@
 .fc .fc-day-sat .fc-daygrid-day-number { color: #5A8AE0 !important; }
 
 /* 오늘 날짜 - 굵고 컬러 배경 없이 숫자만 강조 */
-.fc .fc-day-today { background: rgba(196,150,138,0.12) !important; border-radius: 4px; }
+.fc .fc-day-today { background: rgba(196,150,138,0.08) !important; }
 .fc .fc-day-today .fc-daygrid-day-number {
-  font-size: 0.88rem !important;
+  font-size: 0.82rem !important;
   font-weight: 700 !important;
-  background: var(--rose) !important;
-  color: white !important;
-  border-radius: 50% !important;
-  width: 26px !important;
-  height: 26px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 4px !important;
-  padding: 0 !important;
+  color: var(--rose) !important;
+  padding: 6px 8px !important;
 }
 
 /* 이벤트 */
