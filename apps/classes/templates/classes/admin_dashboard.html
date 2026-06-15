@@ -118,7 +118,6 @@
           <span style="font-size:0.88rem;font-weight:700;color:#C0404A;">⚠️ 변경 요청</span>
           <span style="font-size:0.75rem;color:#8A8F9E;">즉시 처리 필요</span>
         </div>
-        {% set has_cancel = False %}
         {% for item in dashboard %}
           {% for b in item.cancel_bookings %}
           {% if forloop.first and forloop.parentloop.first %}{% endif %}
