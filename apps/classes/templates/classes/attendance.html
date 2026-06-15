@@ -2,7 +2,7 @@
 {% block title %}출석 체크{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-lg-7">
+  <div class="col-12 col-lg-7">
     <a href="/calendar/" style="font-size:0.82rem;color:var(--mist);text-decoration:none;display:inline-block;margin-bottom:1rem;">
       <i class="fa-solid fa-arrow-left me-1"></i>캘린더로
     </a>
@@ -46,7 +46,7 @@
     {% else %}
     <form method="post" id="att-form">
       {% csrf_token %}
-      <div style="display:grid;gap:0.4rem;">
+      <div style="display:grid;gap:0.5rem;">
         {% for b in bookings %}
         <div class="admin-card" id="card_{{ b.id }}">
           <div style="padding:0.8rem 1rem;">
@@ -54,15 +54,12 @@
               <div>
                 <span style="font-weight:600;font-size:0.92rem;">{{ b.name }}</span>
                 <span style="font-size:0.78rem;color:#8A8F9E;margin-left:6px;">{{ b.building }}동 {{ b.unit }}호</span>
-                {% if b.phone %}<span style="font-size:0.72rem;color:#B0B5C4;margin-left:6px;">{{ b.phone }}</span>{% endif %}
+                {% if b.phone %}<span style="font-size:0.72rem;color:#B0B5C4;margin-left:4px;">{{ b.phone }}</span>{% endif %}
               </div>
               <div class="d-flex gap-1">
-                <button type="button" onclick="setAtt({{ b.id }},'present')" id="bp_{{ b.id }}"
-                  style="width:50px;height:36px;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.15s;border:1px solid {% if b.id in attendance_presents %}#4CAF82{% else %}#DDE0EA{% endif %};background:{% if b.id in attendance_presents %}#4CAF82{% else %}white{% endif %};color:{% if b.id in attendance_presents %}white{% else %}#9A9FAE{% endif %};">✓</button>
-                <button type="button" onclick="setAtt({{ b.id }},'absent')" id="ba_{{ b.id }}"
-                  style="width:50px;height:36px;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.15s;border:1px solid {% if b.id in attendance_absents %}#E05A5A{% else %}#DDE0EA{% endif %};background:{% if b.id in attendance_absents %}#E05A5A{% else %}white{% endif %};color:{% if b.id in attendance_absents %}white{% else %}#9A9FAE{% endif %};">✗</button>
-                <button type="button" onclick="setAtt({{ b.id }},'makeup')" id="bm_{{ b.id }}"
-                  style="width:50px;height:36px;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.15s;border:1px solid {% if b.id in attendance_makeups %}#F0A842{% else %}#DDE0EA{% endif %};background:{% if b.id in attendance_makeups %}#F0A842{% else %}white{% endif %};color:{% if b.id in attendance_makeups %}white{% else %}#9A9FAE{% endif %};">↺</button>
+                <button type="button" onclick="setAtt({{ b.id }},'present')" id="bp_{{ b.id }}" class="att-btn {% if b.id in attendance_presents %}att-present{% else %}att-off{% endif %}">✓</button>
+                <button type="button" onclick="setAtt({{ b.id }},'absent')" id="ba_{{ b.id }}" class="att-btn {% if b.id in attendance_absents %}att-absent{% else %}att-off{% endif %}">✗</button>
+                <button type="button" onclick="setAtt({{ b.id }},'makeup')" id="bm_{{ b.id }}" class="att-btn {% if b.id in attendance_makeups %}att-makeup{% else %}att-off{% endif %}">↺</button>
               </div>
             </div>
             {% for nid,ntxt in pre_notes.items %}{% if nid == b.id|stringformat:"i" and ntxt %}
@@ -93,26 +90,49 @@
     {% endif %}
   </div>
 </div>
+
+<style>
+.att-btn {
+  width: 48px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid #DDE0EA;
+  background: white;
+  color: #9A9FAE;
+  transition: all 0.15s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.att-present { background: #4CAF82 !important; color: white !important; border-color: #4CAF82 !important; }
+.att-absent  { background: #E05A5A !important; color: white !important; border-color: #E05A5A !important; }
+.att-makeup  { background: #F0A842 !important; color: white !important; border-color: #F0A842 !important; }
+.att-off     { background: white; color: #9A9FAE; border-color: #DDE0EA; }
+</style>
+
 <script>
 var ids = [{% for b in bookings %}{{ b.id }}{% if not forloop.last %},{% endif %}{% endfor %}];
 function upd() {
   var p=0,a=0,m=0;
-  ids.forEach(function(id){var v=document.getElementById('att_'+id).value;if(v==='present')p++;else if(v==='absent')a++;else if(v==='makeup')m++;});
+  ids.forEach(function(id){
+    var v=document.getElementById('att_'+id).value;
+    if(v==='present')p++; else if(v==='absent')a++; else if(v==='makeup')m++;
+  });
   document.getElementById('cnt-p').textContent=p;
   document.getElementById('cnt-a').textContent=a;
   document.getElementById('cnt-m').textContent=m;
 }
 function setAtt(id,s) {
   document.getElementById('att_'+id).value=s;
-  var c={present:{a:'#4CAF82'},absent:{a:'#E05A5A'},makeup:{a:'#F0A842'}};
+  var map={present:'att-present',absent:'att-absent',makeup:'att-makeup'};
   [['bp','present'],['ba','absent'],['bm','makeup']].forEach(function(x){
     var b=document.getElementById(x[0]+'_'+id);
-    b.style.background=x[1]===s?c[s].a:'white';
-    b.style.color=x[1]===s?'white':'#9A9FAE';
-    b.style.border='1px solid '+(x[1]===s?c[s].a:'#DDE0EA');
+    b.className='att-btn '+(x[1]===s?map[s]:'att-off');
   });
   var nb=document.getElementById('nb_'+id);
-  if(nb)nb.style.display=s==='absent'?'block':'none';
+  if(nb) nb.style.display=s==='absent'?'block':'none';
   upd();
 }
 function checkAll(s){ids.forEach(function(id){setAtt(id,s);});}
