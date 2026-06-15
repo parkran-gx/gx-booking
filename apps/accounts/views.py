@@ -74,12 +74,51 @@ def user_logout(request):
 def dashboard(request):
     profile = request.user.profile
     from apps.bookings.models import Booking
-    my_bookings = Booking.objects.filter(
+    from apps.classes.models import ClassSession
+    from apps.messages_app.models import Message
+    from apps.notices.models import Notice
+    from datetime import date
+
+    # 내 예약 (phone 또는 user 기준)
+    bookings = Booking.objects.filter(
         phone=profile.phone
-    ).exclude(status='cancelled').select_related('gx_class') if profile.phone else []
-    return render(request, 'accounts/dashboard.html', {
-        'profile': profile,
-        'my_bookings': my_bookings,
+    ).exclude(status="cancelled").select_related("gx_class") if profile.phone else []
+
+    # 다가오는 수업 세션
+    my_class_ids = [b.gx_class_id for b in bookings]
+    upcoming_sessions = ClassSession.objects.filter(
+        gx_class_id__in=my_class_ids,
+        date__gte=date.today()
+    ).select_related("gx_class").order_by("date")[:5] if my_class_ids else []
+
+    # 최근 공지
+    recent_notices = Notice.objects.filter(
+        is_global=True
+    ).order_by("-created_at")[:5]
+    if profile.phone:
+        class_notices = Notice.objects.filter(
+            gx_class_id__in=my_class_ids
+        ).order_by("-created_at")[:3]
+        recent_notices = (recent_notices | class_notices).distinct().order_by("-created_at")[:5]
+
+    # 최근 쪽지
+    if profile.is_complex_admin:
+        recent_messages = Message.objects.all().order_by("-created_at")[:5]
+        unread_messages = Message.objects.filter(is_read=False).count()
+    else:
+        sent_msgs = Message.objects.filter(sender_name=profile.display_name)
+        admin_msgs = Message.objects.filter(sender_name__startswith="[강사]")
+        recent_messages = (sent_msgs | admin_msgs).distinct().order_by("-created_at")[:5]
+        unread_messages = 0
+
+    return render(request, "accounts/dashboard.html", {
+        "profile": profile,
+        "bookings": bookings,
+        "upcoming_sessions": upcoming_sessions,
+        "recent_notices": recent_notices,
+        "recent_messages": recent_messages,
+        "unread_messages": unread_messages,
+        "unread_notices": 0,
     })
 
 @login_required
