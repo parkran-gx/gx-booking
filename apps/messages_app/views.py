@@ -75,3 +75,41 @@ def message_reply(request, pk):
         messages.success(request, '답변이 저장되었습니다.')
         return redirect('messages_app:detail', pk=pk)
     return redirect('messages_app:detail', pk=pk)
+
+
+@login_required
+def admin_send(request):
+    """관리자가 회원에게 쪽지 보내기"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    from apps.accounts.models import UserProfile
+    from apps.classes.models import GxClass
+    members = UserProfile.objects.filter(
+        is_approved=True
+    ).select_related('user', 'complex').order_by('complex__name', 'building', 'unit')
+    classes = GxClass.objects.filter(is_active=True)
+
+    if request.method == 'POST':
+        target_user_id = request.POST.get('target_user')
+        content = request.POST.get('content', '').strip()
+        gx_class_id = request.POST.get('gx_class') or None
+        if content:
+            from django.contrib.auth.models import User as DjangoUser
+            target = DjangoUser.objects.filter(id=target_user_id).first()
+            if target:
+                Message.objects.create(
+                    sender_name=f'[강사] {request.user.first_name or request.user.username}',
+                    sender_phone='',
+                    message_type='registered',
+                    content=content,
+                    gx_class_id=gx_class_id,
+                    is_read=False,
+                )
+            messages.success(request, '쪽지를 보냈습니다.')
+        return redirect('messages_app:admin_send')
+
+    return render(request, 'messages_app/admin_send.html', {
+        'members': members,
+        'classes': classes,
+    })

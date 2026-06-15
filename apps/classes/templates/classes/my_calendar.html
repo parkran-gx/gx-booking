@@ -3,50 +3,93 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-8">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 style="font-size:1.1rem;font-weight:600;margin:0;">내 수업 일정</h4>
       <a href="/classes/" class="btn btn-gx btn-sm">수업 예약</a>
     </div>
 
-    <div class="gx-guide mb-4">
+    <div class="gx-guide mb-3">
       <i class="fa-solid fa-circle-info me-1" style="color:var(--rose-lt);"></i>
       내가 예약한 수업 일정만 표시됩니다.
-      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#7A9E7E;margin:0 4px;"></span>정상
-      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#E05A5A;margin:0 4px 0 8px;"></span>휴강
-      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#F0A842;margin:0 4px 0 8px;"></span>대강
+      <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#7A9E7E;margin:0 3px 0 8px;"></span>정상
+      <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#E05A5A;margin:0 3px 0 8px;"></span>휴강
+      <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#F0A842;margin:0 3px 0 8px;"></span>대강
     </div>
 
-    <div class="gx-card p-3" id="calendar"></div>
+    <div class="gx-card" style="overflow:hidden;">
+      <div id="calendar" style="padding:0.5rem;"></div>
+    </div>
 
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var events = {{ events_json|safe }};
-      var cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
-        initialView: 'dayGridMonth',
-        locale: 'ko',
-        headerToolbar: {
-          left: 'prev',
-          center: 'title',
-          right: 'next'
-        },
-        events: events,
-        eventClick: function(info) {
-          if (!info.event.extendedProps.is_cancelled) {
-            window.location.href = '/calendar/session/' + info.event.id + '/attendance/';
-          }
-        },
-        eventDidMount: function(info) {
-          info.el.style.borderRadius = '4px';
-          info.el.style.fontSize = '0.75rem';
-        },
-        height: 'auto',
-        fixedWeekCount: false,
-      });
-      cal.render();
-    });
-    </script>
+    {% if upcoming %}
+    <div class="mt-4">
+      <h6 style="font-size:0.85rem;font-weight:600;color:var(--stone);margin-bottom:0.8rem;">다가오는 수업</h6>
+      {% for s in upcoming %}
+      <a href="/calendar/session/{{ s.id }}/attendance/" class="d-block text-decoration-none mb-2">
+        <div class="gx-card p-3 d-flex align-items-center gap-3">
+          <div style="width:42px;height:42px;border-radius:8px;background:{% if s.is_cancelled %}#FBF0EF{% elif s.substitute_instructor %}#FBF6EE{% else %}var(--sage-bg){% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fa-regular fa-calendar" style="color:{% if s.is_cancelled %}#E05A5A{% elif s.substitute_instructor %}#F0A842{% else %}var(--sage){% endif %};"></i>
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:0.88rem;color:var(--ink);">
+              {{ s.gx_class.name }}
+              {% if s.is_cancelled %}<span style="font-size:0.72rem;background:#FBF0EF;color:#E05A5A;border-radius:3px;padding:1px 6px;margin-left:4px;">휴강</span>{% endif %}
+              {% if s.substitute_instructor %}<span style="font-size:0.72rem;background:#FBF6EE;color:#F0A842;border-radius:3px;padding:1px 6px;margin-left:4px;">대강</span>{% endif %}
+            </div>
+            <div style="font-size:0.78rem;color:var(--mist);">
+              {{ s.date }} &nbsp;·&nbsp; {{ s.gx_class.start_time|time:"H:i" }}
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="color:var(--mist);font-size:0.75rem;"></i>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
   </div>
 </div>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<style>
+.fc { font-size: 0.78rem !important; }
+.fc .fc-toolbar-title { font-size: 1rem !important; font-weight: 600; }
+.fc .fc-button { font-size: 0.78rem !important; padding: 0.25rem 0.6rem !important; }
+.fc .fc-daygrid-event { font-size: 0.68rem !important; padding: 1px 3px !important; }
+.fc .fc-col-header-cell { font-size: 0.72rem !important; }
+@media (max-width: 576px) {
+  .fc .fc-toolbar { flex-direction: row !important; gap: 4px; }
+  .fc .fc-daygrid-event-dot { display: none; }
+  .fc-daygrid-dot-event .fc-event-title { display: block; }
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var events = {{ events_json|safe }};
+  var isMobile = window.innerWidth < 576;
+  var cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: isMobile ? 'listMonth' : 'dayGridMonth',
+    locale: 'ko',
+    headerToolbar: {
+      left: 'prev',
+      center: 'title',
+      right: isMobile ? 'dayGridMonth,listMonth' : 'next'
+    },
+    buttonText: {
+      dayGridMonth: '달력',
+      listMonth: '목록'
+    },
+    events: events,
+    eventClick: function(info) {
+      info.jsEvent.preventDefault();
+      window.location.href = '/calendar/session/' + info.event.id + '/attendance/';
+    },
+    height: 'auto',
+    fixedWeekCount: false,
+    eventDisplay: 'block',
+    dayMaxEvents: 3,
+  });
+  cal.render();
+});
+</script>
 {% endblock %}

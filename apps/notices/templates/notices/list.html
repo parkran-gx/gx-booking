@@ -43,6 +43,19 @@
 
     <!-- 클래스별 공지 -->
     {% if selected_class %}
+    <div class="gx-card p-3 mb-3" style="border-left:3px solid var(--rose-lt);">
+      <div class="d-flex align-items-center gap-3">
+        <i class="fa-solid fa-person-walking" style="color:var(--rose-lt);font-size:1.2rem;"></i>
+        <div>
+          <div style="font-weight:600;font-size:0.9rem;">{{ selected_class.name }}</div>
+          <div style="font-size:0.78rem;color:var(--mist);">
+            {{ selected_class.get_days_display }} &nbsp;·&nbsp;
+            {{ selected_class.start_time|time:"H:i" }} – {{ selected_class.end_time|time:"H:i" }}
+            &nbsp;·&nbsp; 정원 {{ selected_class.capacity }}명
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
         <h5 style="font-size:1rem;font-weight:600;margin:0;">{{ selected_class.name }} 게시판</h5>
