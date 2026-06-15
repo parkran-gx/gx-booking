@@ -3,7 +3,15 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-8">
-    <h3 class="fw-bold mb-4"><i class="fa-solid fa-calendar-check me-2"></i>수강 등록</h3>
+    <div class="mb-4">
+      <h3 class="gx-section-title">수강 등록</h3>
+      <div class="gx-guide mb-3">
+        <i class="fa-solid fa-circle-info me-1" style="color:var(--rose-lt);"></i>
+        <strong>우선접수</strong>는 기존 수강생에게 먼저 등록 기회를 드리는 기간입니다.
+        <strong>일반접수</strong>는 남은 자리에 누구나 신청 가능합니다.
+        등록 후 취소 시 대기자에게 자동으로 순서가 넘어갑니다.
+      </div>
+    </div>
     {% for item in period_data %}
     <div class="card gx-card mb-3">
       <div class="card-body p-4">

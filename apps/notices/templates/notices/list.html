@@ -2,7 +2,11 @@
 {% block title %}공지사항{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h3 class="fw-bold mb-0"><i class="fa-solid fa-bullhorn me-2"></i>공지사항</h3>
+  <div class="gx-guide mb-4">
+  <i class="fa-regular fa-bell me-1" style="color:var(--rose-lt);"></i>
+  수업 일정 변경, 휴강, 중요 안내 사항을 공지합니다. 정기적으로 확인해 주세요.
+</div>
+<h3 class="fw-bold mb-0"><i class="fa-solid fa-bullhorn me-2"></i>공지사항</h3>
   {% if request.user.profile.is_complex_admin %}
   <a href="/notices/create/" class="btn btn-gx btn-sm">
     <i class="fa-solid fa-plus me-1"></i>공지 작성

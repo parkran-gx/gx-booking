@@ -3,72 +3,78 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-6">
-    <a href="/classes/" class="btn btn-link ps-0 mb-3">
-      <i class="fa-solid fa-arrow-left me-1"></i>목록으로
+    <a href="/classes/" class="btn btn-link ps-0 mb-3" style="color:var(--mist);font-size:0.83rem;">
+      <i class="fa-solid fa-arrow-left me-1"></i>수업 목록으로
     </a>
-    <div class="card gx-card">
-      <div class="card-body p-4">
-        <h4 class="fw-bold mb-1">{{ gx_class.name }}</h4>
-        <p class="text-muted mb-4 small">
-          {{ gx_class.get_days_display }} {{ gx_class.start_time|time:"H:i" }}~{{ gx_class.end_time|time:"H:i" }}
-          &nbsp;·&nbsp;
-          {% if gx_class.available_spots > 0 %}
-            잔여 {{ gx_class.available_spots }}석
-          {% else %}
-            <span class="text-danger">마감 · 대기 신청</span>
-          {% endif %}
-        </p>
+    <div class="gx-card p-4">
+      <h4 style="font-size:1.1rem;font-weight:600;margin-bottom:0.3rem;">{{ gx_class.name }}</h4>
+      <p style="font-size:0.82rem;color:var(--mist);margin-bottom:1.2rem;">
+        {{ gx_class.get_days_display }} &nbsp; {{ gx_class.start_time|time:"H:i" }} – {{ gx_class.end_time|time:"H:i" }}
+        &nbsp;·&nbsp;
+        {% if gx_class.available_spots > 0 %}
+          잔여 <strong style="color:var(--sage);">{{ gx_class.available_spots }}</strong>석
+        {% else %}
+          <span style="color:var(--rose);">마감 — 대기 신청 가능</span>
+        {% endif %}
+      </p>
 
-        {% if profile.phone %}
-        <div class="alert alert-light border small mb-4">
-          <i class="fa-solid fa-circle-check text-success me-1"></i>
-          회원 정보가 자동으로 입력되었습니다. 확인 후 예약해주세요.
+      {% if profile.phone %}
+      <div class="gx-guide mb-4">
+        <i class="fa-solid fa-circle-check me-1" style="color:var(--sage);"></i>
+        회원 정보가 자동으로 입력되었습니다. 내용을 확인 후 예약해 주세요.
+      </div>
+      {% else %}
+      <div class="gx-guide mb-4">
+        <i class="fa-solid fa-circle-info me-1" style="color:var(--rose-lt);"></i>
+        정확한 정보를 입력해 주세요. 예약 확인 시 사용됩니다.
+      </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">이름 <span style="color:var(--rose);">*</span></label>
+          <input type="text" name="name" class="form-control"
+            value="{{ request.user.first_name }}" placeholder="홍길동" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">연락처 <span style="color:var(--rose);">*</span></label>
+          <input type="tel" name="phone" class="form-control"
+            value="{{ profile.phone }}" placeholder="010-0000-0000" required>
+        </div>
+        <div class="row mb-4">
+          <div class="col-6">
+            <label class="form-label">동 <span style="color:var(--rose);">*</span></label>
+            <input type="text" name="building" class="form-control"
+              value="{{ profile.building }}" placeholder="101" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">호수 <span style="color:var(--rose);">*</span></label>
+            <input type="text" name="unit" class="form-control"
+              value="{{ profile.unit }}" placeholder="1001" required>
+          </div>
+        </div>
+
+        <div style="background:var(--rose-bg);border-radius:var(--r-sm);padding:0.9rem 1rem;margin-bottom:1.2rem;font-size:0.8rem;color:var(--stone);line-height:1.8;">
+          <i class="fa-solid fa-shield-halved me-1" style="color:var(--rose-lt);"></i>
+          수집된 정보는 수업 예약 확인 목적으로만 사용되며 외부에 제공되지 않습니다.
+        </div>
+
+        {% if gx_class.available_spots <= 0 %}
+        <div class="gx-guide mb-3" style="border-left-color:var(--gold);">
+          <i class="fa-solid fa-clock me-1" style="color:var(--gold);"></i>
+          현재 정원이 찼습니다. 대기 신청 시 취소 발생 시 순서대로 연락드립니다.
         </div>
         {% endif %}
 
-        <form method="post">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label class="form-label fw-semibold">이름 <span class="text-danger">*</span></label>
-            <input type="text" name="name" class="form-control form-control-lg"
-              value="{{ request.user.first_name }}" placeholder="홍길동" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">연락처 <span class="text-danger">*</span></label>
-            <input type="tel" name="phone" class="form-control form-control-lg"
-              value="{{ profile.phone }}" placeholder="010-0000-0000" required>
-          </div>
-          <div class="row mb-4">
-            <div class="col-6">
-              <label class="form-label fw-semibold">동 <span class="text-danger">*</span></label>
-              <input type="text" name="building" class="form-control form-control-lg"
-                value="{{ profile.building }}" placeholder="101" required>
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-semibold">호수 <span class="text-danger">*</span></label>
-              <input type="text" name="unit" class="form-control form-control-lg"
-                value="{{ profile.unit }}" placeholder="1001" required>
-            </div>
-          </div>
-          <div class="alert alert-light border small mb-4">
-            <i class="fa-solid fa-circle-info text-primary me-1"></i>
-            수집 정보는 예약 확인 목적으로만 사용됩니다.
-          </div>
+        <button type="submit" class="btn btn-gx w-100" style="padding:0.65rem;">
           {% if gx_class.available_spots <= 0 %}
-          <div class="alert alert-warning small mb-3">
-            <i class="fa-solid fa-triangle-exclamation me-1"></i>
-            마감된 수업입니다. 대기 신청 시 취소자 발생 시 순서대로 안내드립니다.
-          </div>
+            <i class="fa-regular fa-clock me-1"></i>대기 신청
+          {% else %}
+            <i class="fa-solid fa-check me-1"></i>예약 완료
           {% endif %}
-          <button type="submit" class="btn btn-gx w-100 btn-lg">
-            {% if gx_class.available_spots <= 0 %}
-              <i class="fa-solid fa-clock me-1"></i>대기 신청
-            {% else %}
-              <i class="fa-solid fa-check me-1"></i>예약 완료
-            {% endif %}
-          </button>
-        </form>
-      </div>
+        </button>
+      </form>
     </div>
   </div>
 </div>
