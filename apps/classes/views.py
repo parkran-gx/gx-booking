@@ -589,17 +589,47 @@ def my_calendar(request):
         gx_class_id__in=my_class_ids
     ).select_related('gx_class').order_by('date')
 
+    # 출석 데이터
+    from apps.bookings.models import Attendance
+    booking_map = {b.gx_class_id: b for b in my_bookings}
+    att_map = {}
+    for b in my_bookings:
+        for a in Attendance.objects.filter(booking=b):
+            att_map[a.session_id] = a.status
+
+    # 수업별 이모티콘
+    class_emoji = {}
+    emoji_list = ['🧘', '🤸', '💪', '🏃', '🌿', '✨', '🌸', '🎯']
+    for i, cid in enumerate(set(my_class_ids)):
+        class_emoji[cid] = emoji_list[i % len(emoji_list)]
+
     events = []
     for s in sessions:
+        emoji = class_emoji.get(s.gx_class_id, '📅')
+        att_status = att_map.get(s.id)
+
         if s.is_cancelled:
             color = '#E05A5A'
-            title = f'[휴강] {s.gx_class.name}'
+            title = f'🚫 {s.gx_class.name}'
+            att_mark = ''
         elif s.substitute_instructor:
             color = '#F0A842'
-            title = f'[대강] {s.gx_class.name}'
+            title = f'🔄 {s.gx_class.name}'
+            att_mark = ''
         else:
             color = '#7A9E7E'
-            title = s.gx_class.name
+            if att_status == 'present':
+                att_mark = ' ✓'
+                color = '#4CAF82'
+            elif att_status == 'absent':
+                att_mark = ' ✗'
+                color = '#E05A5A'
+            elif att_status == 'makeup':
+                att_mark = ' ↺'
+                color = '#F0A842'
+            else:
+                att_mark = ''
+            title = f'{emoji} {s.gx_class.name}{att_mark}'
 
         events.append({
             'id': s.id,
@@ -607,6 +637,9 @@ def my_calendar(request):
             'date': str(s.date),
             'color': color,
             'is_cancelled': s.is_cancelled,
+            'att_status': att_status or '',
+            'emoji': emoji,
+            'class_name': s.gx_class.name,
         })
 
     return render(request, 'classes/my_calendar.html', {
