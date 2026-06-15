@@ -25,61 +25,83 @@ docs/HANDOVER.md 참고해주세요.
 ## 기술 스택
 - Django 4.2 / Python 3.12
 - Bootstrap 5.3 + Font Awesome 6.4
-- DB: SQLite
-- 개발: GitHub Codespaces
-- 운영: PythonAnywhere
+- Pretendard 폰트
+- DB: SQLite / 개발: GitHub Codespaces / 운영: PythonAnywhere
 
 ## 앱 구조
-- classes: 수업 정의/일정/캘린더/출석
+- classes: 수업/일정/캘린더/출석/QR/매뉴얼
 - bookings: 예약/출석/개인레슨
-- accounts: 회원가입/로그인/프로필
+- accounts: 회원가입/로그인/프로필/회원관리
 - complexes: 단지관리/QR코드
 - enrollments: 월별수강등록/우선접수/대기
-- notices: 공지게시판
-- messages_app: 쪽지
+- notices: 공지게시판 (클래스별)
+- messages_app: 쪽지 (수신/발신/답장)
 
-## 수업 구성
-- 요가(임산부가능): 목 10:30~11:20 / 10명 / 30,000원
-- 필라테스A: 월/목 17:00~17:50 / 10명 / 52,000원
-- 필라테스B: 월/목 18:00~18:50 / 10명 / 52,000원
-
-## 사용자 등급
-- super_admin: 모든 관리 (parkran)
-- complex_admin: 단지 관리자
-- registered: 수강 등록 회원
-- unregistered: 가입만 한 회원
-
-## 완성된 기능
+## 완성된 기능 (전체)
+### 회원 기능
 - 랜딩페이지 QR 단지인식
-- 회원가입/로그인/비밀번호찾기
-- 단지별 수업분리
-- 수업예약 (내정보 자동입력)
-- 마이페이지
-- 월별 수강등록
-- 우선접수/일반접수 기간설정
-- 수동등록/취소/대기자 자동승격
+- 회원가입/로그인/비밀번호찾기/변경
+- 마이페이지 4탭 (수강관리·캘린더·공지·쪽지)
+- 수업 예약·대기신청·변경요청
+- 수강 등록 신청·현황 확인
+- 회원용 캘린더 (목록/달력·스와이프·출석이모티콘)
+- 출석 사전 등록·결석 사유 입력
+- 공지 클래스별 게시판·수강생 글쓰기
+- 쪽지 수신·발신·보낸쪽지함
+- 강사님께 쪽지 보내기
+- 모바일 하단 탭 (수업·공지·캘린더·쪽지·내정보)
+
+### 관리자 기능
+- 관리자 대시보드 (알림배너·오늘수업·통계·이번주일정·빠른메뉴)
+- 월별 수강등록 (우선/일반접수·대기자 자동승격)
 - 우선접수 대상자 지정
-- Excel/PDF/CSV 내보내기
+- Excel/PDF/CSV 명단 내보내기
 - 관리사무소 명단 복사/출력/전송
-- 상태 수동변경
-- 공지게시판
-- 쪽지 3단계 (비회원/회원/등록회원)
-- QR코드 생성
-- 관리자 대시보드
-- 수업일정 자동생성 (주1/2/3회/직접입력)
-- 서식 불러오기/수업명 직접입력
-- 개별세션 수정/휴강/대강
-- 출석체크/내 출석현황
-- 역할별 드롭다운 네비게이션
-- 수업관리 (추가/수정/정원변경)
+- 수업 일정 자동생성 (주1/2회·직접입력)
+- 개별세션 수정·휴강·대강
+- 강사용 원터치 출석체크·전체출석·출석부PDF
+- 회원 승인·등급 변경·삭제
+- 수업 추가·수정·정원 변경
+- 관리자 쪽지 발송·수신함·답장
+- 공지 작성·전체공지·수업별공지·상단고정
+- QR코드 생성·다운로드 (검정색)
+- 운영 매뉴얼 (컬러 섹션별 정리)
 - PA 보안설정 완료
 
+## 디자인 시스템
+- 컬러: 크림·모브로즈 (C팔레트)
+  --rose: #7A5A54 / --rose-lt: #C4968A / --rose-bg: #FDF9F7
+- 폰트: Pretendard
+- 회원용: 우아·여성스러운 크림·모브로즈
+- 관리자용: 실용·가시성 중심 (밝은 배경·굵은 텍스트·컬러 섹션)
+
+## 주요 URL
+- / : 랜딩
+- /classes/ : 수업예약
+- /accounts/dashboard/ : 마이페이지 (4탭)
+- /my-calendar/ : 회원용 캘린더
+- /my-attendance-check/<id>/ : 출석 사전 등록
+- /enrollments/ : 수강등록
+- /notices/ : 공지사항
+- /messages/inbox/ : 쪽지함
+- /messages/send/ : 쪽지 보내기
+- /admin-dashboard/ : 관리자 대시보드
+- /enrollments/admin/ : 수강등록 관리
+- /calendar/ : 관리자 캘린더
+- /calendar/schedule/create/ : 일정 등록
+- /calendar/session/<id>/attendance/ : 출석체크
+- /accounts/members/ : 회원관리
+- /messages/admin/send/ : 관리자 쪽지발송
+- /notices/create/ : 공지작성
+- /qr/ : QR코드
+- /manual/ : 운영매뉴얼
+
 ## 다음 작업 후보
-- ~~카카오 알림 연동~~ (제거)
-- PWA → Play Store 등록
-- 출석부 PDF 출력
-- 회원 승인 관리 페이지
-- 다중 단지 확장 테스트
+1. 7월 수업 일정 등록 (즉시 필요)
+2. 출석체크 페이지 모바일 최적화
+3. 월별 수강 통계 리포트
+4. PWA 홈화면 추가
+5. 비밀번호 찾기 이메일 실제 발송 설정
 
 ## PA 주요 명령어
 - 배포: cd ~/gx-booking && git fetch origin && git reset --hard origin/main && touch /var/www/parkrangx_pythonanywhere_com_wsgi.py
