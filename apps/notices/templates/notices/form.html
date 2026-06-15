@@ -1,41 +1,56 @@
 {% extends 'base.html' %}
-{% block title %}공지 {% if notice %}수정{% else %}작성{% endif %}{% endblock %}
+{% block title %}{% if notice %}게시물 수정{% else %}글쓰기{% endif %}{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-lg-8">
-    <a href="/notices/" class="btn btn-link ps-0 mb-3"><i class="fa-solid fa-arrow-left me-1"></i>목록으로</a>
-    <div class="card gx-card p-4">
-      <h4 class="fw-bold mb-4">공지 {% if notice %}수정{% else %}작성{% endif %}</h4>
+  <div class="col-lg-7">
+    <a href="/notices/" style="font-size:0.82rem;color:var(--mist);text-decoration:none;display:inline-block;margin-bottom:1.2rem;">
+      <i class="fa-solid fa-arrow-left me-1"></i>목록으로
+    </a>
+    <div class="gx-card p-4">
+      <h4 style="font-size:1.05rem;font-weight:600;margin-bottom:1.5rem;">
+        {% if notice %}게시물 수정{% else %}글쓰기{% endif %}
+      </h4>
       <form method="post">
         {% csrf_token %}
         <div class="mb-3">
-          <label class="form-label fw-semibold">제목</label>
-          <input type="text" name="title" class="form-control" value="{{ notice.title }}" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">관련 수업 (선택)</label>
+          <label class="form-label">수업 선택</label>
           <select name="gx_class" class="form-select">
-            <option value="">전체</option>
+            <option value="">전체 (수업 무관)</option>
             {% for c in classes %}
-            <option value="{{ c.id }}" {% if notice.gx_class_id == c.id %}selected{% endif %}>{{ c.name }} {{ c.start_time|time:"H:i" }}</option>
+            <option value="{{ c.id }}"
+              {% if notice.gx_class_id == c.id or default_class_id == c.id|stringformat:"s" %}selected{% endif %}>
+              {{ c.name }}
+            </option>
             {% endfor %}
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label fw-semibold">내용</label>
-          <textarea name="content" class="form-control" rows="8" required>{{ notice.content }}</textarea>
+          <label class="form-label">제목 <span style="color:var(--rose);">*</span></label>
+          <input type="text" name="title" class="form-control"
+            value="{{ notice.title }}" placeholder="제목을 입력하세요" required>
         </div>
-        <div class="d-flex gap-3 mb-4">
+        <div class="mb-4">
+          <label class="form-label">내용 <span style="color:var(--rose);">*</span></label>
+          <textarea name="content" class="form-control" rows="8"
+            placeholder="내용을 입력하세요" required>{{ notice.content }}</textarea>
+        </div>
+        {% if is_admin %}
+        <div class="d-flex gap-4 mb-4">
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="is_pinned" id="pinned" {% if notice.is_pinned %}checked{% endif %}>
-            <label class="form-check-label" for="pinned">상단 고정</label>
+            <input class="form-check-input" type="checkbox" name="is_pinned" id="is_pinned"
+              {% if notice.is_pinned %}checked{% endif %}>
+            <label class="form-check-label" for="is_pinned" style="font-size:0.83rem;">상단 고정</label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="is_global" id="global" {% if notice.is_global %}checked{% endif %}>
-            <label class="form-check-label" for="global">전체 공지</label>
+            <input class="form-check-input" type="checkbox" name="is_global" id="is_global"
+              {% if notice.is_global %}checked{% endif %}>
+            <label class="form-check-label" for="is_global" style="font-size:0.83rem;">전체 공지</label>
           </div>
         </div>
-        <button type="submit" class="btn btn-gx w-100">저장</button>
+        {% endif %}
+        <button type="submit" class="btn btn-gx w-100">
+          {% if notice %}수정 완료{% else %}등록하기{% endif %}
+        </button>
       </form>
     </div>
   </div>

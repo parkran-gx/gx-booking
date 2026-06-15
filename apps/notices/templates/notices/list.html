@@ -1,40 +1,90 @@
 {% extends 'base.html' %}
 {% block title %}공지사항{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div class="gx-guide mb-4">
-  <i class="fa-regular fa-bell me-1" style="color:var(--rose-lt);"></i>
-  수업 일정 변경, 휴강, 중요 안내 사항을 공지합니다. 정기적으로 확인해 주세요.
-</div>
-<h3 class="fw-bold mb-0"><i class="fa-solid fa-bullhorn me-2"></i>공지사항</h3>
-  {% if request.user.profile.is_complex_admin %}
-  <a href="/notices/create/" class="btn btn-gx btn-sm">
-    <i class="fa-solid fa-plus me-1"></i>공지 작성
-  </a>
-  {% endif %}
-</div>
-{% for notice in notices %}
-<div class="card gx-card mb-2">
-  <div class="card-body p-3">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        {% if notice.is_pinned %}
-        <span class="badge bg-danger me-1">고정</span>
-        {% endif %}
-        {% if notice.is_global %}
-        <span class="badge bg-primary me-1">전체</span>
-        {% elif notice.gx_class %}
-        <span class="badge bg-success me-1">{{ notice.gx_class.name }}</span>
-        {% endif %}
-        <a href="/notices/{{ notice.pk }}/" class="text-dark fw-semibold text-decoration-none">
-          {{ notice.title }}
-        </a>
-      </div>
-      <small class="text-muted">{{ notice.created_at|date:"m/d" }}</small>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <!-- 클래스 탭 -->
+    {% if my_classes %}
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+      {% for c in my_classes %}
+      <a href="/notices/?class_id={{ c.id }}"
+         class="btn btn-sm {% if selected_class.id == c.id %}btn-gx{% else %}btn-gx-outline{% endif %}">
+        {{ c.name }}
+      </a>
+      {% endfor %}
     </div>
+    {% endif %}
+
+    <!-- 전체 공지 (항상 상단 노출) -->
+    {% if global_notices %}
+    <div class="mb-4">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span style="font-size:0.75rem;font-weight:600;color:var(--rose);letter-spacing:0.05em;">📢 전체 공지</span>
+        <div style="flex:1;height:1px;background:var(--line);"></div>
+      </div>
+      {% for n in global_notices %}
+      <a href="/notices/{{ n.pk }}/" class="d-block text-decoration-none mb-2">
+        <div class="gx-card p-3" style="border-left:3px solid var(--rose-lt);">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              {% if n.is_pinned %}
+              <span style="font-size:0.7rem;background:var(--rose-bg);color:var(--rose);border-radius:3px;padding:1px 6px;margin-right:6px;font-weight:600;">고정</span>
+              {% endif %}
+              <span style="font-size:0.9rem;font-weight:500;color:var(--ink);">{{ n.title }}</span>
+            </div>
+            <span style="font-size:0.75rem;color:var(--mist);">{{ n.created_at|date:"m/d" }}</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 클래스별 공지 -->
+    {% if selected_class %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h5 style="font-size:1rem;font-weight:600;margin:0;">{{ selected_class.name }} 게시판</h5>
+        <p style="font-size:0.78rem;color:var(--mist);margin:0;">수강생이라면 누구나 글을 작성할 수 있습니다</p>
+      </div>
+      <a href="/notices/create/?class_id={{ selected_class.id }}" class="btn btn-gx btn-sm">
+        <i class="fa-solid fa-pen me-1"></i>글쓰기
+      </a>
+    </div>
+
+    {% if class_notices %}
+    <div class="gx-card">
+      {% for n in class_notices %}
+      <a href="/notices/{{ n.pk }}/" class="d-block text-decoration-none">
+        <div class="p-3 {% if not forloop.last %}border-bottom{% endif %}" style="border-color:var(--line)!important;">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              {% if n.is_pinned %}
+              <span style="font-size:0.7rem;background:var(--rose-bg);color:var(--rose);border-radius:3px;padding:1px 6px;margin-right:6px;font-weight:600;">고정</span>
+              {% endif %}
+              <span style="font-size:0.88rem;font-weight:500;color:var(--ink);">{{ n.title }}</span>
+              <div style="font-size:0.75rem;color:var(--mist);margin-top:2px;">
+                {{ n.author.first_name|default:n.author.username }}
+              </div>
+            </div>
+            <span style="font-size:0.75rem;color:var(--mist);white-space:nowrap;margin-left:1rem;">
+              {{ n.created_at|date:"m/d H:i" }}
+            </span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="gx-card p-4 text-center">
+      <i class="fa-regular fa-note-sticky d-block mb-2" style="font-size:1.5rem;color:var(--rose-line);"></i>
+      <p style="font-size:0.85rem;color:var(--mist);margin:0 0 1rem;">아직 게시물이 없습니다. 첫 글을 작성해보세요!</p>
+      <a href="/notices/create/?class_id={{ selected_class.id }}" class="btn btn-gx btn-sm">글쓰기</a>
+    </div>
+    {% endif %}
+    {% endif %}
+
   </div>
 </div>
-{% empty %}
-<div class="alert alert-info text-center">등록된 공지가 없습니다.</div>
-{% endfor %}
 {% endblock %}
