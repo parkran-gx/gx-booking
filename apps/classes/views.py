@@ -57,28 +57,77 @@ def class_list(request):
 
 @login_required
 def admin_dashboard(request):
+    from datetime import date, timedelta
+    from apps.bookings.models import PrivateLessonRequest, Attendance
+    from apps.messages_app.models import Message
+    from apps.notices.models import Notice
+    from apps.classes.models import ClassSession
+
     profile = request.user.profile
     if profile.is_super_admin:
         classes = GxClass.objects.filter(is_active=True)
     else:
         classes = GxClass.objects.filter(is_active=True, complex=profile.complex)
+
+    today = date.today()
     dashboard = []
     for c in classes:
         confirmed = Booking.objects.filter(gx_class=c, status='confirmed').count()
         waiting = Booking.objects.filter(gx_class=c, status='waiting').count()
         cancel_req = Booking.objects.filter(gx_class=c, cancel_requested=True).count()
+        cancel_bookings = Booking.objects.filter(
+            gx_class=c, cancel_requested=True
+        ).select_related('gx_class')
+        waiting_bookings = Booking.objects.filter(
+            gx_class=c, status='waiting'
+        ).select_related('gx_class').order_by('created_at')
         dashboard.append({
             'obj': c,
             'confirmed': confirmed,
             'waiting': waiting,
             'cancel_req': cancel_req,
             'available': c.capacity - confirmed,
+            'cancel_bookings': cancel_bookings,
+            'waiting_bookings': waiting_bookings,
         })
-    from apps.bookings.models import PrivateLessonRequest
+
+    # 오늘 수업 세션
+    today_sessions = ClassSession.objects.filter(
+        date=today,
+        gx_class__in=classes
+    ).select_related('gx_class')
+
+    # 이번 주 수업 세션
+    week_sessions = ClassSession.objects.filter(
+        date__gte=today,
+        date__lte=today + timedelta(days=7),
+        gx_class__in=classes
+    ).select_related('gx_class').order_by('date')
+
+    # 알림 데이터
+    unread_messages = Message.objects.filter(is_read=False).count()
+    recent_messages = Message.objects.filter(
+        is_read=False
+    ).order_by('-created_at')[:3]
+
     pending_lessons = PrivateLessonRequest.objects.filter(status='pending').count()
+    total_cancel_req = sum(d['cancel_req'] for d in dashboard)
+    total_waiting = sum(d['waiting'] for d in dashboard)
+
+    # 최근 공지
+    recent_notices = Notice.objects.order_by('-created_at')[:3]
+
     return render(request, 'classes/admin_dashboard.html', {
         'dashboard': dashboard,
         'pending_lessons': pending_lessons,
+        'today_sessions': today_sessions,
+        'week_sessions': week_sessions,
+        'unread_messages': unread_messages,
+        'recent_messages': recent_messages,
+        'total_cancel_req': total_cancel_req,
+        'total_waiting': total_waiting,
+        'recent_notices': recent_notices,
+        'today': today,
     })
 
 @login_required

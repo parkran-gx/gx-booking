@@ -1,278 +1,276 @@
 {% extends 'base.html' %}
 {% block title %}관리자 대시보드{% endblock %}
 {% block content %}
-<div class="admin-page" style="margin: -2rem -12px; padding: 2rem 12px 3rem;">
+<div style="background:#F5F7FA;margin:-2rem -12px;padding:1.5rem 1rem 3rem;">
 
   <!-- 헤더 -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h2 style="font-size:1.3rem;font-weight:700;color:#1A1D2A;margin:0;">관리자 대시보드</h2>
-      <p style="font-size:0.8rem;color:#8A8F9E;margin:0;">
-        {% now "Y년 m월 d일 H:i" %} 기준
-      </p>
+      <p style="font-size:0.8rem;color:#8A8F9E;margin:0;">{{ today }} 기준</p>
     </div>
-    <div class="d-flex gap-2">
-      <a href="/manual/" class="admin-btn">
-        <i class="fa-regular fa-book me-1"></i>매뉴얼
-      </a>
-      <a href="/notices/create/" class="admin-btn">
-        <i class="fa-regular fa-pen-to-square me-1"></i>공지 작성
-      </a>
-      <a href="/enrollments/admin/create/" class="admin-btn primary">
-        <i class="fa-solid fa-plus me-1"></i>수강등록 생성
-      </a>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="/notices/create/" class="admin-btn">공지 작성</a>
+      <a href="/enrollments/admin/create/" class="admin-btn primary">+ 수강등록</a>
     </div>
   </div>
 
-  <!-- 전체 통계 카드 -->
+  <!-- 알림 배너 -->
+  {% if total_cancel_req > 0 or unread_messages > 0 or total_waiting > 0 or pending_lessons > 0 %}
+  <div style="background:#FFF8F0;border:1.5px solid #F0A842;border-radius:10px;padding:0.9rem 1.2rem;margin-bottom:1.2rem;">
+    <div style="font-size:0.82rem;font-weight:700;color:#E07A00;margin-bottom:0.5rem;">
+      🔔 확인이 필요한 항목이 있습니다
+    </div>
+    <div class="d-flex flex-wrap gap-3" style="font-size:0.82rem;">
+      {% if total_cancel_req > 0 %}
+      <a href="#cancel-section" style="color:#C0404A;font-weight:600;text-decoration:none;">
+        ⚠️ 변경요청 {{ total_cancel_req }}건
+      </a>
+      {% endif %}
+      {% if unread_messages > 0 %}
+      <a href="/messages/inbox/" style="color:#5A6AE0;font-weight:600;text-decoration:none;">
+        ✉️ 미읽은 쪽지 {{ unread_messages }}건
+      </a>
+      {% endif %}
+      {% if total_waiting > 0 %}
+      <a href="#waiting-section" style="color:#E07A00;font-weight:600;text-decoration:none;">
+        ⏳ 대기자 {{ total_waiting }}명
+      </a>
+      {% endif %}
+      {% if pending_lessons > 0 %}
+      <span style="color:#8A6AE0;font-weight:600;">
+        🎯 개인레슨 요청 {{ pending_lessons }}건
+      </span>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 오늘 수업 -->
+  {% if today_sessions %}
+  <div style="background:#EBF5FF;border:1px solid #B5D4F4;border-radius:10px;padding:0.9rem 1.2rem;margin-bottom:1.2rem;">
+    <div style="font-size:0.82rem;font-weight:700;color:#185FA5;margin-bottom:0.5rem;">
+      📅 오늘 수업 ({{ today }})
+    </div>
+    <div class="d-flex flex-wrap gap-3">
+      {% for s in today_sessions %}
+      <a href="/calendar/session/{{ s.id }}/attendance/" style="text-decoration:none;">
+        <span style="background:white;border:1px solid #B5D4F4;border-radius:6px;padding:4px 10px;font-size:0.82rem;color:#1A1D2A;font-weight:500;">
+          {{ s.gx_class.name }} {{ s.gx_class.start_time|time:"H:i" }}
+          {% if s.is_cancelled %}<span style="color:#E05A5A;">휴강</span>{% endif %}
+          → 출석 체크
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 수업별 통계 카드 -->
   <div class="row g-3 mb-4">
     {% for item in dashboard %}
     <div class="col-md-4">
-      <div class="stat-card stat-green">
-        <div class="stat-num" style="color:#2E7D52;">{{ item.confirmed }}</div>
-        <div class="stat-label">{{ item.obj.name }} 예약확정</div>
-        <div class="progress-bar-custom">
-          <div class="progress-bar-fill" style="width:{% widthratio item.confirmed item.obj.capacity 100 %}%;background:#4CAF82;"></div>
+      <div style="background:white;border-radius:10px;border:1px solid #E8EAF0;padding:1.2rem;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+        <div style="font-size:0.9rem;font-weight:700;color:#1A1D2A;margin-bottom:0.8rem;padding-bottom:0.6rem;border-bottom:1px solid #F0F1F5;">
+          {{ item.obj.name }}
+          <span style="font-size:0.75rem;color:#8A8F9E;font-weight:400;margin-left:4px;">{{ item.obj.start_time|time:"H:i" }}</span>
         </div>
-        <div style="font-size:0.72rem;color:#8A8F9E;margin-top:4px;">정원 {{ item.obj.capacity }}명 중 {{ item.confirmed }}명</div>
-        <i class="fa-solid fa-person-walking stat-icon"></i>
+        <div class="d-flex justify-content-between text-center">
+          <div>
+            <div style="font-size:1.6rem;font-weight:800;color:#2E7D52;line-height:1;">{{ item.confirmed }}</div>
+            <div style="font-size:0.72rem;color:#8A8F9E;margin-top:2px;">예약</div>
+          </div>
+          <div>
+            <div style="font-size:1.6rem;font-weight:800;color:#8A8F9E;line-height:1;">{{ item.available }}</div>
+            <div style="font-size:0.72rem;color:#8A8F9E;margin-top:2px;">잔여</div>
+          </div>
+          <div>
+            <div style="font-size:1.6rem;font-weight:800;color:#E07A00;line-height:1;">{{ item.waiting }}</div>
+            <div style="font-size:0.72rem;color:#8A8F9E;margin-top:2px;">대기</div>
+          </div>
+          <div>
+            <div style="font-size:1.6rem;font-weight:800;color:{% if item.cancel_req > 0 %}#C0404A{% else %}#8A8F9E{% endif %};line-height:1;">{{ item.cancel_req }}</div>
+            <div style="font-size:0.72rem;color:#8A8F9E;margin-top:2px;">변경요청</div>
+          </div>
+        </div>
+        <div style="margin-top:0.8rem;">
+          <div style="height:6px;background:#F0F1F5;border-radius:3px;overflow:hidden;">
+            <div style="height:100%;background:#4CAF82;border-radius:3px;width:{% widthratio item.confirmed item.obj.capacity 100 %}%;"></div>
+          </div>
+          <div style="font-size:0.72rem;color:#8A8F9E;margin-top:3px;">정원 {{ item.obj.capacity }}명 중 {{ item.confirmed }}명</div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <a href="/bookings/admin/list/{{ item.obj.id }}/" class="admin-btn" style="flex:1;text-align:center;font-size:0.78rem;">예약 명단</a>
+          <a href="/calendar/" class="admin-btn" style="flex:1;text-align:center;font-size:0.78rem;">캘린더</a>
+        </div>
       </div>
     </div>
     {% endfor %}
   </div>
 
-  <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-      <div class="stat-card stat-green">
-        <div class="stat-num">
-          {% for item in dashboard %}{{ item.confirmed }}{% if not forloop.last %}+{% endif %}{% endfor %}
-        </div>
-        <div class="stat-label">전체 예약확정</div>
-        <i class="fa-solid fa-check stat-icon"></i>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="stat-card stat-amber">
-        <div class="stat-num" style="color:#E07A00;">
-          {% for item in dashboard %}{{ item.waiting }}{% if not forloop.last %}+{% endif %}{% endfor %}
-        </div>
-        <div class="stat-label">대기 중</div>
-        <i class="fa-solid fa-clock stat-icon"></i>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="stat-card stat-red">
-        <div class="stat-num" style="color:#C0404A;">
-          {% for item in dashboard %}{{ item.cancel_req }}{% if not forloop.last %}+{% endif %}{% endfor %}
-        </div>
-        <div class="stat-label">변경 요청</div>
-        <i class="fa-solid fa-triangle-exclamation stat-icon"></i>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="stat-card stat-purple">
-        <div class="stat-num" style="color:#6A42C8;">{{ pending_lessons }}</div>
-        <div class="stat-label">개인레슨 요청</div>
-        <i class="fa-solid fa-user stat-icon"></i>
-      </div>
-    </div>
-  </div>
-
   <div class="row g-3">
-    <!-- 수업별 현황 -->
+    <!-- 왼쪽: 변경요청 + 대기자 -->
     <div class="col-lg-7">
-      <div class="admin-card mb-3">
-        <div class="admin-card-header">
-          <span><i class="fa-solid fa-list me-2" style="color:#5A8AE0;"></i>수업별 예약 현황</span>
-        </div>
-        <table class="table admin-table">
-          <thead>
-            <tr>
-              <th>수업</th>
-              <th>시간</th>
-              <th class="text-center">예약</th>
-              <th class="text-center">대기</th>
-              <th class="text-center">잔여</th>
-              <th>요청</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in dashboard %}
-            <tr>
-              <td style="font-weight:600;">{{ item.obj.name }}</td>
-              <td style="color:#8A8F9E;font-size:0.8rem;">{{ item.obj.start_time|time:"H:i" }}</td>
-              <td class="text-center">
-                <span class="badge-confirmed">{{ item.confirmed }}</span>
-              </td>
-              <td class="text-center">
-                {% if item.waiting > 0 %}
-                <span class="badge-waiting">{{ item.waiting }}</span>
-                {% else %}<span style="color:#B0B5C4;">—</span>{% endif %}
-              </td>
-              <td class="text-center">
-                <span style="font-weight:600;color:{% if item.available == 0 %}#E05A5A{% elif item.available <= 2 %}#E07A00{% else %}#2E7D52{% endif %};">
-                  {{ item.available }}
-                </span>
-              </td>
-              <td>
-                {% if item.cancel_req > 0 %}
-                <span class="badge-cancelled">{{ item.cancel_req }}건</span>
-                {% else %}<span style="color:#B0B5C4;">없음</span>{% endif %}
-              </td>
-              <td>
-                <a href="/bookings/admin/list/{{ item.obj.id }}/" class="admin-btn">명단</a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
 
-      <!-- 빠른 링크 -->
-      <div class="admin-card">
-        <div class="admin-card-header">
-          <span><i class="fa-solid fa-bolt me-2" style="color:#F0A842;"></i>빠른 메뉴</span>
-        </div>
-        <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;">
-          <a href="/enrollments/admin/" style="text-decoration:none;">
-            <div style="background:#F8F9FC;border-radius:8px;padding:0.8rem;text-align:center;border:1px solid #E8EAF0;transition:all 0.15s;" onmouseover="this.style.background='#EEF0FA'" onmouseout="this.style.background='#F8F9FC'">
-              <i class="fa-regular fa-clipboard" style="color:#5A6AE0;font-size:1.2rem;display:block;margin-bottom:4px;"></i>
-              <span style="font-size:0.75rem;color:#4A4D5A;font-weight:500;">수강등록 관리</span>
-            </div>
-          </a>
-          <a href="/calendar/" style="text-decoration:none;">
-            <div style="background:#F8F9FC;border-radius:8px;padding:0.8rem;text-align:center;border:1px solid #E8EAF0;transition:all 0.15s;" onmouseover="this.style.background='#EEF0FA'" onmouseout="this.style.background='#F8F9FC'">
-              <i class="fa-regular fa-calendar-days" style="color:#5A8AE0;font-size:1.2rem;display:block;margin-bottom:4px;"></i>
-              <span style="font-size:0.75rem;color:#4A4D5A;font-weight:500;">캘린더</span>
-            </div>
-          </a>
-          <a href="/accounts/members/" style="text-decoration:none;">
-            <div style="background:#F8F9FC;border-radius:8px;padding:0.8rem;text-align:center;border:1px solid #E8EAF0;transition:all 0.15s;" onmouseover="this.style.background='#EEF0FA'" onmouseout="this.style.background='#F8F9FC'">
-              <i class="fa-solid fa-users" style="color:#8A6AE0;font-size:1.2rem;display:block;margin-bottom:4px;"></i>
-              <span style="font-size:0.75rem;color:#4A4D5A;font-weight:500;">회원 관리</span>
-            </div>
-          </a>
-          <a href="/calendar/schedule/create/" style="text-decoration:none;">
-            <div style="background:#F8F9FC;border-radius:8px;padding:0.8rem;text-align:center;border:1px solid #E8EAF0;transition:all 0.15s;" onmouseover="this.style.background='#EEF0FA'" onmouseout="this.style.background='#F8F9FC'">
-              <i class="fa-regular fa-calendar-plus" style="color:#4CAF82;font-size:1.2rem;display:block;margin-bottom:4px;"></i>
-              <span style="font-size:0.75rem;color:#4A4D5A;font-weight:500;">일정 등록</span>
-            </div>
-          </a>
-          <a href="/class-manage/" style="text-decoration:none;">
-            <div style="background:#F8F9FC;border-radius:8px;padding:0.8rem;text-align:center;border:1px solid #E8EAF0;transition:all 0.15s;" onmouseover="this.style.background='#EEF0FA'" onmouseout="this.style.background='#F8F9FC'">
-              <i class="fa-solid fa-dumbbell" style="color:#C4968A;font-size:1.2rem;display:block;margin-bottom:4px;"></i>
-              <span style="font-size:0.75rem;color:#4A4D5A;font-weight:500;">수업 관리</span>
-            </div>
-          </a>
-          <a href="/qr/" style="text-decoration:none;">
-            <div style="background:#F8F9FC;border-radius:8px;padding:0.8rem;text-align:center;border:1px solid #E8EAF0;transition:all 0.15s;" onmouseover="this.style.background='#EEF0FA'" onmouseout="this.style.background='#F8F9FC'">
-              <i class="fa-solid fa-qrcode" style="color:#F0A842;font-size:1.2rem;display:block;margin-bottom:4px;"></i>
-              <span style="font-size:0.75rem;color:#4A4D5A;font-weight:500;">QR 코드</span>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- 우측 패널 -->
-    <div class="col-lg-5">
       <!-- 변경 요청 -->
-      <div class="admin-card mb-3">
-        <div class="admin-card-header">
-          <span><i class="fa-solid fa-triangle-exclamation me-2" style="color:#E05A5A;"></i>변경 요청</span>
-          <span style="font-size:0.75rem;color:#8A8F9E;">처리 필요</span>
+      <div id="cancel-section" style="background:white;border-radius:10px;border:1px solid #E8EAF0;margin-bottom:1rem;overflow:hidden;">
+        <div style="padding:0.8rem 1rem;background:#FEF0F0;border-bottom:1px solid #F7C0C0;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:0.88rem;font-weight:700;color:#C0404A;">⚠️ 변경 요청</span>
+          <span style="font-size:0.75rem;color:#8A8F9E;">즉시 처리 필요</span>
         </div>
-        <div style="padding:0;">
-        
-          {% for item in dashboard %}
-            {% for b in item.obj.bookings.all %}
-              {% if b.cancel_requested %}
-              <div style="padding:0.8rem 1.2rem;border-bottom:1px solid #F0F1F5;">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <span style="font-weight:600;font-size:0.84rem;">{{ b.name }}</span>
-                    <span style="font-size:0.75rem;color:#8A8F9E;margin-left:6px;">{{ b.building }}동 {{ b.unit }}호</span>
-                    <div style="font-size:0.75rem;color:#8A8F9E;">{{ b.gx_class.name }}</div>
-                    {% if b.cancel_message %}
-                    <div style="font-size:0.78rem;color:#4A4D5A;margin-top:3px;background:#F8F9FC;padding:4px 8px;border-radius:4px;">
-                      {{ b.cancel_message|truncatechars:40 }}
-                    </div>
-                    {% endif %}
-                  </div>
-                  <form method="post" action="/bookings/admin/list/{{ b.gx_class.id }}/">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="cancel">
-                    <input type="hidden" name="booking_id" value="{{ b.id }}">
-                    <button type="submit" class="admin-btn danger"
-                      onclick="return confirm('취소 처리하시겠습니까?')">취소처리</button>
-                  </form>
+        {% set has_cancel = False %}
+        {% for item in dashboard %}
+          {% for b in item.cancel_bookings %}
+          {% if forloop.first and forloop.parentloop.first %}{% endif %}
+          <div style="padding:0.8rem 1rem;border-bottom:1px solid #F5F6FA;">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span style="font-weight:700;font-size:0.9rem;color:#1A1D2A;">{{ b.name }}</span>
+                <span style="font-size:0.78rem;color:#8A8F9E;margin-left:6px;">{{ b.building }}동 {{ b.unit }}호</span>
+                <div style="font-size:0.78rem;color:#8A8F9E;">{{ b.gx_class.name }} · {{ b.phone }}</div>
+                {% if b.cancel_message %}
+                <div style="font-size:0.78rem;color:#C0404A;margin-top:3px;background:#FEF0F0;padding:3px 8px;border-radius:4px;">
+                  사유: {{ b.cancel_message }}
                 </div>
+                {% endif %}
               </div>
-              {% endif %}
-            {% endfor %}
-          {% endfor %}
-          <div style="padding:1.5rem;text-align:center;color:#B0B5C4;font-size:0.82rem;">
-            <i class="fa-regular fa-circle-check d-block mb-1" style="font-size:1.3rem;"></i>
-            처리할 변경 요청이 없습니다
+              <form method="post" action="/bookings/admin/list/{{ b.gx_class.id }}/">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="cancel">
+                <input type="hidden" name="booking_id" value="{{ b.id }}">
+                <button type="submit" class="admin-btn danger"
+                  onclick="return confirm('취소 처리하시겠습니까?')">취소 처리</button>
+              </form>
+            </div>
           </div>
+          {% endfor %}
+        {% endfor %}
+        <div style="padding:1.2rem;text-align:center;color:#B0B5C4;font-size:0.82rem;">
+          {% if total_cancel_req == 0 %}✅ 처리할 변경 요청이 없습니다{% endif %}
         </div>
       </div>
 
       <!-- 대기자 -->
-      <div class="admin-card mb-3">
-        <div class="admin-card-header">
-          <span><i class="fa-solid fa-clock me-2" style="color:#F0A842;"></i>대기자 목록</span>
-          <span style="font-size:0.75rem;color:#8A8F9E;">자동 승격 가능</span>
+      <div id="waiting-section" style="background:white;border-radius:10px;border:1px solid #E8EAF0;overflow:hidden;">
+        <div style="padding:0.8rem 1rem;background:#FFF8EE;border-bottom:1px solid #F0D4A0;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:0.88rem;font-weight:700;color:#E07A00;">⏳ 대기자 목록</span>
+          <span style="font-size:0.75rem;color:#8A8F9E;">취소 시 자동 연락</span>
         </div>
-        <div>
-          {% for item in dashboard %}
-            {% for b in item.obj.bookings.all %}
-              {% if b.status == 'waiting' %}
-              <div style="padding:0.8rem 1.2rem;border-bottom:1px solid #F0F1F5;">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <span class="badge-waiting me-1">{{ b.waiting_order }}번</span>
-                    <span style="font-weight:600;font-size:0.84rem;">{{ b.name }}</span>
-                    <div style="font-size:0.75rem;color:#8A8F9E;">{{ b.gx_class.name }} · {{ b.building }}동 {{ b.unit }}호</div>
-                  </div>
-                  <form method="post" action="/bookings/admin/list/{{ b.gx_class.id }}/">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="promote">
-                    <input type="hidden" name="booking_id" value="{{ b.id }}">
-                    <button type="submit" class="admin-btn success">확정</button>
-                  </form>
-                </div>
+        {% for item in dashboard %}
+          {% for b in item.waiting_bookings %}
+          <div style="padding:0.8rem 1rem;border-bottom:1px solid #F5F6FA;">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span style="background:#FFF3E0;color:#E07A00;border-radius:4px;padding:1px 7px;font-size:0.75rem;font-weight:600;margin-right:6px;">{{ b.waiting_order }}번</span>
+                <span style="font-weight:700;font-size:0.9rem;color:#1A1D2A;">{{ b.name }}</span>
+                <div style="font-size:0.78rem;color:#8A8F9E;">{{ b.gx_class.name }} · {{ b.building }}동 {{ b.unit }}호</div>
               </div>
-              {% endif %}
-            {% endfor %}
-          {% endfor %}
-          <div style="padding:1.5rem;text-align:center;color:#B0B5C4;font-size:0.82rem;">
-            <i class="fa-regular fa-circle-check d-block mb-1" style="font-size:1.3rem;"></i>
-            대기자가 없습니다
+              <form method="post" action="/bookings/admin/list/{{ b.gx_class.id }}/">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="promote">
+                <input type="hidden" name="booking_id" value="{{ b.id }}">
+                <button type="submit" class="admin-btn success">확정</button>
+              </form>
+            </div>
           </div>
+          {% endfor %}
+        {% endfor %}
+        <div style="padding:1.2rem;text-align:center;color:#B0B5C4;font-size:0.82rem;">
+          {% if total_waiting == 0 %}✅ 대기자가 없습니다{% endif %}
         </div>
       </div>
+    </div>
 
-      <!-- 수강등록 현황 바로가기 -->
-      <div class="admin-card">
-        <div class="admin-card-header">
-          <span><i class="fa-regular fa-clipboard me-2" style="color:#5A6AE0;"></i>수강등록 현황</span>
-          <a href="/enrollments/admin/" style="font-size:0.75rem;color:#5A6AE0;text-decoration:none;">전체보기 →</a>
+    <!-- 오른쪽: 쪽지 + 빠른메뉴 -->
+    <div class="col-lg-5">
+
+      <!-- 미읽은 쪽지 -->
+      <div style="background:white;border-radius:10px;border:1px solid #E8EAF0;margin-bottom:1rem;overflow:hidden;">
+        <div style="padding:0.8rem 1rem;background:#F0F4FF;border-bottom:1px solid #C8D4F8;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:0.88rem;font-weight:700;color:#3A50C8;">✉️ 미읽은 쪽지</span>
+          <a href="/messages/inbox/" style="font-size:0.75rem;color:#5A6AE0;text-decoration:none;">전체보기 →</a>
         </div>
-        <div style="padding:1rem 1.2rem;font-size:0.82rem;color:#6B6F80;">
-          <div class="d-flex justify-content-between align-items-center py-2">
-            <span>이번 달 등록 관리</span>
-            <a href="/enrollments/admin/" class="admin-btn primary">바로가기</a>
+        {% for msg in recent_messages %}
+        <a href="/messages/{{ msg.pk }}/" style="text-decoration:none;">
+          <div style="padding:0.75rem 1rem;border-bottom:1px solid #F5F6FA;">
+            <div class="d-flex justify-content-between">
+              <span style="font-weight:600;font-size:0.86rem;color:#1A1D2A;">{{ msg.sender_name }}</span>
+              <span style="font-size:0.72rem;color:#8A8F9E;">{{ msg.created_at|date:"m/d H:i" }}</span>
+            </div>
+            <div style="font-size:0.78rem;color:#6A6F80;margin-top:2px;">{{ msg.content|truncatechars:35 }}</div>
           </div>
-          <div class="d-flex justify-content-between align-items-center py-2" style="border-top:1px solid #F0F1F5;">
-            <span>새 등록기간 생성</span>
-            <a href="/enrollments/admin/create/" class="admin-btn">생성하기</a>
+        </a>
+        {% empty %}
+        <div style="padding:1.2rem;text-align:center;color:#B0B5C4;font-size:0.82rem;">✅ 미읽은 쪽지가 없습니다</div>
+        {% endfor %}
+      </div>
+
+      <!-- 이번 주 일정 -->
+      <div style="background:white;border-radius:10px;border:1px solid #E8EAF0;margin-bottom:1rem;overflow:hidden;">
+        <div style="padding:0.8rem 1rem;background:#F2F7F2;border-bottom:1px solid #C0D8C0;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:0.88rem;font-weight:700;color:#2E7D52;">📆 이번 주 일정</span>
+          <a href="/calendar/" style="font-size:0.75rem;color:#4CAF82;text-decoration:none;">캘린더 →</a>
+        </div>
+        {% for s in week_sessions %}
+        <a href="/calendar/session/{{ s.id }}/attendance/" style="text-decoration:none;">
+          <div style="padding:0.7rem 1rem;border-bottom:1px solid #F5F6FA;">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span style="font-size:0.78rem;color:#4CAF82;font-weight:600;margin-right:6px;">{{ s.date|date:"m/d(D)" }}</span>
+                <span style="font-size:0.86rem;color:#1A1D2A;font-weight:500;">{{ s.gx_class.name }}</span>
+                {% if s.is_cancelled %}<span style="font-size:0.7rem;background:#FEE8E8;color:#C0404A;border-radius:3px;padding:1px 5px;margin-left:4px;">휴강</span>{% endif %}
+              </div>
+              <span style="font-size:0.75rem;color:#8A8F9E;">{{ s.gx_class.start_time|time:"H:i" }}</span>
+            </div>
           </div>
-          <div class="d-flex justify-content-between align-items-center py-2" style="border-top:1px solid #F0F1F5;">
-            <span>쪽지 수신함 확인</span>
-            <a href="/messages/inbox/" class="admin-btn">확인하기</a>
-          </div>
+        </a>
+        {% empty %}
+        <div style="padding:1.2rem;text-align:center;color:#B0B5C4;font-size:0.82rem;">이번 주 수업 일정이 없습니다</div>
+        {% endfor %}
+      </div>
+
+      <!-- 빠른 메뉴 -->
+      <div style="background:white;border-radius:10px;border:1px solid #E8EAF0;overflow:hidden;">
+        <div style="padding:0.8rem 1rem;background:#F8F9FC;border-bottom:1px solid #E8EAF0;">
+          <span style="font-size:0.88rem;font-weight:700;color:#3A3D4A;">⚡ 빠른 메뉴</span>
+        </div>
+        <div style="padding:0.8rem;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <a href="/enrollments/admin/" style="text-decoration:none;">
+            <div style="background:#F8F9FC;border:1px solid #E8EAF0;border-radius:8px;padding:0.8rem;text-align:center;">
+              <div style="font-size:1.3rem;margin-bottom:3px;">📋</div>
+              <div style="font-size:0.75rem;color:#3A3D4A;font-weight:600;">수강등록</div>
+            </div>
+          </a>
+          <a href="/calendar/schedule/create/" style="text-decoration:none;">
+            <div style="background:#F8F9FC;border:1px solid #E8EAF0;border-radius:8px;padding:0.8rem;text-align:center;">
+              <div style="font-size:1.3rem;margin-bottom:3px;">📅</div>
+              <div style="font-size:0.75rem;color:#3A3D4A;font-weight:600;">일정 등록</div>
+            </div>
+          </a>
+          <a href="/accounts/members/" style="text-decoration:none;">
+            <div style="background:#F8F9FC;border:1px solid #E8EAF0;border-radius:8px;padding:0.8rem;text-align:center;">
+              <div style="font-size:1.3rem;margin-bottom:3px;">👥</div>
+              <div style="font-size:0.75rem;color:#3A3D4A;font-weight:600;">회원 관리</div>
+            </div>
+          </a>
+          <a href="/messages/admin/send/" style="text-decoration:none;">
+            <div style="background:#F8F9FC;border:1px solid #E8EAF0;border-radius:8px;padding:0.8rem;text-align:center;">
+              <div style="font-size:1.3rem;margin-bottom:3px;">✉️</div>
+              <div style="font-size:0.75rem;color:#3A3D4A;font-weight:600;">쪽지 발송</div>
+            </div>
+          </a>
+          <a href="/class-manage/" style="text-decoration:none;">
+            <div style="background:#F8F9FC;border:1px solid #E8EAF0;border-radius:8px;padding:0.8rem;text-align:center;">
+              <div style="font-size:1.3rem;margin-bottom:3px;">💪</div>
+              <div style="font-size:0.75rem;color:#3A3D4A;font-weight:600;">수업 관리</div>
+            </div>
+          </a>
+          <a href="/manual/" style="text-decoration:none;">
+            <div style="background:#F8F9FC;border:1px solid #E8EAF0;border-radius:8px;padding:0.8rem;text-align:center;">
+              <div style="font-size:1.3rem;margin-bottom:3px;">📖</div>
+              <div style="font-size:0.75rem;color:#3A3D4A;font-weight:600;">매뉴얼</div>
+            </div>
+          </a>
         </div>
       </div>
     </div>
