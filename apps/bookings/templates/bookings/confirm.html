@@ -1,25 +1,58 @@
 {% extends 'base.html' %}
-{% block title %}예약완료{% endblock %}
+{% block title %}예약 완료{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-lg-6 text-center">
-    <div class="card gx-card p-4">
-      {% if booking.status == 'confirmed' %}
-        <div class="mb-3"><i class="fa-solid fa-circle-check fa-4x text-success"></i></div>
-        <h3 class="fw-bold text-success mb-3">예약 완료!</h3>
-      {% else %}
-        <div class="mb-3"><i class="fa-solid fa-clock fa-4x text-warning"></i></div>
-        <h3 class="fw-bold text-warning mb-1">대기 신청 완료</h3>
-        <p class="text-muted">대기 {{ booking.waiting_order }}번 · 취소 발생 시 연락드립니다.</p>
-      {% endif %}
-      <hr>
-      <div class="text-start mt-2">
-        <p class="mb-2"><strong>수업</strong> : {{ booking.gx_class.name }}</p>
-        <p class="mb-2"><strong>시간</strong> : {{ booking.gx_class.get_days_display }} {{ booking.gx_class.start_time|time:"H:i" }}</p>
-        <p class="mb-2"><strong>이름</strong> : {{ booking.name }}</p>
-        <p class="mb-2"><strong>동호수</strong> : {{ booking.building }}동 {{ booking.unit }}호</p>
+  <div class="col-lg-6">
+    <div class="gx-card p-5 text-center">
+
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--sage-bg);border:1px solid var(--sage);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+        <i class="fa-solid fa-check" style="color:var(--sage);font-size:1.5rem;"></i>
       </div>
-      <a href="/" class="btn btn-gx mt-3 w-100">메인으로 돌아가기</a>
+
+      {% if booking.status == 'confirmed' %}
+      <h4 style="font-weight:600;font-size:1.1rem;margin-bottom:0.5rem;">예약이 완료되었습니다</h4>
+      <p style="font-size:0.85rem;color:var(--mist);margin-bottom:1.5rem;">
+        수업 당일 정해진 시간에 맞춰 참석해 주세요.
+      </p>
+      {% else %}
+      <h4 style="font-weight:600;font-size:1.1rem;margin-bottom:0.5rem;">대기 신청이 완료되었습니다</h4>
+      <p style="font-size:0.85rem;color:var(--mist);margin-bottom:1.5rem;">
+        취소 발생 시 대기 순서에 따라 연락드립니다.
+      </p>
+      {% endif %}
+
+      <div style="background:var(--rose-bg);border-radius:var(--r-sm);padding:1.2rem;margin-bottom:1.5rem;text-align:left;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;font-size:0.84rem;">
+          <div>
+            <span style="color:var(--mist);font-size:0.75rem;display:block;margin-bottom:2px;">수업</span>
+            <span style="font-weight:500;">{{ booking.gx_class.name }}</span>
+          </div>
+          <div>
+            <span style="color:var(--mist);font-size:0.75rem;display:block;margin-bottom:2px;">상태</span>
+            <span style="font-weight:500;color:{% if booking.status == 'confirmed' %}var(--sage){% else %}var(--gold){% endif %};">
+              {% if booking.status == 'confirmed' %}예약확정{% else %}대기중{% endif %}
+            </span>
+          </div>
+          <div>
+            <span style="color:var(--mist);font-size:0.75rem;display:block;margin-bottom:2px;">예약자</span>
+            <span style="font-weight:500;">{{ booking.name }}</span>
+          </div>
+          <div>
+            <span style="color:var(--mist);font-size:0.75rem;display:block;margin-bottom:2px;">동/호수</span>
+            <span style="font-weight:500;">{{ booking.building }}동 {{ booking.unit }}호</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="/classes/" class="btn btn-gx flex-fill">
+          다른 수업 보기
+        </a>
+        <a href="/accounts/dashboard/" class="btn btn-gx flex-fill">
+          마이페이지
+        </a>
+      </div>
+
     </div>
   </div>
 </div>
