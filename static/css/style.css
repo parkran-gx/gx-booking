@@ -344,3 +344,128 @@ footer {
   .gx-bottom-nav a:hover, .gx-bottom-nav a.active { color: var(--rose); }
   main.container { padding-bottom: 5rem; }
 }
+
+/* =============================
+   관리자 전용 UI — 실용·가시성
+============================= */
+.admin-page { background: #F5F6FA; min-height: 100vh; }
+
+.stat-card {
+  background: white;
+  border-radius: var(--r-md);
+  padding: 1.2rem 1.4rem;
+  border: 1px solid #E8EAF0;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card .stat-num {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+  color: var(--ink);
+}
+.stat-card .stat-label {
+  font-size: 0.78rem;
+  color: #8A8F9E;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.stat-card .stat-icon {
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  opacity: 0.08;
+}
+.stat-card.stat-green  { border-left: 4px solid #4CAF82; }
+.stat-card.stat-amber  { border-left: 4px solid #F0A842; }
+.stat-card.stat-red    { border-left: 4px solid #E05A5A; }
+.stat-card.stat-blue   { border-left: 4px solid #5A8AE0; }
+.stat-card.stat-purple { border-left: 4px solid #8A6AE0; }
+
+.admin-card {
+  background: white;
+  border-radius: var(--r-md);
+  border: 1px solid #E8EAF0;
+  overflow: hidden;
+}
+.admin-card-header {
+  background: #F8F9FC;
+  border-bottom: 1px solid #E8EAF0;
+  padding: 0.85rem 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #3A3D4A;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.admin-table { font-size: 0.84rem; margin: 0; }
+.admin-table th {
+  background: #F8F9FC;
+  color: #6B6F80;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid #E8EAF0;
+  border-top: none;
+  white-space: nowrap;
+}
+.admin-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #F0F1F5;
+  vertical-align: middle;
+  color: #3A3D4A;
+}
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: #FAFBFF; }
+
+.badge-confirmed { background:#E8F5EE; color:#2E7D52; font-size:0.72rem; padding:0.25em 0.7em; border-radius:4px; font-weight:500; }
+.badge-waiting   { background:#FFF3E0; color:#E07A00; font-size:0.72rem; padding:0.25em 0.7em; border-radius:4px; font-weight:500; }
+.badge-cancelled { background:#FEE8E8; color:#C0404A; font-size:0.72rem; padding:0.25em 0.7em; border-radius:4px; font-weight:500; }
+.badge-priority  { background:#EDE8FE; color:#6A42C8; font-size:0.72rem; padding:0.25em 0.7em; border-radius:4px; font-weight:500; }
+.badge-manual    { background:#E8F4FE; color:#2460A8; font-size:0.72rem; padding:0.25em 0.7em; border-radius:4px; font-weight:500; }
+
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block; margin-right: 6px;
+}
+.status-dot.green  { background: #4CAF82; }
+.status-dot.amber  { background: #F0A842; }
+.status-dot.red    { background: #E05A5A; }
+.status-dot.gray   { background: #B0B5C4; }
+
+.admin-btn {
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #DDE0EA;
+  background: white;
+  color: #4A4D5A;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.admin-btn:hover { background: #F0F2F8; border-color: #B8BCCF; color: #2A2D3A; }
+.admin-btn.primary { background: #5A6AE0; border-color: #5A6AE0; color: white; }
+.admin-btn.primary:hover { background: #4858C8; }
+.admin-btn.danger { background: #FEE8E8; border-color: #E8B0B0; color: #C0404A; }
+.admin-btn.danger:hover { background: #FDDADA; }
+.admin-btn.success { background: #E8F5EE; border-color: #A8D8BC; color: #2E7D52; }
+.admin-btn.success:hover { background: #D8EEE4; }
+
+.progress-bar-custom {
+  height: 6px;
+  background: #EEF0F5;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
