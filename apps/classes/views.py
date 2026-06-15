@@ -556,3 +556,12 @@ def attendance_pdf(request, session_id):
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+
+@login_required
+def admin_manual(request):
+    """관리자 매뉴얼 페이지"""
+    if not request.user.profile.is_complex_admin:
+        messages.error(request, '권한이 없습니다.')
+        return redirect('/')
+    return render(request, 'classes/admin_manual.html')
