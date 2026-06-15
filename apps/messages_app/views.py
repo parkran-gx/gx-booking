@@ -40,39 +40,53 @@ def send_message(request):
         return redirect('/')
     return render(request, 'messages_app/send.html', {'classes': classes})
 
+
 @login_required
 def inbox(request):
     profile = request.user.profile
     if profile.is_complex_admin:
         msg_list = Message.objects.all().select_related('gx_class').order_by('-created_at')
+        unread = msg_list.filter(is_read=False).count()
     else:
-        msg_list = Message.objects.filter(
-            sender_name__icontains=profile.display_name
-        ).order_by('-created_at') | Message.objects.filter(
-            reply__isnull=False
-        ).exclude(reply='').order_by('-created_at')
-        msg_list = msg_list.distinct().order_by('-created_at')
-    unread = Message.objects.filter(is_read=False).count() if profile.is_complex_admin else 0
+        # 회원: 내가 보낸 쪽지 + 강사가 보낸 쪽지 (답장 포함)
+        my_msgs = Message.objects.filter(
+            sender_name=profile.display_name
+        )
+        admin_msgs = Message.objects.filter(
+            sender_name__startswith='[강사]'
+        )
+        msg_list = (my_msgs | admin_msgs).distinct().order_by('-created_at')
+        unread = 0
     return render(request, 'messages_app/inbox.html', {
         'msg_list': msg_list,
         'unread': unread,
+        'is_admin': profile.is_complex_admin,
     })
+
 
 @login_required
 def message_detail(request, pk):
-    if not request.user.profile.is_complex_admin:
-        messages.error(request, '권한이 없습니다.')
-        return redirect('/')
+    profile = request.user.profile
     msg = get_object_or_404(Message, pk=pk)
-    msg.is_read = True
-    msg.save()
-    return render(request, 'messages_app/detail.html', {'msg': msg})
+    # 관리자이거나 본인이 보낸 쪽지만 조회 가능
+    if not profile.is_complex_admin and msg.sender_name != profile.display_name:
+        if not msg.sender_name.startswith('[강사]'):
+            messages.error(request, '권한이 없습니다.')
+            return redirect('messages_app:inbox')
+    if profile.is_complex_admin:
+        msg.is_read = True
+        msg.save()
+    return render(request, 'messages_app/detail.html', {
+        'msg': msg,
+        'is_admin': profile.is_complex_admin,
+    })
+
 
 @login_required
 def message_reply(request, pk):
     if not request.user.profile.is_complex_admin:
         messages.error(request, '권한이 없습니다.')
-        return redirect('/')
+        return redirect('messages_app:inbox')
     msg = get_object_or_404(Message, pk=pk)
     if request.method == 'POST':
         msg.reply = request.POST.get('reply', '').strip()
@@ -85,9 +99,8 @@ def message_reply(request, pk):
 
 @login_required
 def sent_box(request):
-    """관리자 보낸 쪽지함"""
     if not request.user.profile.is_complex_admin:
-        return redirect('/')
+        return redirect('messages_app:inbox')
     sent = Message.objects.filter(
         sender_name__startswith='[강사]'
     ).order_by('-created_at')
@@ -96,17 +109,14 @@ def sent_box(request):
 
 @login_required
 def admin_send(request):
-    """관리자가 회원에게 쪽지 보내기"""
     if not request.user.profile.is_complex_admin:
         messages.error(request, '권한이 없습니다.')
-        return redirect('/')
+        return redirect('messages_app:inbox')
     from apps.accounts.models import UserProfile
-    from apps.classes.models import GxClass
     members = UserProfile.objects.filter(
         is_approved=True
     ).select_related('user', 'complex').order_by('complex__name', 'building', 'unit')
     classes = GxClass.objects.filter(is_active=True)
-
     if request.method == 'POST':
         target_user_id = request.POST.get('target_user')
         content = request.POST.get('content', '').strip()
@@ -125,7 +135,6 @@ def admin_send(request):
                 )
             messages.success(request, '쪽지를 보냈습니다.')
         return redirect('messages_app:admin_send')
-
     return render(request, 'messages_app/admin_send.html', {
         'members': members,
         'classes': classes,
