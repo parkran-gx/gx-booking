@@ -42,11 +42,17 @@ def send_message(request):
 
 @login_required
 def inbox(request):
-    if not request.user.profile.is_complex_admin:
-        messages.error(request, '권한이 없습니다.')
-        return redirect('/')
-    msg_list = Message.objects.all().select_related('sender', 'gx_class')
-    unread = msg_list.filter(is_read=False).count()
+    profile = request.user.profile
+    if profile.is_complex_admin:
+        msg_list = Message.objects.all().select_related('gx_class').order_by('-created_at')
+    else:
+        msg_list = Message.objects.filter(
+            sender_name__icontains=profile.display_name
+        ).order_by('-created_at') | Message.objects.filter(
+            reply__isnull=False
+        ).exclude(reply='').order_by('-created_at')
+        msg_list = msg_list.distinct().order_by('-created_at')
+    unread = Message.objects.filter(is_read=False).count() if profile.is_complex_admin else 0
     return render(request, 'messages_app/inbox.html', {
         'msg_list': msg_list,
         'unread': unread,
