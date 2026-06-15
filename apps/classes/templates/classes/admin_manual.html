@@ -1,345 +1,303 @@
 {% extends 'base.html' %}
-{% block title %}관리자 매뉴얼{% endblock %}
+{% block title %}관리자 운영 매뉴얼{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-9">
+<div style="background:#F5F7FA;margin:-2rem -12px;padding:1.5rem 1rem 4rem;">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- 헤더 -->
+  <div style="background:linear-gradient(135deg,#2C3E6B,#1A2A50);border-radius:14px;padding:2rem;margin-bottom:1.5rem;color:white;">
+    <div class="d-flex justify-content-between align-items-start">
       <div>
-        <h2 class="gx-section-title mb-1">관리자 매뉴얼</h2>
-        <p style="font-size:0.82rem;color:var(--mist);">박란샘 GX 클래스 운영 가이드</p>
+        <div style="font-size:2rem;margin-bottom:0.5rem;">📖</div>
+        <h1 style="font-size:1.4rem;font-weight:700;color:white;margin-bottom:0.3rem;">관리자 운영 매뉴얼</h1>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.7);margin:0;">박란샘 GX 클래스 · 운영 가이드</p>
       </div>
-      <a href="/admin-dashboard/" style="font-size:0.82rem;color:var(--mist);">
-        <i class="fa-solid fa-arrow-left me-1"></i>대시보드로
+      <a href="/admin-dashboard/" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:0.82rem;">
+        ← 대시보드
       </a>
     </div>
-
     <!-- 목차 -->
-    <div class="gx-card p-4 mb-4">
-      <h5 style="font-size:0.9rem;font-weight:600;color:var(--stone);margin-bottom:1rem;letter-spacing:0.03em;">목차</h5>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.83rem;">
-        <a href="#site-structure" style="color:var(--rose);text-decoration:none;padding:0.4rem 0;">
-          <i class="fa-solid fa-sitemap me-2" style="color:var(--rose-lt);"></i>① 사이트 구조
-        </a>
-        <a href="#monthly-class" style="color:var(--rose);text-decoration:none;padding:0.4rem 0;">
-          <i class="fa-regular fa-calendar-check me-2" style="color:var(--rose-lt);"></i>② 월별 수강등록 운영
-        </a>
-        <a href="#schedule" style="color:var(--rose);text-decoration:none;padding:0.4rem 0;">
-          <i class="fa-regular fa-calendar-days me-2" style="color:var(--rose-lt);"></i>③ 수업 일정 관리
-        </a>
-        <a href="#members" style="color:var(--rose);text-decoration:none;padding:0.4rem 0;">
-          <i class="fa-solid fa-users me-2" style="color:var(--rose-lt);"></i>④ 회원 관리
-        </a>
-        <a href="#attendance" style="color:var(--rose);text-decoration:none;padding:0.4rem 0;">
-          <i class="fa-regular fa-clipboard-list me-2" style="color:var(--rose-lt);"></i>⑤ 출석 체크
-        </a>
-        <a href="#office" style="color:var(--rose);text-decoration:none;padding:0.4rem 0;">
-          <i class="fa-solid fa-building me-2" style="color:var(--rose-lt);"></i>⑥ 관리사무소 연동
-        </a>
-        <a href="#notice" style="color:var(--rose);text-decoration:none;padding:0.4rem 0;">
-          <i class="fa-regular fa-bell me-2" style="color:var(--rose-lt);"></i>⑦ 공지 & 쪽지
-        </a>
-        <a href="#qr" style="color:var(--rose);text-decoration:none;padding:0.4rem 0;">
-          <i class="fa-solid fa-qrcode me-2" style="color:var(--rose-lt);"></i>⑧ QR 코드 활용
-        </a>
-      </div>
+    <div style="margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;">
+      <a href="#site-structure" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">① 사이트 구조</a>
+      <a href="#monthly-class" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">② 수강등록 운영</a>
+      <a href="#schedule" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">③ 수업 일정 관리</a>
+      <a href="#attendance" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">④ 출석 체크</a>
+      <a href="#members" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">⑤ 회원 관리</a>
+      <a href="#messages" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">⑥ 쪽지 관리</a>
+      <a href="#notice" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">⑦ 공지사항</a>
+      <a href="#office" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">⑧ 관리사무소</a>
+      <a href="#qr" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">⑨ QR 코드</a>
+      <a href="#dashboard" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.8rem;padding:0.35rem 0.7rem;background:rgba(255,255,255,0.1);border-radius:6px;">⑩ 대시보드 활용</a>
     </div>
-
-    <!-- ① 사이트 구조 -->
-    <div class="gx-card p-4 mb-4" id="site-structure">
-      <h5 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--line);">
-        <i class="fa-solid fa-sitemap me-2" style="color:var(--rose-lt);"></i>① 사이트 구조
-      </h5>
-      <div style="font-size:0.83rem;color:var(--stone);line-height:2.2;">
-        <div class="mb-3">
-          <p style="font-weight:600;color:var(--ink);margin-bottom:0.5rem;">👥 회원이 사용하는 페이지</p>
-          <div style="display:grid;gap:0.4rem;padding-left:1rem;">
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">랜딩 페이지</span>
-              <a href="/" style="color:var(--rose);font-size:0.8rem;">/</a>
-              <span style="color:var(--mist);">— 처음 방문 시 보이는 화면. 로그인·회원가입·쪽지</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">수업 예약</span>
-              <a href="/classes/" style="color:var(--rose);font-size:0.8rem;">/classes/</a>
-              <span style="color:var(--mist);">— 수업 목록 확인 및 예약</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">수강 등록</span>
-              <a href="/enrollments/" style="color:var(--rose);font-size:0.8rem;">/enrollments/</a>
-              <span style="color:var(--mist);">— 월별 수강 등록 신청</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">마이페이지</span>
-              <a href="/accounts/dashboard/" style="color:var(--rose);font-size:0.8rem;">/accounts/dashboard/</a>
-              <span style="color:var(--mist);">— 예약 현황·출석 확인</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">캘린더</span>
-              <a href="/calendar/" style="color:var(--rose);font-size:0.8rem;">/calendar/</a>
-              <span style="color:var(--mist);">— 월별 수업 일정 확인</span>
-            </div>
-          </div>
-        </div>
-        <div>
-          <p style="font-weight:600;color:var(--ink);margin-bottom:0.5rem;">⚙️ 관리자 전용 페이지</p>
-          <div style="display:grid;gap:0.4rem;padding-left:1rem;">
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">대시보드</span>
-              <a href="/admin-dashboard/" style="color:var(--rose);font-size:0.8rem;">/admin-dashboard/</a>
-              <span style="color:var(--mist);">— 전체 현황 한눈에 보기</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">수강등록 관리</span>
-              <a href="/enrollments/admin/" style="color:var(--rose);font-size:0.8rem;">/enrollments/admin/</a>
-              <span style="color:var(--mist);">— 등록기간 생성·명단 관리</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">일정 등록</span>
-              <a href="/calendar/schedule/create/" style="color:var(--rose);font-size:0.8rem;">/calendar/schedule/create/</a>
-              <span style="color:var(--mist);">— 수업 일정 자동 생성</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">수업 관리</span>
-              <a href="/class-manage/" style="color:var(--rose);font-size:0.8rem;">/class-manage/</a>
-              <span style="color:var(--mist);">— 수업 추가·수정·정원 변경</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">회원 관리</span>
-              <a href="/accounts/members/" style="color:var(--rose);font-size:0.8rem;">/accounts/members/</a>
-              <span style="color:var(--mist);">— 회원 승인·등급 변경</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">공지 작성</span>
-              <a href="/notices/create/" style="color:var(--rose);font-size:0.8rem;">/notices/create/</a>
-              <span style="color:var(--mist);">— 공지사항 등록</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">쪽지 수신함</span>
-              <a href="/messages/inbox/" style="color:var(--rose);font-size:0.8rem;">/messages/inbox/</a>
-              <span style="color:var(--mist);">— 회원 문의 확인</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span style="min-width:110px;color:var(--mist);">QR 코드</span>
-              <a href="/qr/" style="color:var(--rose);font-size:0.8rem;">/qr/</a>
-              <span style="color:var(--mist);">— 단지별 QR 생성·다운로드</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ② 월별 수강등록 -->
-    <div class="gx-card p-4 mb-4" id="monthly-class">
-      <h5 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--line);">
-        <i class="fa-regular fa-calendar-check me-2" style="color:var(--rose-lt);"></i>② 월별 수강등록 운영 방법
-      </h5>
-      <div style="font-size:0.83rem;color:var(--stone);line-height:2;">
-        <div style="display:grid;gap:1rem;">
-          <div style="background:var(--rose-bg);border-radius:var(--r-sm);padding:1rem;">
-            <p style="font-weight:600;color:var(--ink);margin-bottom:0.5rem;">
-              <span style="background:var(--rose-lt);color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;margin-right:8px;">1</span>
-              등록기간 생성
-            </p>
-            <p style="margin:0;color:var(--stone);">
-              <a href="/enrollments/admin/create/" style="color:var(--rose);">수강등록 관리 → 새 등록기간 생성</a>에서
-              수업, 연도/월, 정원, 우선접수 기간, 일반접수 기간을 설정합니다.
-            </p>
-          </div>
-          <div style="background:var(--rose-bg);border-radius:var(--r-sm);padding:1rem;">
-            <p style="font-weight:600;color:var(--ink);margin-bottom:0.5rem;">
-              <span style="background:var(--rose-lt);color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;margin-right:8px;">2</span>
-              우선접수 대상자 지정
-            </p>
-            <p style="margin:0;color:var(--stone);">
-              등록기간 상세 페이지에서 <strong>우선접수 관리</strong> 버튼을 눌러
-              기존 수강생을 수업별로 직접 지정합니다.
-              지정된 회원은 우선접수 기간에만 신청 가능합니다.
-            </p>
-          </div>
-          <div style="background:var(--rose-bg);border-radius:var(--r-sm);padding:1rem;">
-            <p style="font-weight:600;color:var(--ink);margin-bottom:0.5rem;">
-              <span style="background:var(--rose-lt);color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;margin-right:8px;">3</span>
-              상태 관리
-            </p>
-            <p style="margin:0;color:var(--stone);">
-              접수 기간이 지나면 <strong>상태 갱신</strong> 버튼으로 자동 전환됩니다.
-              수동으로 변경할 경우 상태 드롭다운에서 직접 선택합니다.
-              <br><span style="color:var(--mist);font-size:0.8rem;">준비중 → 우선접수 → 일반접수 → 마감 → 종료</span>
-            </p>
-          </div>
-          <div style="background:var(--rose-bg);border-radius:var(--r-sm);padding:1rem;">
-            <p style="font-weight:600;color:var(--ink);margin-bottom:0.5rem;">
-              <span style="background:var(--rose-lt);color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;margin-right:8px;">4</span>
-              명단 내보내기
-            </p>
-            <p style="margin:0;color:var(--stone);">
-              등록기간 상세에서 <strong>다운로드</strong> 버튼으로
-              Excel / PDF / CSV 형식으로 명단을 내보냅니다.
-              <strong>관리사무소</strong> 버튼으로 복사용 텍스트를 생성하여 카카오톡 등으로 전송합니다.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ③ 수업 일정 -->
-    <div class="gx-card p-4 mb-4" id="schedule">
-      <h5 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--line);">
-        <i class="fa-regular fa-calendar-days me-2" style="color:var(--rose-lt);"></i>③ 수업 일정 관리
-      </h5>
-      <div style="font-size:0.83rem;color:var(--stone);line-height:2;">
-        <p>
-          <a href="/calendar/schedule/create/" style="color:var(--rose);">캘린더 → 일정 등록</a>에서
-          수업 시작일·종료일·반복 요일을 설정하면 해당 기간의 모든 수업 회차가 <strong>자동 생성</strong>됩니다.
-        </p>
-        <div style="background:var(--cream-100,#F7F2E8);border-radius:var(--r-sm);padding:1rem;margin:0.8rem 0;">
-          <p style="font-weight:600;color:var(--ink);margin-bottom:0.5rem;">반복 유형</p>
-          <div style="display:grid;gap:0.3rem;">
-            <div><span style="color:var(--rose);font-weight:500;">주 1회</span> — 매주 특정 요일 하나 (예: 매주 목요일)</div>
-            <div><span style="color:var(--rose);font-weight:500;">주 2회</span> — 매주 두 요일 (예: 매주 월·목)</div>
-            <div><span style="color:var(--rose);font-weight:500;">주 3회</span> — 매주 세 요일</div>
-            <div><span style="color:var(--rose);font-weight:500;">직접 입력</span> — 날짜를 쉼표로 직접 입력 (예: 2026-06-03,2026-06-10)</div>
-          </div>
-        </div>
-        <p>
-          <strong>이전 서식 불러오기</strong> 기능으로 지난 달 일정을 불러와 날짜만 수정하면
-          빠르게 등록할 수 있습니다.
-        </p>
-        <p>
-          개별 수업 회차를 변경할 경우 캘린더에서 수업을 클릭하여
-          <strong>날짜 변경 / 휴강 / 대강 강사 지정</strong>이 가능합니다.
-        </p>
-      </div>
-    </div>
-
-    <!-- ④ 회원 관리 -->
-    <div class="gx-card p-4 mb-4" id="members">
-      <h5 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--line);">
-        <i class="fa-solid fa-users me-2" style="color:var(--rose-lt);"></i>④ 회원 관리
-      </h5>
-      <div style="font-size:0.83rem;color:var(--stone);line-height:2;">
-        <p>
-          <a href="/accounts/members/" style="color:var(--rose);">회원 관리</a> 페이지에서
-          가입한 회원의 승인·등급 변경·삭제를 처리합니다.
-        </p>
-        <div style="background:var(--cream-100,#F7F2E8);border-radius:var(--r-sm);padding:1rem;margin:0.8rem 0;">
-          <p style="font-weight:600;color:var(--ink);margin-bottom:0.5rem;">회원 등급</p>
-          <div style="display:grid;gap:0.4rem;">
-            <div><span style="background:#C0645A;color:white;border-radius:4px;padding:1px 8px;font-size:0.75rem;margin-right:6px;">슈퍼관리자</span>모든 단지·수업·회원 관리 가능 (강사 계정)</div>
-            <div><span style="background:var(--gold);color:white;border-radius:4px;padding:1px 8px;font-size:0.75rem;margin-right:6px;">단지관리자</span>담당 단지 내 모든 관리 기능 사용 가능</div>
-            <div><span style="background:var(--sage);color:white;border-radius:4px;padding:1px 8px;font-size:0.75rem;margin-right:6px;">등록회원</span>수강 등록 및 예약이 가능한 승인된 입주민</div>
-            <div><span style="background:#AAA49E;color:white;border-radius:4px;padding:1px 8px;font-size:0.75rem;margin-right:6px;">미등록회원</span>가입했으나 아직 승인 전인 회원</div>
-          </div>
-        </div>
-        <p style="color:var(--mist);">
-          <i class="fa-solid fa-circle-info me-1"></i>
-          새 회원이 가입하면 <strong>미등록회원</strong>으로 표시됩니다.
-          입주민 확인 후 <strong>승인</strong> 버튼을 눌러 등록회원으로 변경해 주세요.
-        </p>
-      </div>
-    </div>
-
-    <!-- ⑤ 출석 체크 -->
-    <div class="gx-card p-4 mb-4" id="attendance">
-      <h5 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--line);">
-        <i class="fa-regular fa-clipboard-list me-2" style="color:var(--rose-lt);"></i>⑤ 출석 체크
-      </h5>
-      <div style="font-size:0.83rem;color:var(--stone);line-height:2;">
-        <p>
-          <a href="/calendar/" style="color:var(--rose);">캘린더</a>에서 해당 날짜의 수업을 클릭하면
-          출석 체크 페이지로 이동합니다.
-        </p>
-        <div style="background:var(--cream-100,#F7F2E8);border-radius:var(--r-sm);padding:1rem;margin:0.8rem 0;">
-          <div style="display:grid;gap:0.3rem;">
-            <div>
-              <span style="background:var(--sage);color:white;border-radius:4px;padding:1px 8px;font-size:0.75rem;margin-right:6px;">출석</span>
-              수업에 정상 참석
-            </div>
-            <div>
-              <span style="background:#C0645A;color:white;border-radius:4px;padding:1px 8px;font-size:0.75rem;margin-right:6px;">결석</span>
-              수업에 불참
-            </div>
-            <div>
-              <span style="background:var(--gold);color:white;border-radius:4px;padding:1px 8px;font-size:0.75rem;margin-right:6px;">보강</span>
-              다른 날짜에 보강 수업 참석
-            </div>
-          </div>
-        </div>
-        <p>
-          출석 체크 후 <strong>출석부 PDF</strong> 버튼으로 출석부를 출력하거나 저장할 수 있습니다.
-        </p>
-      </div>
-    </div>
-
-    <!-- ⑥ 관리사무소 -->
-    <div class="gx-card p-4 mb-4" id="office">
-      <h5 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--line);">
-        <i class="fa-solid fa-building me-2" style="color:var(--rose-lt);"></i>⑥ 관리사무소 연동
-      </h5>
-      <div style="font-size:0.83rem;color:var(--stone);line-height:2;">
-        <p>
-          수강 등록 명단을 관리사무소에 제출해야 할 때
-          <a href="/enrollments/admin/" style="color:var(--rose);">수강등록 관리</a>에서
-          해당 등록기간을 선택 후 <strong>관리사무소</strong> 버튼을 클릭합니다.
-        </p>
-        <div style="background:var(--cream-100,#F7F2E8);border-radius:var(--r-sm);padding:1rem;margin:0.8rem 0;">
-          <p style="font-weight:600;color:var(--ink);margin-bottom:0.5rem;">제공 기능</p>
-          <div style="display:grid;gap:0.3rem;">
-            <div><i class="fa-solid fa-copy me-2" style="color:var(--rose-lt);"></i>카카오톡·문자 전송용 텍스트 복사</div>
-            <div><i class="fa-solid fa-file-excel me-2" style="color:var(--sage);"></i>Excel(xlsx) 다운로드</div>
-            <div><i class="fa-solid fa-file-pdf me-2" style="color:#C0645A;"></i>PDF 다운로드</div>
-            <div><i class="fa-solid fa-print me-2" style="color:var(--stone);"></i>인쇄</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ⑦ 공지 & 쪽지 -->
-    <div class="gx-card p-4 mb-4" id="notice">
-      <h5 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--line);">
-        <i class="fa-regular fa-bell me-2" style="color:var(--rose-lt);"></i>⑦ 공지 & 쪽지
-      </h5>
-      <div style="font-size:0.83rem;color:var(--stone);line-height:2;">
-        <p>
-          <a href="/notices/create/" style="color:var(--rose);">공지 작성</a>에서
-          수업 변경, 휴강, 행사 안내 등을 등록합니다.
-          핀 고정 기능으로 중요 공지를 상단에 유지할 수 있습니다.
-        </p>
-        <p>
-          회원이 보낸 문의는 <a href="/messages/inbox/" style="color:var(--rose);">쪽지 수신함</a>에서 확인합니다.
-          비회원도 쪽지를 보낼 수 있으며 연락처가 함께 표시됩니다.
-        </p>
-      </div>
-    </div>
-
-    <!-- ⑧ QR 코드 -->
-    <div class="gx-card p-4 mb-4" id="qr">
-      <h5 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--line);">
-        <i class="fa-solid fa-qrcode me-2" style="color:var(--rose-lt);"></i>⑧ QR 코드 활용
-      </h5>
-      <div style="font-size:0.83rem;color:var(--stone);line-height:2;">
-        <p>
-          <a href="/qr/" style="color:var(--rose);">QR 코드 관리</a>에서 단지별 QR 코드를 생성하고
-          PNG 파일로 다운로드합니다.
-        </p>
-        <p>
-          QR 코드를 스캔하면 해당 단지의 수업 예약 페이지로 바로 이동합니다.
-          엘리베이터, 커뮤니티 센터 입구 등 눈에 잘 띄는 곳에 부착하면 효과적입니다.
-        </p>
-        <div class="gx-guide mt-2">
-          <i class="fa-solid fa-lightbulb me-1" style="color:var(--gold);"></i>
-          QR 코드 → 랜딩 페이지 → 회원가입 → 로그인 → 수업 예약 순서로 안내됩니다.
-        </div>
-      </div>
-    </div>
-
-    <div class="gx-guide mb-4">
-      <i class="fa-solid fa-headset me-1" style="color:var(--rose-lt);"></i>
-      운영 중 문의사항이 있으시면
-      <a href="/messages/send/" style="color:var(--rose);">쪽지 보내기</a>를 이용해 주세요.
-    </div>
-
   </div>
+
+  <!-- ① 사이트 구조 -->
+  <div id="site-structure" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#3A50C8;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">🗺️</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">① 사이트 구조 & 메뉴</span>
+    </div>
+    <div style="padding:1.2rem;">
+      <p style="font-size:0.8rem;font-weight:700;color:#3A50C8;letter-spacing:0.05em;margin-bottom:0.6rem;">👥 회원 페이지</p>
+      <div style="display:grid;gap:0.4rem;margin-bottom:1.2rem;">
+        {% for item in ""|make_list %}{% endfor %}
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#F8F9FC;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">랜딩</span>
+          <span style="color:#1A1D2A;"><a href="/" style="color:#3A50C8;margin-right:8px;font-size:0.75rem;">/</a>처음 방문 화면. 로그인·회원가입·쪽지</span>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#F8F9FC;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">수업 예약</span>
+          <span><a href="/classes/" style="color:#3A50C8;margin-right:8px;font-size:0.75rem;">/classes/</a>수업 목록·예약·대기 신청</span>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#F8F9FC;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">내 관리</span>
+          <span><a href="/accounts/dashboard/" style="color:#3A50C8;margin-right:8px;font-size:0.75rem;">/accounts/dashboard/</a>수강·캘린더·공지·쪽지 통합</span>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#F8F9FC;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">캘린더</span>
+          <span><a href="/my-calendar/" style="color:#3A50C8;margin-right:8px;font-size:0.75rem;">/my-calendar/</a>내 수업 일정·출석 사전 등록</span>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#F8F9FC;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">공지사항</span>
+          <span><a href="/notices/" style="color:#3A50C8;margin-right:8px;font-size:0.75rem;">/notices/</a>전체공지 + 수업별 게시판</span>
+        </div>
+      </div>
+      <p style="font-size:0.8rem;font-weight:700;color:#C0404A;letter-spacing:0.05em;margin-bottom:0.6rem;">⚙️ 관리자 전용</p>
+      <div style="display:grid;gap:0.4rem;">
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#FEF8F8;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">대시보드</span>
+          <span><a href="/admin-dashboard/" style="color:#C0404A;margin-right:8px;font-size:0.75rem;">/admin-dashboard/</a>전체 현황·알림·빠른 메뉴</span>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#FEF8F8;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">수강등록</span>
+          <span><a href="/enrollments/admin/" style="color:#C0404A;margin-right:8px;font-size:0.75rem;">/enrollments/admin/</a>등록기간 생성·명단 관리</span>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#FEF8F8;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">일정 등록</span>
+          <span><a href="/calendar/schedule/create/" style="color:#C0404A;margin-right:8px;font-size:0.75rem;">/calendar/schedule/create/</a>월별 일정 자동 생성</span>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#FEF8F8;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">회원 관리</span>
+          <span><a href="/accounts/members/" style="color:#C0404A;margin-right:8px;font-size:0.75rem;">/accounts/members/</a>승인·등급 변경·삭제</span>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:0.5rem;align-items:center;padding:0.5rem 0.8rem;background:#FEF8F8;border-radius:6px;font-size:0.82rem;">
+          <span style="color:#8A8F9E;font-size:0.75rem;">쪽지 발송</span>
+          <span><a href="/messages/admin/send/" style="color:#C0404A;margin-right:8px;font-size:0.75rem;">/messages/admin/send/</a>회원 선택 쪽지 발송</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 수강등록 -->
+  <div id="monthly-class" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#2E7D52;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">📋</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">② 월별 수강등록 운영</span>
+    </div>
+    <div style="padding:1.2rem;display:grid;gap:0.7rem;">
+      <div style="display:flex;gap:0.8rem;align-items:flex-start;">
+        <div style="min-width:28px;height:28px;background:#2E7D52;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;flex-shrink:0;">1</div>
+        <div style="font-size:0.83rem;color:#1A1D2A;line-height:1.7;">
+          <strong>등록기간 생성</strong><br>
+          <span style="color:#6A6F80;"><a href="/enrollments/admin/create/" style="color:#2E7D52;">수강등록 → 새 등록기간 생성</a>에서 수업·정원·우선/일반 접수 기간을 설정합니다.</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.8rem;align-items:flex-start;">
+        <div style="min-width:28px;height:28px;background:#2E7D52;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;flex-shrink:0;">2</div>
+        <div style="font-size:0.83rem;color:#1A1D2A;line-height:1.7;">
+          <strong>우선접수 대상자 지정</strong><br>
+          <span style="color:#6A6F80;">등록기간 상세 → <strong>우선접수 관리</strong> 버튼 → 기존 수강생을 수업별로 지정합니다.</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.8rem;align-items:flex-start;">
+        <div style="min-width:28px;height:28px;background:#2E7D52;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;flex-shrink:0;">3</div>
+        <div style="font-size:0.83rem;color:#1A1D2A;line-height:1.7;">
+          <strong>상태 관리</strong><br>
+          <span style="color:#6A6F80;">준비중 → 우선접수 → 일반접수 → 마감 → 종료 순으로 상태 드롭다운에서 변경합니다.</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.8rem;align-items:flex-start;">
+        <div style="min-width:28px;height:28px;background:#2E7D52;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;flex-shrink:0;">4</div>
+        <div style="font-size:0.83rem;color:#1A1D2A;line-height:1.7;">
+          <strong>명단 내보내기</strong><br>
+          <span style="color:#6A6F80;">📊 Excel &nbsp;|&nbsp; 📄 PDF &nbsp;|&nbsp; 📋 CSV &nbsp;|&nbsp; 📱 관리사무소 텍스트 복사</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 수업 일정 -->
+  <div id="schedule" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#E07A00;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">📅</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">③ 수업 일정 관리</span>
+    </div>
+    <div style="padding:1.2rem;font-size:0.83rem;color:#1A1D2A;line-height:1.9;">
+      <p style="margin-bottom:0.8rem;"><a href="/calendar/schedule/create/" style="color:#E07A00;font-weight:600;">캘린더 → 일정 등록</a>에서 수업·시작일·종료일·반복 요일 설정 시 전체 회차가 자동 생성됩니다.</p>
+      <div style="background:#FFF8EE;border-radius:8px;padding:1rem;margin-bottom:0.8rem;">
+        <p style="font-weight:700;color:#E07A00;margin-bottom:0.5rem;font-size:0.82rem;">반복 유형</p>
+        <div style="display:grid;gap:0.4rem;font-size:0.82rem;color:#4A4D5A;">
+          <div>📅 <strong>주 1회</strong> — 매주 특정 요일 (예: 매주 목요일)</div>
+          <div>📅 <strong>주 2회</strong> — 매주 두 요일 (예: 월·목)</div>
+          <div>📅 <strong>직접 입력</strong> — 날짜를 쉼표로 직접 입력</div>
+        </div>
+      </div>
+      <p style="margin:0;color:#6A6F80;">개별 회차 수정: 캘린더에서 날짜 클릭 → 날짜 변경·휴강·대강 강사 지정 가능</p>
+    </div>
+  </div>
+
+  <!-- ④ 출석 체크 -->
+  <div id="attendance" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#4CAF82;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">✅</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">④ 출석 체크</span>
+    </div>
+    <div style="padding:1.2rem;font-size:0.83rem;color:#1A1D2A;line-height:1.9;">
+      <p style="margin-bottom:0.8rem;"><a href="/calendar/" style="color:#4CAF82;font-weight:600;">캘린더</a>에서 수업 클릭 → 출석 체크 페이지로 이동합니다.</p>
+      <div style="display:grid;gap:0.5rem;margin-bottom:0.8rem;">
+        <div style="background:#E8F5EE;border-radius:8px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+          <span style="background:#4CAF82;color:white;border-radius:6px;padding:3px 10px;font-size:0.82rem;font-weight:700;flex-shrink:0;">✓ 출석</span>
+          <span style="color:#4A4D5A;font-size:0.82rem;">수업에 정상 참석</span>
+        </div>
+        <div style="background:#FEE8E8;border-radius:8px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+          <span style="background:#E05A5A;color:white;border-radius:6px;padding:3px 10px;font-size:0.82rem;font-weight:700;flex-shrink:0;">✗ 결석</span>
+          <span style="color:#4A4D5A;font-size:0.82rem;">수업 불참 · 사유 입력 가능</span>
+        </div>
+        <div style="background:#FFF3E0;border-radius:8px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+          <span style="background:#F0A842;color:white;border-radius:6px;padding:3px 10px;font-size:0.82rem;font-weight:700;flex-shrink:0;">↺ 보강</span>
+          <span style="color:#4A4D5A;font-size:0.82rem;">다른 날짜에 보강 참석</span>
+        </div>
+      </div>
+      <p style="color:#6A6F80;margin:0;">전체 출석 버튼으로 한 번에 처리 가능 · 출석부 PDF 출력 지원</p>
+    </div>
+  </div>
+
+  <!-- ⑤ 회원 관리 -->
+  <div id="members" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#8A6AE0;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">👥</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">⑤ 회원 관리</span>
+    </div>
+    <div style="padding:1.2rem;font-size:0.83rem;">
+      <p style="color:#1A1D2A;margin-bottom:0.8rem;line-height:1.8;"><a href="/accounts/members/" style="color:#8A6AE0;font-weight:600;">회원 관리</a> 페이지에서 가입 회원의 승인·등급 변경·삭제를 처리합니다.</p>
+      <div style="display:grid;gap:0.5rem;margin-bottom:0.8rem;">
+        <div style="background:#F5F0FF;border-radius:8px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+          <span style="background:#C0645A;color:white;border-radius:6px;padding:3px 8px;font-size:0.75rem;font-weight:700;white-space:nowrap;">슈퍼관리자</span>
+          <span style="color:#4A4D5A;font-size:0.82rem;">모든 기능 사용 가능 (강사 계정)</span>
+        </div>
+        <div style="background:#F5F0FF;border-radius:8px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+          <span style="background:#B8924A;color:white;border-radius:6px;padding:3px 8px;font-size:0.75rem;font-weight:700;white-space:nowrap;">단지관리자</span>
+          <span style="color:#4A4D5A;font-size:0.82rem;">담당 단지 관리 기능 사용 가능</span>
+        </div>
+        <div style="background:#F5F0FF;border-radius:8px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+          <span style="background:#4CAF82;color:white;border-radius:6px;padding:3px 8px;font-size:0.75rem;font-weight:700;white-space:nowrap;">등록회원</span>
+          <span style="color:#4A4D5A;font-size:0.82rem;">수강 등록·예약 가능한 승인된 회원</span>
+        </div>
+        <div style="background:#F5F0FF;border-radius:8px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem;">
+          <span style="background:#AAA;color:white;border-radius:6px;padding:3px 8px;font-size:0.75rem;font-weight:700;white-space:nowrap;">미등록회원</span>
+          <span style="color:#4A4D5A;font-size:0.82rem;">가입 후 승인 전 · 입주민 확인 후 승인</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑥ 쪽지 -->
+  <div id="messages" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#5A6AE0;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">✉️</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">⑥ 쪽지 관리</span>
+    </div>
+    <div style="padding:1.2rem;font-size:0.83rem;color:#1A1D2A;line-height:1.9;">
+      <div style="display:grid;gap:0.5rem;">
+        <div style="background:#EEF0FE;border-radius:8px;padding:0.8rem 1rem;">
+          <strong>📥 수신함</strong> <a href="/messages/inbox/" style="color:#5A6AE0;font-size:0.78rem;margin-left:6px;">/messages/inbox/</a><br>
+          <span style="color:#6A6F80;font-size:0.8rem;">회원 문의 확인·답변. 미읽은 쪽지는 대시보드 알림 배너에 표시됩니다.</span>
+        </div>
+        <div style="background:#EEF0FE;border-radius:8px;padding:0.8rem 1rem;">
+          <strong>📤 발송하기</strong> <a href="/messages/admin/send/" style="color:#5A6AE0;font-size:0.78rem;margin-left:6px;">/messages/admin/send/</a><br>
+          <span style="color:#6A6F80;font-size:0.8rem;">회원을 선택하여 수업 관련 안내·개별 연락을 보낼 수 있습니다.</span>
+        </div>
+        <div style="background:#EEF0FE;border-radius:8px;padding:0.8rem 1rem;">
+          <strong>📬 보낸 쪽지</strong> <a href="/messages/sent/" style="color:#5A6AE0;font-size:0.78rem;margin-left:6px;">/messages/sent/</a><br>
+          <span style="color:#6A6F80;font-size:0.8rem;">강사가 발송한 쪽지 내역을 확인합니다.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑦ 공지 -->
+  <div id="notice" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#C0404A;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">📢</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">⑦ 공지사항</span>
+    </div>
+    <div style="padding:1.2rem;font-size:0.83rem;color:#1A1D2A;line-height:1.9;">
+      <p style="margin-bottom:0.8rem;"><a href="/notices/create/" style="color:#C0404A;font-weight:600;">공지 작성</a>에서 수업 변경·휴강·행사 등을 등록합니다.</p>
+      <div style="display:grid;gap:0.5rem;">
+        <div style="background:#FEF0F0;border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;">
+          📌 <strong>전체 공지</strong> — 모든 회원 공지 목록 최상단에 고정 표시
+        </div>
+        <div style="background:#FEF0F0;border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;">
+          🏷️ <strong>수업별 공지</strong> — 해당 수업 게시판에만 표시 · 수강생도 글 작성 가능
+        </div>
+        <div style="background:#FEF0F0;border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;">
+          📍 <strong>상단 고정</strong> — 체크 시 해당 게시판 최상단에 고정
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑧ 관리사무소 -->
+  <div id="office" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#4A7A9E;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">🏢</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">⑧ 관리사무소 연동</span>
+    </div>
+    <div style="padding:1.2rem;font-size:0.83rem;color:#1A1D2A;line-height:1.9;">
+      <p style="margin-bottom:0.8rem;"><a href="/enrollments/admin/" style="color:#4A7A9E;font-weight:600;">수강등록 관리</a> → 해당 기간 선택 → <strong>관리사무소</strong> 버튼</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        <div style="background:#EEF4F8;border-radius:8px;padding:0.7rem 1rem;text-align:center;font-size:0.82rem;">📊<br>Excel 다운로드</div>
+        <div style="background:#EEF4F8;border-radius:8px;padding:0.7rem 1rem;text-align:center;font-size:0.82rem;">📄<br>PDF 다운로드</div>
+        <div style="background:#EEF4F8;border-radius:8px;padding:0.7rem 1rem;text-align:center;font-size:0.82rem;">📋<br>텍스트 복사</div>
+        <div style="background:#EEF4F8;border-radius:8px;padding:0.7rem 1rem;text-align:center;font-size:0.82rem;">🖨️<br>인쇄</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑨ QR -->
+  <div id="qr" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#2E7D7A;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">📱</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">⑨ QR 코드 활용</span>
+    </div>
+    <div style="padding:1.2rem;font-size:0.83rem;color:#1A1D2A;line-height:1.9;">
+      <p style="margin-bottom:0.8rem;"><a href="/qr/" style="color:#2E7D7A;font-weight:600;">QR 코드 관리</a>에서 단지별 QR을 생성하고 PNG로 다운로드합니다.</p>
+      <div style="background:#E8F5F5;border-radius:8px;padding:0.8rem 1rem;font-size:0.82rem;color:#4A4D5A;">
+        📲 QR 스캔 → 랜딩 → 회원가입 → 로그인 → 수업 예약<br>
+        💡 엘리베이터·커뮤니티 센터 입구 등 눈에 잘 띄는 곳에 부착 권장
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑩ 대시보드 -->
+  <div id="dashboard" style="background:white;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:#1A2A50;padding:0.9rem 1.2rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">📊</span>
+      <span style="font-size:0.95rem;font-weight:700;color:white;">⑩ 대시보드 활용</span>
+    </div>
+    <div style="padding:1.2rem;font-size:0.83rem;color:#1A1D2A;line-height:1.9;">
+      <p style="margin-bottom:0.8rem;"><a href="/admin-dashboard/" style="color:#1A2A50;font-weight:600;">관리자 대시보드</a>에서 사이트 전체 현황을 한눈에 확인합니다.</p>
+      <div style="display:grid;gap:0.5rem;">
+        <div style="background:#F0F2FA;border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;">🔔 <strong>알림 배너</strong> — 변경요청·미읽은쪽지·대기자 즉시 확인</div>
+        <div style="background:#F0F2FA;border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;">📅 <strong>오늘 수업</strong> — 클릭 시 바로 출석 체크 페이지 이동</div>
+        <div style="background:#F0F2FA;border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;">📊 <strong>수업별 통계</strong> — 예약·잔여·대기·변경요청 한눈에 파악</div>
+        <div style="background:#F0F2FA;border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;">📆 <strong>이번 주 일정</strong> — 7일 내 수업 일정 미리 확인</div>
+        <div style="background:#F0F2FA;border-radius:8px;padding:0.7rem 1rem;font-size:0.82rem;">⚡ <strong>빠른 메뉴</strong> — 자주 쓰는 기능 바로 이동</div>
+      </div>
+      <div style="background:#E8EBF5;border-radius:8px;padding:0.8rem 1rem;margin-top:0.8rem;font-size:0.82rem;color:#3A50C8;">
+        💡 매일 수업 전 대시보드를 확인하여 변경 요청과 대기자를 먼저 처리해 주세요.
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
