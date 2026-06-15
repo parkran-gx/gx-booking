@@ -78,6 +78,17 @@ def message_reply(request, pk):
 
 
 @login_required
+def sent_box(request):
+    """관리자 보낸 쪽지함"""
+    if not request.user.profile.is_complex_admin:
+        return redirect('/')
+    sent = Message.objects.filter(
+        sender_name__startswith='[강사]'
+    ).order_by('-created_at')
+    return render(request, 'messages_app/sent_box.html', {'sent': sent})
+
+
+@login_required
 def admin_send(request):
     """관리자가 회원에게 쪽지 보내기"""
     if not request.user.profile.is_complex_admin:

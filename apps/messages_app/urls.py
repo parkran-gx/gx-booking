@@ -8,4 +8,5 @@ urlpatterns = [
     path('<int:pk>/', views.message_detail, name='detail'),
     path('<int:pk>/reply/', views.message_reply, name='reply'),
     path('admin/send/', views.admin_send, name='admin_send'),
+    path('sent/', views.sent_box, name='sent_box'),
 ]

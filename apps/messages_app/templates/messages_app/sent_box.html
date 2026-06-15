@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}보낸 쪽지{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 style="font-size:1.1rem;font-weight:600;margin:0;">보낸 쪽지</h4>
+      <div class="d-flex gap-2">
+        <a href="/messages/inbox/" class="admin-btn">수신함</a>
+        <a href="/messages/admin/send/" class="admin-btn primary">쪽지 보내기</a>
+      </div>
+    </div>
+    {% for msg in sent %}
+    <a href="/messages/{{ msg.pk }}/" class="d-block text-decoration-none mb-2">
+      <div class="gx-card p-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span style="font-weight:600;font-size:0.88rem;color:var(--ink);">
+              {{ msg.sender_name }}
+            </span>
+            {% if msg.gx_class %}
+            <span style="font-size:0.7rem;background:var(--sage-bg);color:var(--sage);border-radius:3px;padding:1px 6px;margin-left:6px;">{{ msg.gx_class.name }}</span>
+            {% endif %}
+            <div style="font-size:0.82rem;color:var(--stone);margin-top:3px;">
+              {{ msg.content|truncatechars:60 }}
+            </div>
+          </div>
+          <span style="font-size:0.72rem;color:var(--mist);white-space:nowrap;margin-left:1rem;">
+            {{ msg.created_at|date:"m/d H:i" }}
+          </span>
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="gx-card p-5 text-center">
+      <i class="fa-regular fa-paper-plane d-block mb-2" style="font-size:1.8rem;color:var(--rose-line);"></i>
+      <p style="font-size:0.85rem;color:var(--mist);margin:0;">보낸 쪽지가 없습니다.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
