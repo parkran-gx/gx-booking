@@ -69,8 +69,8 @@ def message_detail(request, pk):
     profile = request.user.profile
     msg = get_object_or_404(Message, pk=pk)
     # 관리자이거나 본인이 보낸 쪽지만 조회 가능
-    if not profile.is_complex_admin and msg.sender_name != profile.display_name:
-        if not msg.sender_name.startswith('[강사]'):
+    if not profile.is_complex_admin:
+        if msg.sender_name != profile.display_name and not msg.sender_name.startswith('[강사]'):
             messages.error(request, '권한이 없습니다.')
             return redirect('messages_app:inbox')
     if profile.is_complex_admin:
