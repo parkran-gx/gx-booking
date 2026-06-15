@@ -42,7 +42,6 @@
   </div>
 
   <div class="row g-3 mb-4">
-    {% with total_confirmed=0 total_waiting=0 total_cancel=0 %}
     <div class="col-6 col-md-3">
       <div class="stat-card stat-green">
         <div class="stat-num">
@@ -77,7 +76,6 @@
         <i class="fa-solid fa-user stat-icon"></i>
       </div>
     </div>
-    {% endwith %}
   </div>
 
   <div class="row g-3">
@@ -186,7 +184,7 @@
           <span style="font-size:0.75rem;color:#8A8F9E;">처리 필요</span>
         </div>
         <div style="padding:0;">
-          {% set has_req = False %}
+        
           {% for item in dashboard %}
             {% for b in item.obj.bookings.all %}
               {% if b.cancel_requested %}
