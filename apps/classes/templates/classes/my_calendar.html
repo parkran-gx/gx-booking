@@ -24,7 +24,7 @@
     <div class="mt-4">
       <h6 style="font-size:0.85rem;font-weight:600;color:var(--stone);margin-bottom:0.8rem;">다가오는 수업</h6>
       {% for s in upcoming %}
-      <a href="/calendar/session/{{ s.id }}/attendance/" class="d-block text-decoration-none mb-2">
+      <a href="/my-attendance-check/{{ s.id }}/" class="d-block text-decoration-none mb-2">
         <div class="gx-card p-3 d-flex align-items-center gap-3">
           <div style="width:42px;height:42px;border-radius:8px;background:{% if s.is_cancelled %}#FBF0EF{% elif s.substitute_instructor %}#FBF6EE{% else %}var(--sage-bg){% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <i class="fa-regular fa-calendar" style="color:{% if s.is_cancelled %}#E05A5A{% elif s.substitute_instructor %}#F0A842{% else %}var(--sage){% endif %};"></i>

@@ -17,6 +17,7 @@ urlpatterns = [
     path('class-manage/<int:class_id>/edit/', views.class_edit, name='class_edit'),
     path('manual/', views.admin_manual, name='manual'),
     path('my-calendar/', views.my_calendar, name='my_calendar'),
+    path('my-attendance-check/<int:session_id>/', views.my_attendance_check, name='my_attendance_check'),
     path('qr/', views.qr_view, name='qr_view'),
     path('qr/download/', views.qr_generate, name='qr_generate'),
 ]
