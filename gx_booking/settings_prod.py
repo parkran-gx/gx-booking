@@ -1,8 +1,8 @@
 from .settings import *
 
 DEBUG = False
-ALLOWED_HOSTS = ['parkrangx.pythonanywhere.com']
-CSRF_TRUSTED_ORIGINS = ['https://parkrangx.pythonanywhere.com']
+ALLOWED_HOSTS = ['jihyepark.pythonanywhere.com']
+CSRF_TRUSTED_ORIGINS = ['https://jihyepark.pythonanywhere.com']
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
