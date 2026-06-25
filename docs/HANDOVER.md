@@ -12,12 +12,12 @@ docs/HANDOVER.md 참고해주세요.
 
 ## 인프라
 - VS: GitHub Codespaces (parkran-gx/gx-booking)
-- PA: parkrangx.pythonanywhere.com
-- PA 배포: cd ~/gx-booking && git fetch origin && git reset --hard origin/main && touch /var/www/parkrangx_pythonanywhere_com_wsgi.py
+- PA: jihyepark.pythonanywhere.com
+- PA 배포: cd ~/gx-booking && git fetch origin && git reset --hard origin/main && touch /var/www/jihyepark_pythonanywhere_com_wsgi.py
 
 ## 계정 정보
 - GitHub: parkran-gx
-- PythonAnywhere: parkrangx
+- PythonAnywhere: jihyepark
 - 강사 관리자 ID: parkran
 - 강사 관리자 PW: parkran2025!
 - 단지코드: LIVE2025
