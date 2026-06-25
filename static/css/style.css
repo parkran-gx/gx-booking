@@ -527,3 +527,68 @@ button {
   background-position: right 0.75rem center !important;
   background-size: 16px 12px !important;
 }
+
+/* =============================
+   Samsung Browser 패치
+============================= */
+
+/* 삼성 브라우저 폰트 렌더링 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+/* 삼성 브라우저 input 스타일 */
+input::-webkit-input-placeholder {
+  color: var(--mist);
+  opacity: 1;
+}
+textarea::-webkit-input-placeholder {
+  color: var(--mist);
+  opacity: 1;
+}
+
+/* 삼성 브라우저 버튼 클릭 효과 제거 */
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+/* 삼성 브라우저 주소창 높이 대응 */
+@supports (-webkit-touch-callout: none) {
+  .gx-bottom-nav {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* 삼성 브라우저 flex gap 버그 대응 */
+.d-flex.gap-1 > * { margin: 0.15rem; }
+.d-flex.gap-2 > * { margin: 0.25rem; }
+.d-flex.gap-3 > * { margin: 0.5rem; }
+
+/* 삼성 브라우저 overflow hidden 버그 */
+.gx-card {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* 삼성 브라우저 날짜 input */
+input[type="date"],
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+  appearance: none;
+  font-size: 16px;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line-md);
+  border-radius: var(--r-sm);
+  padding: 0.6rem 0.85rem;
+}
+
+/* 삼성 브라우저 select 화살표 */
+select.form-select {
+  background-color: white !important;
+}
